@@ -1,4 +1,4 @@
-import urbanBarnacle from "./assets/urban_barnacle.svg";
+import urbanBarnacle from "./assets/urban_barnacle.png";
 import "./App.css";
 
 function App() {
