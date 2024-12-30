@@ -7,7 +7,6 @@ import {
   DrawerOverlay,
   Flex,
   IconButton,
-  Image,
   Text,
   useColorModeValue,
   useDisclosure,
@@ -15,10 +14,10 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import { FiLogOut, FiMenu } from "react-icons/fi"
 
-// import Logo from "/assets/images/fastapi-logo.svg"
 import type { UserPublic } from "../../client"
 import useAuth from "../../hooks/useAuth"
 import SidebarItems from "./SidebarItems"
+import UserMenu from "./UserMenu"
 
 const Sidebar = () => {
   const queryClient = useQueryClient()
@@ -52,7 +51,6 @@ const Sidebar = () => {
           <DrawerBody py={8}>
             <Flex flexDir="column" justify="space-between">
               <Box>
-                {/* <Image src={Logo} alt="logo" p={6} /> */}
                 <SidebarItems onClose={onClose} />
                 <Flex
                   as="button"
@@ -77,38 +75,34 @@ const Sidebar = () => {
       </Drawer>
 
       {/* Desktop */}
-      <Box
-        bg={bgColor}
-        p={3}
-        h="100vh"
-        position="sticky"
-        top="0"
-        display={{ base: "none", md: "flex" }}
+      <Flex
+        flexDir="row"
+        justify="space-between"
+        align="center"
+        bg={secBgColor}
+        p={4}
+        w="100%"
       >
-        <Flex
-          flexDir="column"
-          justify="space-between"
-          bg={secBgColor}
-          p={4}
-          borderRadius={12}
-        >
-          <Box>
-            {/* <Image src={Logo} alt="Logo" w="180px" maxW="2xs" p={6} /> */}
-            <SidebarItems />
-          </Box>
+        {/* Centered Menu Items */}
+        <Flex justify="center" flex="1">
+          <SidebarItems />
+        </Flex>
+
+        {/* Right Side: Logged in as & User Menu */}
+        <Flex align="center" gap={2}>
           {currentUser?.email && (
             <Text
               color={textColor}
-              noOfLines={2}
+              noOfLines={1}
               fontSize="sm"
-              p={2}
-              maxW="180px"
+              p={1}
             >
               Logged in as: {currentUser.email}
             </Text>
           )}
+          <UserMenu />
         </Flex>
-      </Box>
+      </Flex>
     </>
   )
 }

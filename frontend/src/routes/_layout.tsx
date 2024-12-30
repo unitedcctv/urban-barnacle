@@ -1,8 +1,7 @@
-import { Flex, Spinner } from "@chakra-ui/react"
+import { Flex, Spinner, Box } from "@chakra-ui/react"
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
 
 import Sidebar from "../components/Common/Sidebar"
-import UserMenu from "../components/Common/UserMenu"
 import useAuth, { isLoggedIn } from "../hooks/useAuth"
 
 export const Route = createFileRoute("/_layout")({
@@ -20,16 +19,17 @@ function Layout() {
   const { isLoading } = useAuth()
 
   return (
-    <Flex maxW="large" h="auto" position="relative">
+    <Flex direction="column" h="100vh" w="100%">
       <Sidebar />
-      {isLoading ? (
-        <Flex justify="center" align="center" height="100vh" width="full">
-          <Spinner size="xl" color="ui.main" />
-        </Flex>
-      ) : (
-        <Outlet />
-      )}
-      <UserMenu />
+      <Box as="main" flex="1" w="100%" p={4}>
+        {isLoading ? (
+          <Flex justify="center" align="center" height="100vh" width="full">
+            <Spinner size="xl" color="ui.main" />
+          </Flex>
+        ) : (
+          <Outlet />
+        )}
+      </Box>
     </Flex>
   )
 }
