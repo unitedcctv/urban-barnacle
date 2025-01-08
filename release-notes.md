@@ -7,6 +7,10 @@
 * ✨ Add private, local only, API for usage in E2E tests. PR [#1429](https://github.com/fastapi/full-stack-fastapi-template/pull/1429) by [@patrick91](https://github.com/patrick91).
 * ✨ Migrate to latest openapi-ts. PR [#1430](https://github.com/fastapi/full-stack-fastapi-template/pull/1430) by [@patrick91](https://github.com/patrick91).
 
+### Fixes
+
+* 🧑‍🔧 Replace correct value for 'htmlFor'. PR [#1456](https://github.com/fastapi/full-stack-fastapi-template/pull/1456) by [@wesenbergg](https://github.com/wesenbergg).
+
 ### Refactors
 
 * 🎨 Move `prefix` and `tags` to routers. PR [#1439](https://github.com/fastapi/full-stack-fastapi-template/pull/1439) by [@patrick91](https://github.com/patrick91).
@@ -18,13 +22,19 @@
 * 🔧 Add `ENV PYTHONUNBUFFERED=1` to log output directly to Docker. PR [#1378](https://github.com/fastapi/full-stack-fastapi-template/pull/1378) by [@tiangolo](https://github.com/tiangolo).
 * 💡 Remove unnecessary comment. PR [#1260](https://github.com/fastapi/full-stack-fastapi-template/pull/1260) by [@sebhani](https://github.com/sebhani).
 
+### Upgrades
+
+* ⬆️ Update Dockerfile to use uv version 0.5.11. PR [#1454](https://github.com/fastapi/full-stack-fastapi-template/pull/1454) by [@alejsdev](https://github.com/alejsdev).
+
 ### Docs
 
+* 📝 Update `frontend/README.md` to also remove Playwright when removing Frontend. PR [#1452](https://github.com/fastapi/full-stack-fastapi-template/pull/1452) by [@youben11](https://github.com/youben11).
 * 📝 Update `deployment.md`, instructions to install GitHub Runner in non-root VMs. PR [#1412](https://github.com/fastapi/full-stack-fastapi-template/pull/1412) by [@tiangolo](https://github.com/tiangolo).
 * 📝 Add MailCatcher to `development.md`. PR [#1387](https://github.com/fastapi/full-stack-fastapi-template/pull/1387) by [@tobiase](https://github.com/tobiase).
 
 ### Internal
 
+* ⬆ Bump astral-sh/setup-uv from 4 to 5. PR [#1453](https://github.com/fastapi/full-stack-fastapi-template/pull/1453) by [@dependabot[bot]](https://github.com/apps/dependabot).
 * ⬆ Bump astral-sh/setup-uv from 3 to 4. PR [#1433](https://github.com/fastapi/full-stack-fastapi-template/pull/1433) by [@dependabot[bot]](https://github.com/apps/dependabot).
 * ⬆ Bump tiangolo/latest-changes from 0.3.1 to 0.3.2. PR [#1418](https://github.com/fastapi/full-stack-fastapi-template/pull/1418) by [@dependabot[bot]](https://github.com/apps/dependabot).
 * 👷 Update issue manager workflow. PR [#1398](https://github.com/fastapi/full-stack-fastapi-template/pull/1398) by [@alejsdev](https://github.com/alejsdev).

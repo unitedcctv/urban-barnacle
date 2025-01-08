@@ -5,8 +5,8 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "types": ["vite/client"], 
-
+    "types": ["vite/client"],
+    "typeRoots": ["./node_modules/@types", "./node_modules/@chakra-ui"],
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
