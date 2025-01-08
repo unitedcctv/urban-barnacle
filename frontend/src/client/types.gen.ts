@@ -44,6 +44,13 @@ export type NewPassword = {
   new_password: string
 }
 
+export type PrivateUserCreate = {
+  email: string
+  password: string
+  full_name: string
+  is_verified?: boolean
+}
+
 export type Token = {
   access_token: string
   token_type?: string
@@ -58,6 +65,7 @@ export type UserCreate = {
   email: string
   is_active?: boolean
   is_superuser?: boolean
+  has_privileges?: boolean
   full_name?: string | null
   password: string
 }
@@ -66,6 +74,7 @@ export type UserPublic = {
   email: string
   is_active?: boolean
   is_superuser?: boolean
+  has_privileges?: boolean
   full_name?: string | null
   id: string
 }
@@ -85,6 +94,7 @@ export type UserUpdate = {
   email?: string | null
   is_active?: boolean
   is_superuser?: boolean
+  has_privileges?: boolean
   full_name?: string | null
   password?: string | null
 }
@@ -157,6 +167,12 @@ export type LoginRecoverPasswordHtmlContentData = {
 }
 
 export type LoginRecoverPasswordHtmlContentResponse = string
+
+export type PrivateCreateUserData = {
+  requestBody: PrivateUserCreate
+}
+
+export type PrivateCreateUserResponse = UserPublic
 
 export type UsersReadUsersData = {
   limit?: number
