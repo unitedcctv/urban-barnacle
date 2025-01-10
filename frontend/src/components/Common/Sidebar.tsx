@@ -83,12 +83,10 @@ const Sidebar = () => {
         p={4}
         w="100%"
       >
-        {/* Centered Menu Items */}
         <Flex justify="center" flex="1">
           <SidebarItems />
         </Flex>
 
-        {/* Right Side: Logged in as & User Menu */}
         <Flex align="center" gap={2}>
           {currentUser?.email && (
             <Text
@@ -100,7 +98,6 @@ const Sidebar = () => {
               Logged in as: {currentUser.email}
             </Text>
           )}
-          <UserMenu />
         </Flex>
       </Flex>
     </>

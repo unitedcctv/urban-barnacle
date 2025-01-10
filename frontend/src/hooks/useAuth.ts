@@ -33,7 +33,7 @@ const useAuth = () => {
       UsersService.registerUser({ requestBody: data }),
 
     onSuccess: () => {
-      navigate({ to: "/login" })
+      // TODO sign in the user after successful sign up
       showToast(
         "Account created.",
         "Your account has been created successfully.",
@@ -83,7 +83,6 @@ const useAuth = () => {
 
   const logout = () => {
     localStorage.removeItem("access_token")
-    navigate({ to: "/login" })
   }
 
   return {
