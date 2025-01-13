@@ -61,6 +61,15 @@ class UsersPublic(SQLModel):
 class ItemBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=255)
+    images: str | None = Field(default=None)  # Store as comma-separated string
+    model: str | None = Field(default=None)
+    certificate: str | None = Field(default=None)
+
+    def get_images(self) -> list[str]:
+        return self.images.split(',') if self.images else []
+
+    def set_images(self, images: list[str]):
+        self.images = ','.join(images)
 
 
 # Properties to receive on item creation

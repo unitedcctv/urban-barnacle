@@ -84,6 +84,7 @@ function ItemsTable() {
                 <Box className="grid-item" key={item.id} onClick={editUserModal.onOpen}>
                   {/* <img src={item.image} alt={item.title} /> */}
                   <h3>{item.title}</h3>
+                  <p>{item.description}</p>
                   <span className="likes">{item.id}</span>
                 </Box>
               ))}

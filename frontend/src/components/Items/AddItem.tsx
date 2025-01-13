@@ -21,6 +21,7 @@ const AddItem = () => {
     register,
     handleSubmit,
     reset,
+    setValue, 
     formState: { errors, isSubmitting },
   } = useForm<ItemCreate>({
     mode: "onBlur",
@@ -51,36 +52,103 @@ const AddItem = () => {
   }
 
   return (
-    <>
-      <Box as="form" onSubmit={handleSubmit(onSubmit)}>
-        <FormControl isRequired isInvalid={!!errors.title}>
-          <FormLabel htmlFor="title">Title</FormLabel>
-          <Input
-            id="title"
-            {...register("title", {
-              required: "Title is required.",
-            })}
-            placeholder="Title"
-            type="text"
-          />
-          {errors.title && (
-            <FormErrorMessage>{errors.title.message}</FormErrorMessage>
-          )}
-        </FormControl>
-        <FormControl mt={4}>
-          <FormLabel htmlFor="description">Description</FormLabel>
-          <Input
-            id="description"
-            {...register("description")}
-            placeholder="Description"
-            type="text"
-          />
-        </FormControl>
-        <Button variant="primary" type="submit" isLoading={isSubmitting}>
-          Save
-        </Button>
-      </Box>
-    </>
+<>
+  <Box as="form" onSubmit={handleSubmit(onSubmit)}>
+    {/* Title Field */}
+    <FormControl isRequired isInvalid={!!errors.title}>
+      <FormLabel htmlFor="title">Title</FormLabel>
+      <Input
+        id="title"
+        {...register("title", {
+          required: "Title is required.",
+        })}
+        placeholder="Title"
+        type="text"
+      />
+      {errors.title && (
+        <FormErrorMessage>{errors.title.message}</FormErrorMessage>
+      )}
+    </FormControl>
+
+    {/* Description Field */}
+    <FormControl mt={4}>
+      <FormLabel htmlFor="description">Description</FormLabel>
+      <Input
+        id="description"
+        {...register("description")}
+        placeholder="Description"
+        type="text"
+      />
+    </FormControl>
+
+    {/* Model Field */}
+    <FormControl mt={4}>
+      <FormLabel htmlFor="model">Model</FormLabel>
+      <Input
+        id="model"
+        {...register("model")}
+        placeholder="Model"
+        type="text"
+      />
+    </FormControl>
+
+    {/* Certificate Field */}
+    <FormControl mt={4}>
+      <FormLabel htmlFor="certificate">Certificate</FormLabel>
+      <Input
+        id="certificate"
+        {...register("certificate")}
+        placeholder="Certificate"
+        type="text"
+      />
+    </FormControl>
+
+    {/* Images Upload Field */}
+    <FormControl mt={4}>
+      <FormLabel htmlFor="images">Images</FormLabel>
+      <Input
+        id="images"
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={async (e) => {
+          if (e.target.files) {
+            const uploadedUrls: string = "";
+            for (const file of e.target.files) {
+              const formData = new FormData();
+              formData.append("file", file);
+
+              try {
+                const response = await fetch(
+                  "https://your-api-endpoint-to-upload-images.com/upload", // Update this to your actual API endpoint
+                  {
+                    method: "POST",
+                    body: formData,
+                  }
+                );
+                if (!response.ok) {
+                  throw new Error("Failed to upload image");
+                }
+                const data = await response.json();
+                uploadedUrls.concat(",", data.url); // Assume the response contains the URL of the uploaded image
+              } catch (error) {
+                console.error("Error uploading image:", error);
+              }
+            }
+
+            // Save the uploaded image URLs to the form state
+            setValue("images", uploadedUrls); // Use your form library's `setValue` method
+          }
+        }}
+      />
+    </FormControl>
+
+    {/* Submit Button */}
+    <Button variant="primary" type="submit" isLoading={isSubmitting}>
+      Save
+    </Button>
+  </Box>
+</>
   )
 }
 
