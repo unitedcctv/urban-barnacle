@@ -31,6 +31,7 @@ const AddItem = () => {
       description: "",
     },
   })
+  const apiUrl = import.meta.env.VITE_API_URL
 
   const mutation = useMutation({
     mutationFn: (data: ItemCreate) =>
@@ -120,7 +121,7 @@ const AddItem = () => {
 
               try {
                 const response = await fetch(
-                  "https://your-api-endpoint-to-upload-images.com/upload", // Update this to your actual API endpoint
+                  `${apiUrl}/api/v1/upload`,
                   {
                     method: "POST",
                     body: formData,

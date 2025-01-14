@@ -11,8 +11,6 @@ import { z } from "zod"
 import { ItemsService } from "../../client"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
 
-import "./index.css";
-
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
   validateSearch: (search) => itemsSearchSchema.parse(search),

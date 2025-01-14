@@ -4,21 +4,26 @@ from botocore.exceptions import BotoCoreError, ClientError
 import os
 from pathlib import Path
 from app.core.config import settings
+from logging import getLogger
 
 router = APIRouter()
 
+logging = getLogger(__name__)
+logging.setLevel("INFO")
+
 async def save_to_s3(file: UploadFile) -> str:
     """Save the file to an S3 bucket and return the file's URL."""
-    s3_client = boto3.client("s3")
-    bucket_name = "your-s3-bucket-name"
+    logging.info("Uploading file to S3")
+    # s3_client = boto3.client("s3")
+    # bucket_name = "your-s3-bucket-name"
 
-    try:
-        s3_key = f"uploads/{file.filename}"
-        s3_client.upload_fileobj(file.file, bucket_name, s3_key)
-        s3_url = f"https://{bucket_name}.s3.amazonaws.com/{s3_key}"
-        return s3_url
-    except (BotoCoreError, ClientError) as e:
-        raise HTTPException(status_code=500, detail="Failed to upload file to S3")
+    # try:
+    #     s3_key = f"uploads/{file.filename}"
+    #     s3_client.upload_fileobj(file.file, bucket_name, s3_key)
+    #     s3_url = f"https://{bucket_name}.s3.amazonaws.com/{s3_key}"
+    #     return s3_url
+    # except (BotoCoreError, ClientError) as e:
+    #     raise HTTPException(status_code=500, detail="Failed to upload file to S3")
 
 async def save_to_local(file: UploadFile) -> str:
     """Save the file to a local folder and return the file's local path."""
