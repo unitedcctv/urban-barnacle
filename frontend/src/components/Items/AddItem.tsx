@@ -5,7 +5,11 @@ import {
   FormLabel,
   Input,
   Box,
+  Text,
+  UnorderedList,
+  ListItem,
 } from "@chakra-ui/react"
+import React from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
@@ -29,9 +33,13 @@ const AddItem = () => {
     defaultValues: {
       title: "",
       description: "",
+      model: "",
+      certificate: "",
+      images: "",
     },
   })
   const apiUrl = import.meta.env.VITE_API_URL
+  const [fileList, setFileList] = React.useState<string[]>([]);
 
   const mutation = useMutation({
     mutationFn: (data: ItemCreate) =>
@@ -114,34 +122,55 @@ const AddItem = () => {
         multiple
         onChange={async (e) => {
           if (e.target.files) {
-            const uploadedUrls: string = "";
+            const fileNames: string[] = [];
+            const urls: string[] = [];
+
             for (const file of e.target.files) {
               const formData = new FormData();
               formData.append("file", file);
 
               try {
-                const response = await fetch(
-                  `${apiUrl}/api/v1/upload`,
-                  {
-                    method: "POST",
-                    body: formData,
-                  }
-                );
+                const response = await fetch(`${apiUrl}/api/v1/images`, {
+                  method: "POST",
+                  body: formData,
+                });
                 if (!response.ok) {
                   throw new Error("Failed to upload image");
                 }
                 const data = await response.json();
-                uploadedUrls.concat(",", data.url); // Assume the response contains the URL of the uploaded image
+                const uploadedUrl = data.url;
+
+                // Save the full URL
+                urls.push(uploadedUrl);
+
+                // Extract and save the file name without the suffix
+                const fileNameWithSuffix = uploadedUrl.split("/").pop();
+                const fileNameWithoutSuffix = fileNameWithSuffix?.split(".")[0];
+                if (fileNameWithoutSuffix) {
+                  fileNames.push(fileNameWithoutSuffix);
+                }
               } catch (error) {
                 console.error("Error uploading image:", error);
               }
             }
 
-            // Save the uploaded image URLs to the form state
-            setValue("images", uploadedUrls); // Use your form library's `setValue` method
+            // Update the file list and comma-separated URLs
+            setFileList(fileNames);
+            const urlsString = urls.join(",");
+            // Save the URLs in the form state for submission
+            setValue("images", urlsString);
           }
         }}
       />
+      {/* Render the list of file names */}
+      <Box mt={4}>
+        <Text fontWeight="bold">Uploaded Files:</Text>
+        <UnorderedList>
+          {fileList.map((fileName, index) => (
+            <ListItem key={index}>{fileName}</ListItem>
+          ))}
+        </UnorderedList>
+      </Box>
     </FormControl>
 
     {/* Submit Button */}
