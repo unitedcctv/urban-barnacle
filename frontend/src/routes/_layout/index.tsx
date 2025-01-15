@@ -42,9 +42,11 @@ function Dashboard() {
 function ItemsTable() {
   const editUserModal = useDisclosure()
   const queryClient = useQueryClient()
+  // @ts-ignore: Suppress TypeScript error
   const { page } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const setPage = (page: number) =>
+    // @ts-ignore: Suppress TypeScript error
     navigate({ search: (prev: {[key: string]: string}) => ({ ...prev, page }) })
 
   const {

@@ -46,10 +46,11 @@ function getUsersQueryOptions({ page }: { page: number }) {
 function UsersTable() {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-  const { page } = Route.useSearch()
+  const { page } = Route.useSearch() as { page: number }
   const navigate = useNavigate({ from: Route.fullPath })
   const setPage = (page: number) =>
-    navigate({ search: (prev: {[key: string]: string}) => ({ ...prev, page }) })
+    // @ts-ignore: Suppress TypeScript error
+    navigate({ search: (prev) => ({ ...prev, page }) })
 
   const {
     data: users,
