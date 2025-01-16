@@ -11,6 +11,52 @@ router = APIRouter(prefix="/images", tags=["images"])
 logging = getLogger(__name__)
 logging.setLevel("INFO")
 
+@router.post("/")
+async def upload_file(file: UploadFile = File(...)):
+    if settings.ENVIRONMENT == "production":
+        # Save to S3 in production
+        return {"url": await save_to_s3(file)}
+    else:
+        # Save to local folder in development
+        return {"url": await save_to_local(file)}
+
+@router.delete("/")
+async def delete_file(file_url: str):
+    if settings.ENVIRONMENT == "production":
+        # Delete the file from S3 in production
+        pass
+    else:
+        # Delete the file from the local folder in development
+        file_path = Path(file_url)
+        try:
+            os.remove(file_path)
+            return {"message": "File deleted successfully"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Failed to delete file")
+        
+@router.get("/")
+async def get_files():
+    if settings.ENVIRONMENT == "production":
+        # Get files from S3 in production
+        pass
+    else:
+        # Get files from the local folder in development
+        upload_dir = Path("./uploads")
+        files = [file.name for file in upload_dir.iterdir()]
+        return {"files": files}
+    
+@router.get("/{file_name}")
+async def get_file(file_name: str):
+    if settings.ENVIRONMENT == "production":
+        # Get the file from S3 in production
+        pass
+    else:
+        # Get the file from the local folder in development
+        file_path = Path(f"./uploads/{file_name}")
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+        return {"file_path": str(file_path)}
+
 async def save_to_s3(file: UploadFile) -> str:
     """Save the file to an S3 bucket and return the file's URL."""
     logging.info("Uploading file to S3")
@@ -37,15 +83,4 @@ async def save_to_local(file: UploadFile) -> str:
         return str(file_path)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to save file locally")
-
-@router.post("/")
-async def upload_file(file: UploadFile = File(...)):
-    if settings.ENVIRONMENT != "local":
-        # Save to S3 in production
-        return {"url": await save_to_s3(file)}
-    else:
-        # Save to local folder in development
-        return {"url": await save_to_local(file)}
-
-
 

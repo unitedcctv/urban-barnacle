@@ -11,7 +11,8 @@ import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, redirect } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type ApiError, LoginService } from "../client"
+import { type ApiError } from "../client/core/ApiError"
+import { loginRecoverPassword } from "../client/sdk.gen"
 import { isLoggedIn } from "../hooks/useAuth"
 import useCustomToast from "../hooks/useCustomToast"
 import { emailPattern, handleError } from "../utils"
@@ -41,7 +42,7 @@ function RecoverPassword() {
   const showToast = useCustomToast()
 
   const recoverPassword = async (data: FormData) => {
-    await LoginService.recoverPassword({
+    await loginRecoverPassword({
       email: data.email,
     })
   }

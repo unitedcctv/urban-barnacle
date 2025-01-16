@@ -21,7 +21,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   let finalItems = items
 
   finalItems = currentUser?.is_superuser
-    ? [...finalItems, { icon: FiUsers, title: "Admin", path: "/admin" }, { icon: FiTool, title: "Create Item", path: "/items" }]
+    ? [...finalItems, { icon: FiUsers, title: "Admin", path: "/admin" }, { icon: FiTool, title: "Create Item", path: "/edititems" }]
     : finalItems;
 
   finalItems = currentUser?.is_active

@@ -1,55 +1,54 @@
+
+
+// This component is used to add a new item. It uses the ImagesUploader component to upload images.
 import {
   Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  Box,
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
-
-import {
-  type ApiError,
-  type ItemPublic,
-  type ItemUpdate,
-  ItemsService,
-} from "../../client"
+import { ItemPublic } from "../../client"
+import { type ItemCreate } from "../../client/types.gen"
+import { type ApiError } from "../../client/core/ApiError"
+import { itemsCreateItem } from "../../client/sdk.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
 
-interface EditItemProps {
-  item: ItemPublic
-  isOpen: boolean
-  onClose: () => void
-}
+import ImagesUploader from "./ImagesUploader"
 
-const EditItem = ({ item, isOpen, onClose }: EditItemProps) => {
+const EditItem = ({ item }: { item: ItemPublic }) => {
   const queryClient = useQueryClient()
   const showToast = useCustomToast()
+
   const {
     register,
     handleSubmit,
     reset,
-    formState: { isSubmitting, errors, isDirty },
-  } = useForm<ItemUpdate>({
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ItemCreate>({
     mode: "onBlur",
     criteriaMode: "all",
-    defaultValues: item,
+    defaultValues: {
+      title: item?.title || "",
+      description: item?.description || "",
+      model: item?.model || "",
+      certificate: item?.certificate || "",
+      images: item?.images || "",
+    },
   })
 
+  // React Query mutation for creating the item
   const mutation = useMutation({
-    mutationFn: (data: ItemUpdate) =>
-      ItemsService.updateItem({ id: item.id, requestBody: data }),
+    mutationFn: (data: ItemCreate) =>
+      itemsCreateItem({ requestBody: data }),
     onSuccess: () => {
-      showToast("Success!", "Item updated successfully.", "success")
-      onClose()
+      showToast("Success!", "Item created successfully.", "success")
+      reset() // resets the form
     },
     onError: (err: ApiError) => {
       handleError(err, showToast)
@@ -59,65 +58,75 @@ const EditItem = ({ item, isOpen, onClose }: EditItemProps) => {
     },
   })
 
-  const onSubmit: SubmitHandler<ItemUpdate> = async (data) => {
+  // Called whenever the child (ImagesUploader) updates the image order or uploads
+  const handleImagesChange = (commaSeparatedUrls: string) => {
+    // Use react-hook-form to set the "images" field
+    setValue("images", commaSeparatedUrls)
+  }
+
+  const onSubmit: SubmitHandler<ItemCreate> = (data) => {
     mutation.mutate(data)
   }
 
-  const onCancel = () => {
-    reset()
-    onClose()
-  }
-
   return (
-    <>
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        size={{ base: "sm", md: "md" }}
-        isCentered
-      >
-        <ModalOverlay />
-        <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>Edit Item</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <FormControl isInvalid={!!errors.title}>
-              <FormLabel htmlFor="title">Title</FormLabel>
-              <Input
-                id="title"
-                {...register("title", {
-                  required: "Title is required",
-                })}
-                type="text"
-              />
-              {errors.title && (
-                <FormErrorMessage>{errors.title.message}</FormErrorMessage>
-              )}
-            </FormControl>
-            <FormControl mt={4}>
-              <FormLabel htmlFor="description">Description</FormLabel>
-              <Input
-                id="description"
-                {...register("description")}
-                placeholder="Description"
-                type="text"
-              />
-            </FormControl>
-          </ModalBody>
-          <ModalFooter gap={3}>
-            <Button
-              variant="primary"
-              type="submit"
-              isLoading={isSubmitting}
-              isDisabled={!isDirty}
-            >
-              Save
-            </Button>
-            <Button onClick={onCancel}>Cancel</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+    <Box as="form" onSubmit={handleSubmit(onSubmit)}>
+      {/* Title Field */}
+      <FormControl isRequired isInvalid={!!errors.title}>
+        <FormLabel htmlFor="title">Title</FormLabel>
+        <Input
+          id="title"
+          {...register("title", {
+            required: "Title is required.",
+          })}
+          placeholder="Title"
+          type="text"
+        />
+        {errors.title && (
+          <FormErrorMessage>{errors.title.message}</FormErrorMessage>
+        )}
+      </FormControl>
+
+      {/* Description Field */}
+      <FormControl mt={4}>
+        <FormLabel htmlFor="description">Description</FormLabel>
+        <Input
+          id="description"
+          {...register("description")}
+          placeholder="Description"
+          type="text"
+        />
+      </FormControl>
+
+      {/* Model Field */}
+      <FormControl mt={4}>
+        <FormLabel htmlFor="model">Model</FormLabel>
+        <Input
+          id="model"
+          {...register("model")}
+          placeholder="Model"
+          type="text"
+        />
+      </FormControl>
+
+      {/* Certificate Field */}
+      <FormControl mt={4}>
+        <FormLabel htmlFor="certificate">Certificate</FormLabel>
+        <Input
+          id="certificate"
+          {...register("certificate")}
+          placeholder="Certificate"
+          type="text"
+        />
+      </FormControl>
+
+      {/* Images Uploader (child component) */}
+      <ImagesUploader onImagesChange={handleImagesChange} />
+
+      {/* Submit Button */}
+      <Button variant="primary" type="submit" isLoading={isSubmitting} mt={4}>
+        Save
+      </Button>
+    </Box>
   )
 }
 

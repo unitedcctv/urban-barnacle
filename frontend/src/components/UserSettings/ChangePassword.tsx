@@ -12,7 +12,9 @@ import {
 import { useMutation } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type ApiError, type UpdatePassword, UsersService } from "../../client"
+import { type UpdatePassword} from "../../client/types.gen"
+import { type ApiError } from "../../client/core/ApiError"
+import { usersUpdatePasswordMe } from "../../client/sdk.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { confirmPasswordRules, handleError, passwordRules } from "../../utils"
 
@@ -36,7 +38,7 @@ const ChangePassword = () => {
 
   const mutation = useMutation({
     mutationFn: (data: UpdatePassword) =>
-      UsersService.updatePasswordMe({ requestBody: data }),
+      usersUpdatePasswordMe({ requestBody: data }),
     onSuccess: () => {
       showToast("Success!", "Password updated successfully.", "success")
       reset()

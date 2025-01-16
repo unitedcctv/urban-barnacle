@@ -11,7 +11,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useForm } from "react-hook-form"
 
-import { type ApiError, UsersService } from "../../client"
+import { type ApiError } from "../../client/core/ApiError"
+import { usersDeleteUserMe } from "../../client/sdk.gen"
 import useAuth from "../../hooks/useAuth"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
@@ -32,7 +33,7 @@ const DeleteConfirmation = ({ isOpen, onClose }: DeleteProps) => {
   const { logout } = useAuth()
 
   const mutation = useMutation({
-    mutationFn: () => UsersService.deleteUserMe(),
+    mutationFn: () => usersDeleteUserMe(),
     onSuccess: () => {
       showToast(
         "Success",

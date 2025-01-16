@@ -2,13 +2,13 @@ import {
   Container,
   SkeletonText,
   Box,
-  useDisclosure
 } from "@chakra-ui/react"
+import ItemShow from "../../components/Items/ItemShow.tsx"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { z } from "zod"
-import { ItemsService } from "../../client"
+import { itemsReadItems } from "../../client/sdk.gen.ts"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
 
 export const Route = createFileRoute("/_layout/")({
@@ -25,7 +25,7 @@ const PER_PAGE = 20
 function getItemsQueryOptions({ page }: { page: number }) {
   return {
     queryFn: () =>
-      ItemsService.readItems({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
+      itemsReadItems({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
     queryKey: ["items", { page }],
   }
 }
@@ -40,7 +40,6 @@ function Dashboard() {
   )
 }
 function ItemsTable() {
-  const editUserModal = useDisclosure()
   const queryClient = useQueryClient()
   // @ts-ignore: Suppress TypeScript error
   const { page } = Route.useSearch()
@@ -81,12 +80,7 @@ function ItemsTable() {
           ) : (
             <Box className="grid-container">
               {items?.data.map((item) => (
-                <Box className="grid-item" key={item.id} onClick={editUserModal.onOpen}>
-                  {/* <img src={item.image} alt={item.title} /> */}
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                  <span className="likes">{item.id}</span>
-                </Box>
+                <ItemShow key={item.id} item={item} />
               ))}
             </Box>
           )}
