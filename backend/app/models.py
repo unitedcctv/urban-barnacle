@@ -122,3 +122,11 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
+class ImageUpload():
+    image: str
+    item_id: uuid.UUID
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    image_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)

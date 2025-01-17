@@ -1,7 +1,7 @@
 import { Flex, Icon, Text, useColorModeValue } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { FiBriefcase, FiTool, FiSettings, FiUsers, FiLogIn } from "react-icons/fi"
+import { FiBriefcase, FiTool, FiSettings, FiUsers } from "react-icons/fi"
 
 import type { UserPublic } from "../../client"
 
@@ -24,9 +24,8 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
     ? [...finalItems, { icon: FiUsers, title: "Admin", path: "/admin" }, { icon: FiTool, title: "Create Item", path: "/edititems" }]
     : finalItems;
 
-  finalItems = currentUser?.is_active
-    ? [...finalItems, { icon: FiSettings, title: "User Settings", path: "/settings" }, { icon: FiLogIn, title: "Logout", path: "/logout" }]
-    : [...finalItems, { icon: FiLogIn, title: "Login", path: "/login" }];
+  if (currentUser?.is_active)
+    finalItems = [...finalItems, { icon: FiSettings, title: "User Settings", path: "/settings" }]
 
   const listItems = finalItems.map(({ icon, title, path }) => (
     <Flex

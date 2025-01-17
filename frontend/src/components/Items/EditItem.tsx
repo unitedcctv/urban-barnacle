@@ -30,10 +30,12 @@ const EditItem = ({ item }: { item: ItemPublic }) => {
     reset,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<ItemCreate>({
+  } = useForm<ItemCreate | ItemPublic>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
+      id: item?.id || "",
+      owner_id: item?.owner_id || "",
       title: item?.title || "",
       description: item?.description || "",
       model: item?.model || "",
@@ -119,8 +121,11 @@ const EditItem = ({ item }: { item: ItemPublic }) => {
         />
       </FormControl>
 
-      {/* Images Uploader (child component) */}
-      <ImagesUploader onImagesChange={handleImagesChange} />
+      <ImagesUploader
+        onImagesChange={handleImagesChange}
+        item_id={item?.id ?? ""}
+        owner_id={item?.owner_id ?? ""}
+      />
 
       {/* Submit Button */}
       <Button variant="primary" type="submit" isLoading={isSubmitting} mt={4}>

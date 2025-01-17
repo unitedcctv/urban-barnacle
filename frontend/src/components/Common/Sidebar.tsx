@@ -17,6 +17,7 @@ import { FiLogOut, FiMenu } from "react-icons/fi"
 import type { UserPublic } from "../../client"
 import useAuth from "../../hooks/useAuth"
 import SidebarItems from "./SidebarItems"
+import LogInOut from "./LogInOut"
 
 const Sidebar = () => {
   const queryClient = useQueryClient()
@@ -81,8 +82,9 @@ const Sidebar = () => {
         p={4}
         w="100%"
       >
-        <Flex justify="center" flex="1">
+        <Flex justify="center">
           <SidebarItems />
+          <LogInOut />
         </Flex>
 
         <Flex align="center" gap={2}>

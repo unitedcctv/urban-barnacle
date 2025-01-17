@@ -33,7 +33,9 @@ type UploadedFile = {
 }
 
 interface ImagesUploaderProps {
-  onImagesChange: (urls: string) => void
+  onImagesChange: (urls: string) => void;
+  item_id: string;
+  owner_id: string;
 }
 
 const ImagesUploader: React.FC<ImagesUploaderProps> = ({ onImagesChange }) => {
