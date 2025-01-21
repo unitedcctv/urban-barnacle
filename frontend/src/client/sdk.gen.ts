@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, PrivateCreateUserData, PrivateCreateUserResponse } from './types.gen';
+import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, ImagesUploadFileData, ImagesUploadFileResponse, ImagesDeleteFileData, ImagesDeleteFileResponse, ImagesGetFilesResponse, ImagesGetFileData, ImagesGetFileResponse, PrivateCreateUserData, PrivateCreateUserResponse } from './types.gen';
 
 /**
  * Login Access Token
@@ -430,6 +430,77 @@ export const itemsDeleteItem = (data: ItemsDeleteItemData): CancelablePromise<It
         url: '/api/v1/items/{id}',
         path: {
             id: data.id
+        },
+        errors: {
+            422: 'Validation Error'
+        }
+    });
+};
+
+/**
+ * Upload File
+ * @param data The data for the request.
+ * @param data.formData
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const imagesUploadFile = (data: ImagesUploadFileData): CancelablePromise<ImagesUploadFileResponse> => {
+    return __request(OpenAPI, {
+        method: 'POST',
+        url: '/api/v1/images/',
+        formData: data.formData,
+        mediaType: 'multipart/form-data',
+        errors: {
+            422: 'Validation Error'
+        }
+    });
+};
+
+/**
+ * Delete File
+ * @param data The data for the request.
+ * @param data.fileUrl
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const imagesDeleteFile = (data: ImagesDeleteFileData): CancelablePromise<ImagesDeleteFileResponse> => {
+    return __request(OpenAPI, {
+        method: 'DELETE',
+        url: '/api/v1/images/',
+        query: {
+            file_url: data.fileUrl
+        },
+        errors: {
+            422: 'Validation Error'
+        }
+    });
+};
+
+/**
+ * Get Files
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const imagesGetFiles = (): CancelablePromise<ImagesGetFilesResponse> => {
+    return __request(OpenAPI, {
+        method: 'GET',
+        url: '/api/v1/images/'
+    });
+};
+
+/**
+ * Get File
+ * @param data The data for the request.
+ * @param data.fileName
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const imagesGetFile = (data: ImagesGetFileData): CancelablePromise<ImagesGetFileResponse> => {
+    return __request(OpenAPI, {
+        method: 'GET',
+        url: '/api/v1/images/{file_name}',
+        path: {
+            file_name: data.fileName
         },
         errors: {
             422: 'Validation Error'

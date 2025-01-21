@@ -8,9 +8,9 @@ import {
   UnorderedList,
   ListItem,
   useToast,
+  Button,
 } from "@chakra-ui/react"
 
-// -------------- dnd-kit imports --------------
 import {
   DndContext,
   PointerSensor,
@@ -26,6 +26,10 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { ItemPublic } from "../../client"
+
+// Import your SDK methods here
+import { imagesUploadFile, imagesDeleteFile } from "../../client/sdk.gen"
 
 type UploadedFile = {
   name: string
@@ -33,73 +37,84 @@ type UploadedFile = {
 }
 
 interface ImagesUploaderProps {
-  onImagesChange: (urls: string) => void;
-  item_id: string;
-  owner_id: string;
+  onImagesChange: (urls: string) => void
+  _item: ItemPublic
 }
 
-const ImagesUploader: React.FC<ImagesUploaderProps> = ({ onImagesChange }) => {
+const ImagesUploader: React.FC<ImagesUploaderProps> = ({
+  onImagesChange,
+  _item,
+}) => {
   const toast = useToast()
-  const [files, setFiles] = React.useState<UploadedFile[]>([])
 
-  // For simplicity, define apiUrl here; you can also pass it as a prop or import from environment
-  const apiUrl = import.meta.env.VITE_API_URL
+  // Initialize from existing images (comma-separated)
+  const images = _item.images ? _item.images.split(",") : []
+  const [files, setFiles] = React.useState<UploadedFile[]>(
+    images.map((url) => ({
+      name: url.split("/").pop()?.split(".")[0] ?? "",
+      url,
+    }))
+  )
 
-  // -- DRAG AND DROP LOGIC --
-
-  // 1) Create "sensors" to detect pointer and other inputs
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // drag starts after pointer moves 5px
+        distance: 5,
       },
     })
-    // you could add KeyboardSensor, etc. here
   )
 
-  // 2) The handleDragEnd function: reorders local files and calls the parent
+  // Handle reordering via drag and drop
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-
-    // If dropped outside or in the same position, do nothing
     if (!over || active.id === over.id) return
 
     const oldIndex = files.findIndex((file) => file.url === active.id)
     const newIndex = files.findIndex((file) => file.url === over.id)
 
     setFiles((prevFiles) => {
-      // Use @dnd-kit/sortable's arrayMove
       const newArray = arrayMove(prevFiles, oldIndex, newIndex)
-      // Update the parent with the new comma-separated URLs
       onImagesChange(newArray.map((f) => f.url).join(","))
       return newArray
     })
   }
 
-  // -- FILE UPLOAD LOGIC --
+  // Handle uploading files
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
 
-    const updatedFiles: UploadedFile[] = []
+    // Check for invalid files before uploading
     for (const file of e.target.files) {
-      const formData = new FormData()
-      formData.append("file", file)
-
-      try {
-        const response = await fetch(`${apiUrl}/api/v1/images`, {
-          method: "POST",
-          body: formData,
+      const fileName = file.name
+      if (
+        fileName.includes(",") ||
+        fileName.includes("/") ||
+        fileName.length > 100
+      ) {
+        toast({
+          title: "Invalid File Name",
+          description: `The file name "${fileName}" is not allowed.
+              Please ensure it does not contain commas, slashes,
+              or exceed 100 characters.`,
+          status: "error",
+          duration: 6000,
+          isClosable: true,
         })
-        if (!response.ok) {
-          throw new Error("Failed to upload image")
-        }
-        const data = await response.json()
-        const uploadedUrl = data.url
+        // Reset the file input so user must re-choose.
+        e.target.value = ""
+        return
+      }
+    }
 
-        // Extract the file name (without suffix if desired)
+    // If all files are valid, proceed with uploading
+    const updatedFiles: UploadedFile[] = []
+
+    for (const file of e.target.files) {
+      try {
+        const response = await imagesUploadFile({ formData: { file } }) as { url: string }
+        const uploadedUrl = response.url
         const fileNameWithSuffix = uploadedUrl.split("/").pop()
-        const fileNameWithoutSuffix =
-          fileNameWithSuffix?.split(".")[0] ?? ""
+        const fileNameWithoutSuffix = fileNameWithSuffix?.split(".")[0] ?? ""
 
         updatedFiles.push({
           name: fileNameWithoutSuffix,
@@ -117,14 +132,38 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({ onImagesChange }) => {
       }
     }
 
-    setFiles((prev) => {
-      const merged = [...prev, ...updatedFiles]
-      // Build new comma-separated string
-      const urlsString = merged.map((f) => f.url).join(",")
-      // Notify parent
-      onImagesChange(urlsString)
-      return merged
-    })
+    if (updatedFiles.length > 0) {
+      setFiles((prev) => {
+        const merged = [...prev, ...updatedFiles]
+        const urlsString = merged.map((f) => f.url).join(",")
+        onImagesChange(urlsString)
+        return merged
+      })
+    }
+  }
+
+  // Handle deleting a file
+  const handleDeleteFile = async (fileToDelete: UploadedFile) => {
+    try {
+      // Call the SDK function to delete the file on the server
+      await imagesDeleteFile({ fileUrl: fileToDelete.url })
+
+      // Update local state after successful deletion
+      setFiles((prev) => {
+        const filtered = prev.filter((f) => f.url !== fileToDelete.url)
+        onImagesChange(filtered.map((f) => f.url).join(","))
+        return filtered
+      })
+    } catch (error) {
+      console.error("Error deleting image:", error)
+      toast({
+        title: "Delete Error",
+        description: (error as Error).message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      })
+    }
   }
 
   return (
@@ -143,22 +182,22 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({ onImagesChange }) => {
           <Text fontWeight="bold" mb={2}>
             Uploaded Files (Drag to Reorder):
           </Text>
-
-          {/* 3) Wrap the list in DndContext + SortableContext */}
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
-            {/* SortableContext needs an array of item IDs (here using file.url) */}
             <SortableContext
               items={files.map((file) => file.url)}
               strategy={verticalListSortingStrategy}
             >
               <UnorderedList styleType="disc">
                 {files.map((file) => (
-                  // 4) Wrap each item with our own sortable wrapper
-                  <SortableItem key={file.url} file={file} />
+                  <SortableItem
+                    key={file.url}
+                    file={file}
+                    onDelete={handleDeleteFile}
+                  />
                 ))}
               </UnorderedList>
             </SortableContext>
@@ -171,13 +210,12 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({ onImagesChange }) => {
 
 export default ImagesUploader
 
-// Helper: "SortableItem" is a wrapper around each <ListItem>
 interface SortableItemProps {
   file: UploadedFile
+  onDelete: (file: UploadedFile) => void
 }
 
-// This component uses the "useSortable" hook from dnd-kit
-const SortableItem: React.FC<SortableItemProps> = ({ file }) => {
+const SortableItem: React.FC<SortableItemProps> = ({ file, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: file.url })
 
@@ -190,18 +228,23 @@ const SortableItem: React.FC<SortableItemProps> = ({ file }) => {
     backgroundColor: "white",
     borderRadius: "4px",
     cursor: "grab",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   }
 
   return (
-    <ListItem
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
-      {file.name}
+    <ListItem ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <Box>{file.name}</Box>
+      <Button
+        ml={4}
+        variant="outline"
+        colorScheme="red"
+        size="xs"
+        onClick={() => onDelete(file)}
+      >
+        Delete
+      </Button>
     </ListItem>
   )
 }
-
-

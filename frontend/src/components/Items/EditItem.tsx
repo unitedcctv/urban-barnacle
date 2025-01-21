@@ -12,9 +12,9 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { ItemPublic } from "../../client"
-import { type ItemCreate } from "../../client/types.gen"
+import { type ItemUpdate } from "../../client/types.gen"
 import { type ApiError } from "../../client/core/ApiError"
-import { itemsCreateItem } from "../../client/sdk.gen"
+import { itemsUpdateItem } from "../../client/sdk.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
 
@@ -30,13 +30,13 @@ const EditItem = ({ item }: { item: ItemPublic }) => {
     reset,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<ItemCreate | ItemPublic>({
+  } = useForm<ItemPublic>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      id: item?.id || "",
-      owner_id: item?.owner_id || "",
-      title: item?.title || "",
+      id: item?.id,
+      owner_id: item?.owner_id,
+      title: item?.title,
       description: item?.description || "",
       model: item?.model || "",
       certificate: item?.certificate || "",
@@ -46,8 +46,8 @@ const EditItem = ({ item }: { item: ItemPublic }) => {
 
   // React Query mutation for creating the item
   const mutation = useMutation({
-    mutationFn: (data: ItemCreate) =>
-      itemsCreateItem({ requestBody: data }),
+    mutationFn: (data: ItemUpdate) =>
+      itemsUpdateItem({ id: item.id, requestBody: { ...data, title: data.title ?? "" } }),
     onSuccess: () => {
       showToast("Success!", "Item created successfully.", "success")
       reset() // resets the form
@@ -66,8 +66,12 @@ const EditItem = ({ item }: { item: ItemPublic }) => {
     setValue("images", commaSeparatedUrls)
   }
 
-  const onSubmit: SubmitHandler<ItemCreate> = (data) => {
-    mutation.mutate(data)
+  const onSubmit: SubmitHandler<ItemUpdate> = (data) => {
+    const updatedData = {
+      ...data,
+      title: data.title ?? "",
+    }
+    mutation.mutate(updatedData)
   }
 
   return (
@@ -123,13 +127,12 @@ const EditItem = ({ item }: { item: ItemPublic }) => {
 
       <ImagesUploader
         onImagesChange={handleImagesChange}
-        item_id={item?.id ?? ""}
-        owner_id={item?.owner_id ?? ""}
+        _item={item ?? {}}
       />
 
       {/* Submit Button */}
       <Button variant="primary" type="submit" isLoading={isSubmitting} mt={4}>
-        Save
+        Update Item
       </Button>
     </Box>
   )
