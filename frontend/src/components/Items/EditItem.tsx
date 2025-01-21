@@ -1,6 +1,4 @@
-
-
-// This component is used to add a new item. It uses the ImagesUploader component to upload images.
+import React from "react";
 import {
   Button,
   FormControl,
@@ -8,28 +6,28 @@ import {
   FormLabel,
   Input,
   Box,
-} from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { type SubmitHandler, useForm } from "react-hook-form"
-import { ItemPublic } from "../../client"
-import { type ItemUpdate } from "../../client/types.gen"
-import { type ApiError } from "../../client/core/ApiError"
-import { itemsUpdateItem } from "../../client/sdk.gen"
-import useCustomToast from "../../hooks/useCustomToast"
-import { handleError } from "../../utils"
+} from "@chakra-ui/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { ItemPublic } from "../../client";
+import { type ItemUpdate } from "../../client/types.gen";
+import { type ApiError } from "../../client/core/ApiError";
+import { itemsUpdateItem } from "../../client/sdk.gen";
+import useCustomToast from "../../hooks/useCustomToast";
+import { handleError } from "../../utils";
 
-import ImagesUploader from "./ImagesUploader"
+import ImagesUploader from "./ImagesUploader";
 
-const EditItem = ({ item }: { item: ItemPublic }) => {
-  const queryClient = useQueryClient()
-  const showToast = useCustomToast()
+const EditItem = ({ item, onSuccess }: { item: ItemPublic; onSuccess: () => void }) => {
+  const queryClient = useQueryClient();
+  const showToast = useCustomToast();
 
   const {
     register,
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<ItemPublic>({
     mode: "onBlur",
     criteriaMode: "all",
@@ -42,37 +40,33 @@ const EditItem = ({ item }: { item: ItemPublic }) => {
       certificate: item?.certificate || "",
       images: item?.images || "",
     },
-  })
+  });
 
-  // React Query mutation for creating the item
   const mutation = useMutation({
     mutationFn: (data: ItemUpdate) =>
       itemsUpdateItem({ id: item.id, requestBody: { ...data, title: data.title ?? "" } }),
     onSuccess: () => {
-      showToast("Success!", "Item created successfully.", "success")
-      reset() // resets the form
+      showToast("Success!", "Item updated successfully.", "success");
+      reset();
+      queryClient.invalidateQueries({ queryKey: ["items"] }); // Ensure item list refreshes
+      onSuccess(); // Close the modal and update parent
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast)
+      handleError(err, showToast);
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] })
-    },
-  })
+  });
 
-  // Called whenever the child (ImagesUploader) updates the image order or uploads
   const handleImagesChange = (commaSeparatedUrls: string) => {
-    // Use react-hook-form to set the "images" field
-    setValue("images", commaSeparatedUrls)
-  }
+    setValue("images", commaSeparatedUrls);
+  };
 
   const onSubmit: SubmitHandler<ItemUpdate> = (data) => {
     const updatedData = {
       ...data,
       title: data.title ?? "",
-    }
-    mutation.mutate(updatedData)
-  }
+    };
+    mutation.mutate(updatedData);
+  };
 
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)}>
@@ -87,55 +81,41 @@ const EditItem = ({ item }: { item: ItemPublic }) => {
           placeholder="Title"
           type="text"
         />
-        {errors.title && (
-          <FormErrorMessage>{errors.title.message}</FormErrorMessage>
-        )}
+        {errors.title && <FormErrorMessage>{errors.title.message}</FormErrorMessage>}
       </FormControl>
 
       {/* Description Field */}
       <FormControl mt={4}>
         <FormLabel htmlFor="description">Description</FormLabel>
-        <Input
-          id="description"
-          {...register("description")}
-          placeholder="Description"
-          type="text"
-        />
+        <Input id="description" {...register("description")} placeholder="Description" />
       </FormControl>
 
       {/* Model Field */}
       <FormControl mt={4}>
         <FormLabel htmlFor="model">Model</FormLabel>
-        <Input
-          id="model"
-          {...register("model")}
-          placeholder="Model"
-          type="text"
-        />
+        <Input id="model" {...register("model")} placeholder="Model" />
       </FormControl>
 
       {/* Certificate Field */}
       <FormControl mt={4}>
         <FormLabel htmlFor="certificate">Certificate</FormLabel>
-        <Input
-          id="certificate"
-          {...register("certificate")}
-          placeholder="Certificate"
-          type="text"
-        />
+        <Input id="certificate" {...register("certificate")} placeholder="Certificate" />
       </FormControl>
 
-      <ImagesUploader
-        onImagesChange={handleImagesChange}
-        _item={item ?? {}}
-      />
+      <ImagesUploader onImagesChange={handleImagesChange} _item={item ?? {}} />
 
       {/* Submit Button */}
-      <Button variant="primary" type="submit" isLoading={isSubmitting} mt={4}>
+      <Button
+        variant="primary"
+        type="submit"
+        isLoading={isSubmitting}
+        mt={4}
+        isDisabled={!isDirty} // Disable button if no inputs are changed
+      >
         Update Item
       </Button>
     </Box>
-  )
-}
+  );
+};
 
-export default EditItem
+export default EditItem;

@@ -9,14 +9,14 @@ import {
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "@tanstack/react-router"; // <-- Import useNavigate
+import { useNavigate } from "@tanstack/react-router";
 import { type ItemCreate, type ItemPublic } from "../../client/types.gen";
 import { type ApiError } from "../../client/core/ApiError";
 import { itemsCreateItem, itemsUpdateItem } from "../../client/sdk.gen";
 import useCustomToast from "../../hooks/useCustomToast";
 import { handleError } from "../../utils";
-import { createFileRoute } from "@tanstack/react-router";
 import ImagesUploader from "../../components/Items/ImagesUploader";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_layout/createitem")({
   component: CreateItem,
@@ -27,7 +27,7 @@ function CreateItem() {
   const [createdItemId, setCreatedItemId] = useState<string>("");
   const queryClient = useQueryClient();
   const showToast = useCustomToast();
-  const navigate = useNavigate(); // <-- Initialize useNavigate
+  const navigate = useNavigate();
 
   let item: ItemPublic = {
     id: "",
@@ -44,7 +44,8 @@ function CreateItem() {
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isSubmitting },
+    watch,
+    formState: { errors, isSubmitting, isDirty, dirtyFields },
   } = useForm<ItemPublic>({
     mode: "onBlur",
     criteriaMode: "all",
@@ -73,7 +74,7 @@ function CreateItem() {
   });
 
   const handleImagesChange = (commaSeparatedUrls: string) => {
-    setValue("images", commaSeparatedUrls);
+    setValue("images", commaSeparatedUrls, { shouldDirty: true });
   };
 
   const onSubmit: SubmitHandler<ItemPublic> = (formData) => {
@@ -99,15 +100,21 @@ function CreateItem() {
             reset();
             setIsItemStarted(false);
             setCreatedItemId("");
-            navigate({ to: "/" }); // <-- Navigate to index page
+            navigate({ to: "/" });
           },
         }
       );
     }
   };
 
+  // Watch the title and all other fields
+  const title = watch("title");
+  const otherFieldsDirty =
+    Object.keys(dirtyFields).some((field) => field !== "title") && isDirty;
+
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)}>
+      {/* Title Field */}
       <FormControl isRequired isInvalid={!!errors.title}>
         <FormLabel htmlFor="title">Title</FormLabel>
         <Input
@@ -119,21 +126,25 @@ function CreateItem() {
         {errors.title && <FormErrorMessage>{errors.title.message}</FormErrorMessage>}
       </FormControl>
 
+      {/* Description Field */}
       <FormControl mt={4} isDisabled={!isItemStarted}>
         <FormLabel htmlFor="description">Description</FormLabel>
         <Input id="description" {...register("description")} placeholder="Description" />
       </FormControl>
 
+      {/* Model Field */}
       <FormControl mt={4} isDisabled={!isItemStarted}>
         <FormLabel htmlFor="model">Model</FormLabel>
         <Input id="model" {...register("model")} placeholder="Model" />
       </FormControl>
 
+      {/* Certificate Field */}
       <FormControl mt={4} isDisabled={!isItemStarted}>
         <FormLabel htmlFor="certificate">Certificate</FormLabel>
         <Input id="certificate" {...register("certificate")} placeholder="Certificate" />
       </FormControl>
 
+      {/* Images Uploader */}
       <Box
         mt={4}
         opacity={!isItemStarted ? 0.6 : 1}
@@ -142,9 +153,18 @@ function CreateItem() {
         <ImagesUploader onImagesChange={handleImagesChange} _item={item} />
       </Box>
 
-      <Button variant="primary" type="submit" isLoading={isSubmitting} mt={4}>
+      {/* Submit Button */}
+      <Button
+        variant="primary"
+        type="submit"
+        isLoading={isSubmitting}
+        mt={4}
+        isDisabled={!isItemStarted ? !title : !otherFieldsDirty}
+      >
         {isItemStarted ? "Create Item" : "Initialise Item"}
       </Button>
     </Box>
   );
 }
+
+export default CreateItem;

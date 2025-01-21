@@ -29,13 +29,12 @@ function Item({ item }: { item: ItemPublic }) {
 
   let itemData: ItemPublic | undefined = item;
 
-  if (itemId !== undefined) {
-    const { data } = useQuery({
-      queryKey: ["item", itemId],
-      queryFn: () => itemsReadItem({ id: itemId }),
-    });
-    itemData = data as ItemPublic;
-  }
+  const { data, refetch } = useQuery({
+    queryKey: ["item", itemId],
+    queryFn: () => itemsReadItem({ id: itemId }),
+    enabled: !!itemId, // Only fetch if itemId is defined
+  });
+  itemData = data as ItemPublic;
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => itemsDeleteItem({ id }),
@@ -54,6 +53,11 @@ function Item({ item }: { item: ItemPublic }) {
     if (itemId) {
       deleteMutation.mutate(itemId);
     }
+  };
+
+  const handleEditSuccess = () => {
+    onClose(); // Close the modal
+    refetch(); // Refresh item data
   };
 
   return (
@@ -80,7 +84,7 @@ function Item({ item }: { item: ItemPublic }) {
           <ModalHeader>Edit Item</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {itemData && <EditItem item={itemData} />}
+            {itemData && <EditItem item={itemData} onSuccess={handleEditSuccess} />}
           </ModalBody>
         </ModalContent>
       </Modal>
