@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Button,
   FormControl,
@@ -45,7 +45,7 @@ function CreateItem() {
     reset,
     setValue,
     watch,
-    formState: { errors, isSubmitting, isDirty, dirtyFields },
+    formState: { errors, isSubmitting},
   } = useForm<ItemPublic>({
     mode: "onBlur",
     criteriaMode: "all",
@@ -109,8 +109,6 @@ function CreateItem() {
 
   // Watch the title and all other fields
   const title = watch("title");
-  const otherFieldsDirty =
-    Object.keys(dirtyFields).some((field) => field !== "title") && isDirty;
 
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)}>
@@ -159,7 +157,7 @@ function CreateItem() {
         type="submit"
         isLoading={isSubmitting}
         mt={4}
-        isDisabled={!isItemStarted ? !title : !otherFieldsDirty}
+        isDisabled={!isItemStarted && !title}
       >
         {isItemStarted ? "Create Item" : "Initialise Item"}
       </Button>

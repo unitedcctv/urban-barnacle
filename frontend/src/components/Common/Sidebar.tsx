@@ -81,6 +81,7 @@ const Sidebar = () => {
         bg={secBgColor}
         p={4}
         w="100%"
+        padding={0}
       >
         <Flex justify="center">
           <SidebarItems />

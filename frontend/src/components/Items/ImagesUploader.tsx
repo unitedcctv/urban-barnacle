@@ -118,7 +118,7 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({
 
         updatedFiles.push({
           name: fileNameWithoutSuffix,
-          url: uploadedUrl,
+          url: fileNameWithSuffix ?? "",
         })
       } catch (error) {
         console.error("Error uploading image:", error)
@@ -146,7 +146,7 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({
   const handleDeleteFile = async (fileToDelete: UploadedFile) => {
     try {
       // Call the SDK function to delete the file on the server
-      await imagesDeleteFile({ fileUrl: fileToDelete.url })
+      await imagesDeleteFile({ fileName: fileToDelete.url })
 
       // Update local state after successful deletion
       setFiles((prev) => {

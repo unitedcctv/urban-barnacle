@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 import os
@@ -21,13 +22,13 @@ async def upload_file(file: UploadFile = File(...)):
         return {"url": await save_to_local(file)}
 
 @router.delete("/")
-async def delete_file(file_url: str):
+async def delete_file(file_name: str):
     if settings.ENVIRONMENT == "production":
         # Delete the file from S3 in production
         pass
     else:
         # Delete the file from the local folder in development
-        file_path = Path(file_url)
+        file_path = Path(f"./uploads/{file_name}")
         try:
             os.remove(file_path)
             return {"message": "File deleted successfully"}
@@ -48,14 +49,15 @@ async def get_files():
 @router.get("/{file_name}")
 async def get_file(file_name: str):
     if settings.ENVIRONMENT == "production":
-        # Get the file from S3 in production
-        pass
+        # Implement logic to stream file from S3 in production
+        # For example, use `boto3` to fetch the file and stream it
+        raise HTTPException(status_code=501, detail="S3 streaming not implemented")
     else:
-        # Get the file from the local folder in development
-        file_path = Path(f".{file_name}")
+        # Stream the file from the local folder in development
+        file_path = Path(f"./uploads/{file_name}")
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="File not found")
-        return {"file_path": str(file_path)}
+        return FileResponse(file_path)
 
 async def save_to_s3(file: UploadFile) -> str:
     """Save the file to an S3 bucket and return the file's URL."""
@@ -80,7 +82,7 @@ async def save_to_local(file: UploadFile) -> str:
     try:
         with file_path.open("wb") as f:
             f.write(await file.read())
-        return str(file_path)
+        return str(file.filename)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to save file locally")
 

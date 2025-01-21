@@ -1,12 +1,14 @@
 import { Flex, Icon, Text, useColorModeValue } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { FiBriefcase, FiTool, FiSettings, FiUsers } from "react-icons/fi"
+import { FiTool, FiSettings, FiUsers, FiEye } from "react-icons/fi"
+import UrbanBarnacleLogo from "../../assets/images/urban_barnacle.png";
 
 import type { UserPublic } from "../../client"
 
 const items = [
-  { icon: FiBriefcase, title: "Items", path: "/" },
+  { icon: UrbanBarnacleLogo, title: "Urban Barnacle", path: "/" },
+  { icon: FiEye, title: "Gallery", path: "/gallery" },
 ]
 
 interface SidebarItemsProps {
@@ -36,14 +38,17 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
       activeProps={{
         style: {
           background: bgActive,
-          borderRadius: "12px",
         },
       }}
       color={textColor}
       onClick={onClose}
       align="center" // Ensures icon and text are aligned
     >
+    {typeof icon === "string" ? (
+      <img src={icon} alt={title} style={{ width: "48px", height: "48px" }} />
+    ) : (
       <Icon as={icon} alignSelf="center" />
+    )}
       <Text ml={2}>{title}</Text>
     </Flex>
   ));

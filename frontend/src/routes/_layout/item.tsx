@@ -56,8 +56,8 @@ function Item({ item }: { item: ItemPublic }) {
   };
 
   const handleEditSuccess = () => {
-    onClose(); // Close the modal
-    refetch(); // Refresh item data
+    onClose();
+    refetch();
   };
 
   return (

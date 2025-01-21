@@ -27,7 +27,7 @@ const EditItem = ({ item, onSuccess }: { item: ItemPublic; onSuccess: () => void
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting },
   } = useForm<ItemPublic>({
     mode: "onBlur",
     criteriaMode: "all",
@@ -110,7 +110,6 @@ const EditItem = ({ item, onSuccess }: { item: ItemPublic; onSuccess: () => void
         type="submit"
         isLoading={isSubmitting}
         mt={4}
-        isDisabled={!isDirty} // Disable button if no inputs are changed
       >
         Update Item
       </Button>
