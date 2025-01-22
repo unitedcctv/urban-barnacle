@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useNavigate } from "@tanstack/react-router";
 import { ItemPublic } from "../../client";
 import { images_url } from "../../utils";
