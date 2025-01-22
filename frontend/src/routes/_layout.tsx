@@ -11,7 +11,7 @@ function Layout() {
   return (
     <Flex direction="column" h="100vh" w="100%">
       <Sidebar />
-      <Box as="main" flex="1" w="100%" p={4}>
+      <Box as="main" flex="1" w="100%" pt="4rem">
         <Outlet />
       </Box>
     </Flex>

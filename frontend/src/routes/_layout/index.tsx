@@ -1,8 +1,8 @@
-import React from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
 import { images_url } from "../../utils";
+import { Box, Text, Heading, Flex } from "@chakra-ui/react"
 
 export const Route = createFileRoute("/_layout/")({
     component: Home,
@@ -41,41 +41,41 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <Box>
       {items.data.map((item: any) => {
         // Grab the first image from the comma-separated string
         const [firstImage] = item.images.split(",")
         const image_url = images_url.concat(firstImage.trim())
 
         return (
-          <div
+          <Flex
             key={item.id}
-            style={{
-              /* Parallax background styles: */
-              backgroundImage: `url(${image_url})`,
-              backgroundAttachment: "fixed",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              /* Adjust height as needed for your parallax sections: */
-              height: "1000px",
-              /* Some spacing below each parallax section */
-              marginBottom: "2rem",
-              /* Center contents (foreground) */
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              /* Optional text styling */
-              color: "#fff",
-              textShadow: "0 0 5px rgba(0,0,0,0.7)",
-            }}
+            bgImage={`url(${image_url})`}
+            bgAttachment="fixed"
+            bgSize="cover"
+            bgPosition="center"
+            h="72rem"
+            mb="2rem"
+            align="center"
+            justify="center"
+            direction="column"
+            color="white"
           >
-            {/* This foreground could be replaced with any dynamic text fields */}
-            <h2>{item.title ?? "Parallax Title"}</h2>
-            <p>This is a placeholder for text fields that can be populated later.</p>
-          </div>
+          <Box
+            w="30%"
+            padding="1rem"
+            bg="rgba(0,0,0,0.5)"
+            position="absolute"
+            left={0}
+          >
+            <Heading size="lg" mb={2}>
+              {item.title ?? "Parallax Title"}
+            </Heading>
+            <Text>This is a placeholder for text fields that can be populated later.</Text>
+          </Box>
+          </Flex>
         )
       })}
-    </div>
+    </Box>
   )
 }

@@ -2,7 +2,7 @@ import { Flex, Icon, Text, useColorModeValue } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { FiTool, FiSettings, FiUsers, FiEye } from "react-icons/fi"
-import UrbanBarnacleLogo from "../../assets/images/urban_barnacle.png";
+import UrbanBarnacleLogo from "../../theme/assets/urban_barnacle.png";
 
 import type { UserPublic } from "../../client"
 

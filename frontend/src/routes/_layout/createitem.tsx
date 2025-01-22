@@ -100,7 +100,7 @@ function CreateItem() {
             reset();
             setIsItemStarted(false);
             setCreatedItemId("");
-            navigate({ to: "/" });
+            navigate({ to: "/gallery" });
           },
         }
       );

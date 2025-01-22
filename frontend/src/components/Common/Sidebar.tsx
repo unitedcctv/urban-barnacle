@@ -82,6 +82,8 @@ const Sidebar = () => {
         p={4}
         w="100%"
         padding={0}
+        position="fixed"
+        top="0"
       >
         <Flex justify="center">
           <SidebarItems />
@@ -93,7 +95,6 @@ const Sidebar = () => {
             <Text
               color={textColor}
               noOfLines={1}
-              fontSize="sm"
               p={1}
             >
               Logged in as: {currentUser.email}

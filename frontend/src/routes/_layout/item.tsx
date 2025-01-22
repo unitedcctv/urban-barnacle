@@ -23,6 +23,7 @@ import { itemsReadItem, itemsDeleteItem } from "../../client/sdk.gen.ts";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import useCustomToast from "../../hooks/useCustomToast";
 import { images_url } from "../../utils";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_layout/item")({
   component: Item,
@@ -32,6 +33,7 @@ function Item({ item }: { item: ItemPublic }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const search = useSearch({ from: Route.id });
   const itemId = (search as { id: string }).id;
+  const navigate = useNavigate();
   const showToast = useCustomToast();
 
   // Use the item directly if passed in, or fetch below
@@ -62,6 +64,9 @@ function Item({ item }: { item: ItemPublic }) {
   const handleDelete = () => {
     if (itemId) {
       deleteMutation.mutate(itemId);
+      navigate({ to: "/gallery" });
+    } else {
+      showToast("Error!", "Failed to delete item.", "error");
     }
   };
 
