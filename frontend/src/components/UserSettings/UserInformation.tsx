@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Container,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -14,7 +13,6 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
-
 import { type ApiError } from "../../client/core/ApiError"
 import { UserPublic, UserUpdateMe } from "../../client/types.gen"
 import { usersUpdateUserMe } from "../../client/sdk.gen"
@@ -22,7 +20,7 @@ import useAuth from "../../hooks/useAuth"
 import useCustomToast from "../../hooks/useCustomToast"
 import { emailPattern, handleError } from "../../utils"
 
-const UserInformation = () => {
+function UserInformation(){
   const queryClient = useQueryClient()
   const color = useColorModeValue("inherit", "ui.light")
   const showToast = useCustomToast()
@@ -70,20 +68,21 @@ const UserInformation = () => {
     toggleEditMode()
   }
 
+  const permissions = currentUser?.permissions?.split(",")
+
   return (
-    <>
-      <Container maxW="full">
-        <Heading size="sm" py={4}>
-          User Information
-        </Heading>
         <Box
           w={{ sm: "full", md: "50%" }}
           as="form"
           onSubmit={handleSubmit(onSubmit)}
         >
+          <Heading size="sm" py={4}>
+            User Settings
+          </Heading>
+          <Box mb={4}>
           <FormControl>
             <FormLabel color={color} htmlFor="name">
-              Full name
+              Name
             </FormLabel>
             {editMode ? (
               <Input
@@ -119,6 +118,7 @@ const UserInformation = () => {
                 type="email"
                 size="md"
                 w="auto"
+                value={getValues("email")}
               />
             ) : (
               <Text size="md" py={2} isTruncated maxWidth="250px">
@@ -129,6 +129,12 @@ const UserInformation = () => {
               <FormErrorMessage>{errors.email.message}</FormErrorMessage>
             )}
           </FormControl>
+          </Box>
+          <Box mt={2} fontSize="sm" color="ui.dim">
+            {permissions?.map((perm) => (
+              <Text key={perm}>{perm}</Text> 
+            ))}
+          </Box>
           <Flex mt={4} gap={3}>
             <Button
               variant="primary"
@@ -146,8 +152,6 @@ const UserInformation = () => {
             )}
           </Flex>
         </Box>
-      </Container>
-    </>
   )
 }
 

@@ -399,15 +399,17 @@ export const UserCreateSchema = {
       title: "Is Active",
       default: true,
     },
-    is_superuser: {
-      type: "boolean",
-      title: "Is Superuser",
-      default: false,
-    },
-    has_privileges: {
-      type: "boolean",
-      title: "Has Privileges",
-      default: false,
+    permissions: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Permissions",
     },
     full_name: {
       anyOf: [
@@ -446,15 +448,17 @@ export const UserPublicSchema = {
       title: "Is Active",
       default: true,
     },
-    is_superuser: {
-      type: "boolean",
-      title: "Is Superuser",
-      default: false,
-    },
-    has_privileges: {
-      type: "boolean",
-      title: "Has Privileges",
-      default: false,
+    permissions: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Permissions",
     },
     full_name: {
       anyOf: [
@@ -531,15 +535,17 @@ export const UserUpdateSchema = {
       title: "Is Active",
       default: true,
     },
-    is_superuser: {
-      type: "boolean",
-      title: "Is Superuser",
-      default: false,
-    },
-    has_privileges: {
-      type: "boolean",
-      title: "Has Privileges",
-      default: false,
+    permissions: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Permissions",
     },
     full_name: {
       anyOf: [

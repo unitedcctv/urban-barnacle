@@ -22,7 +22,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"]);
   let finalItems = items
 
-  finalItems = currentUser?.is_superuser
+  finalItems = currentUser
     ? [...finalItems, { icon: FiUsers, title: "Users", path: "/users" }, { icon: FiTool, title: "Create Item", path: "/createitem" }]
     : finalItems;
 

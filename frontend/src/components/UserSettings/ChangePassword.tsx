@@ -53,8 +53,7 @@ const ChangePassword = () => {
   }
 
   return (
-    <>
-      <Container maxW="full">
+    <Container>
         <Heading size="sm" py={4}>
           Change Password
         </Heading>
@@ -117,8 +116,7 @@ const ChangePassword = () => {
             Save
           </Button>
         </Box>
-      </Container>
-    </>
+    </Container>
   )
 }
 export default ChangePassword

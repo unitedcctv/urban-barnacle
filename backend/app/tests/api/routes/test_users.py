@@ -18,7 +18,7 @@ def test_get_users_superuser_me(
     current_user = r.json()
     assert current_user
     assert current_user["is_active"] is True
-    assert current_user["is_superuser"]
+    assert "superuser" in current_user["permissions"]
     assert current_user["email"] == settings.FIRST_SUPERUSER
 
 
@@ -29,7 +29,7 @@ def test_get_users_normal_user_me(
     current_user = r.json()
     assert current_user
     assert current_user["is_active"] is True
-    assert current_user["is_superuser"] is False
+    assert "superuser" not in current_user["permissions"]
     assert current_user["email"] == settings.EMAIL_TEST_USER
 
 

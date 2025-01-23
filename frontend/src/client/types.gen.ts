@@ -77,8 +77,7 @@ export type UpdatePassword = {
 export type UserCreate = {
   email: string
   is_active?: boolean
-  is_superuser?: boolean
-  has_privileges?: boolean
+  permissions?: string | null
   full_name?: string | null
   password: string
 }
@@ -86,8 +85,7 @@ export type UserCreate = {
 export type UserPublic = {
   email: string
   is_active?: boolean
-  is_superuser?: boolean
-  has_privileges?: boolean
+  permissions?: string | null
   full_name?: string | null
   id: string
 }
@@ -106,8 +104,7 @@ export type UsersPublic = {
 export type UserUpdate = {
   email?: string | null
   is_active?: boolean
-  is_superuser?: boolean
-  has_privileges?: boolean
+  permissions?: string | null
   full_name?: string | null
   password?: string | null
 }
@@ -247,7 +244,7 @@ export type ImagesUploadFileData = {
   formData: Body_images_upload_file
 }
 
-export type ImagesUploadFileResponse = Response
+export type ImagesUploadFileResponse = unknown
 
 export type ImagesDeleteFileData = {
   fileName: string
@@ -261,7 +258,7 @@ export type ImagesGetFileData = {
   fileName: string
 }
 
-export type ImagesGetFileResponse = Blob
+export type ImagesGetFileResponse = unknown
 
 export type PrivateCreateUserData = {
   requestBody: PrivateUserCreate

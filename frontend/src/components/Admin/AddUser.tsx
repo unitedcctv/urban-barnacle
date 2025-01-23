@@ -1,7 +1,6 @@
 import {
   Button,
   Checkbox,
-  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -16,12 +15,14 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
+import { useState } from "react"
 
 import { type UserCreate,  } from "../../client/types.gen"
 import { usersCreateUser } from "../../client/sdk.gen"
 import type { ApiError } from "../../client/core/ApiError"
 import useCustomToast from "../../hooks/useCustomToast"
 import { emailPattern, handleError } from "../../utils"
+import PermissionsCheckboxGroup from "./Permissions"
 
 interface AddUserProps {
   isOpen: boolean
@@ -35,6 +36,7 @@ interface UserCreateForm extends UserCreate {
 const AddUser = ({ isOpen, onClose }: AddUserProps) => {
   const queryClient = useQueryClient()
   const showToast = useCustomToast()
+  const [permissions, setPermissions] = useState<string>("")
   const {
     register,
     handleSubmit,
@@ -49,7 +51,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
       full_name: "",
       password: "",
       confirm_password: "",
-      is_superuser: false,
+      permissions: "user",
       is_active: false,
     },
   })
@@ -86,7 +88,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
         <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>Add User</ModalHeader>
           <ModalCloseButton />
-          <ModalBody pb={6}>
+          <ModalBody pb={6} w="100%">
             <FormControl isRequired isInvalid={!!errors.email}>
               <FormLabel htmlFor="email">Email</FormLabel>
               <Input
@@ -155,18 +157,15 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 </FormErrorMessage>
               )}
             </FormControl>
-            <Flex mt={4}>
-              <FormControl>
-                <Checkbox {...register("is_superuser")} colorScheme="teal">
-                  Is superuser?
-                </Checkbox>
-              </FormControl>
-              <FormControl>
-                <Checkbox {...register("is_active")} colorScheme="teal">
-                  Is active?
-                </Checkbox>
-              </FormControl>
-            </Flex>
+            <PermissionsCheckboxGroup
+              initialPermissions={permissions}
+              onPermissionsChange={setPermissions}
+            />
+            <FormControl mt={4}>
+              <Checkbox {...register("is_active")} colorScheme="teal">
+                Is active?
+              </Checkbox>
+            </FormControl>
           </ModalBody>
           <ModalFooter gap={3}>
             <Button variant="primary" type="submit" isLoading={isSubmitting}>
