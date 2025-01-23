@@ -16,20 +16,9 @@ import {
 } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import type { UserRegister } from "../client"
-import useAuth, { isLoggedIn } from "../hooks/useAuth"
-import { confirmPasswordRules, emailPattern, passwordRules } from "../utils"
-
-export const Route = createFileRoute("/signup")({
-  component: SignUp,
-  beforeLoad: async () => {
-    if (isLoggedIn()) {
-      throw redirect({
-        to: "/",
-      })
-    }
-  },
-})
+import type { UserRegister } from "../../client"
+import useAuth, { isLoggedIn } from "../../hooks/useAuth"
+import { confirmPasswordRules, emailPattern, passwordRules } from "../../utils"
 
 interface UserRegisterForm extends UserRegister {
   confirm_password: string
@@ -70,14 +59,6 @@ function SignUp() {
           gap={4}
           centerContent
         >
-          {/* <Image
-            src={Logo}
-            alt="FastAPI logo"
-            height="auto"
-            maxW="2xs"
-            alignSelf="center"
-            mb={4}
-          /> */}
           <FormControl id="full_name" isInvalid={!!errors.full_name}>
             <FormLabel htmlFor="full_name" srOnly>
               Full Name

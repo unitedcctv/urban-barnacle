@@ -43,9 +43,12 @@ export default function Home() {
   return (
     <Box>
       {items.data.map((item: any) => {
-        // Grab the first image from the comma-separated string
-        const [firstImage] = item.images.split(",")
-        const image_url = images_url.concat(firstImage.trim())
+
+      if (!item?.images) return null
+      const [firstImage] = item.images.split(",")
+
+      if (!firstImage?.trim()) return null
+      const image_url = images_url.concat(firstImage.trim())
 
         return (
           <Flex

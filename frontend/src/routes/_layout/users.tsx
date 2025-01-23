@@ -1,8 +1,5 @@
 import {
-  Badge,
-  Box,
   Container,
-  Flex,
   Heading,
   SkeletonText,
   Table,
@@ -18,19 +15,19 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { z } from "zod"
 
-import { usersReadUsers } from "../../client/sdk.gen"
-import { type UserPublic } from "../../client/types.gen"
-import AddUser from "../../components/Admin/AddUser"
-import ActionsMenu from "../../components/Common/ActionsMenu"
-import Navbar from "../../components/Common/Navbar"
+import { usersReadUsers } from "../../client/sdk.gen.ts"
+import { type UserPublic } from "../../client/types.gen.ts"
+import AddUser from "../../components/Admin/AddUser.tsx"
+import Navbar from "../../components/Common/Navbar.tsx"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
+import { UserRow } from "../../components/UserSettings/User.tsx"
 
 const usersSearchSchema = z.object({
   page: z.number().catch(1),
 })
 
-export const Route = createFileRoute("/_layout/admin")({
-  component: Admin,
+export const Route = createFileRoute("/_layout/users")({
+  component: Users,
   validateSearch: (search) => usersSearchSchema.parse(search),
 })
 
@@ -77,11 +74,12 @@ function UsersTable() {
         <Table size={{ base: "sm", md: "md" }}>
           <Thead>
             <Tr>
-              <Th width="20%">Full name</Th>
-              <Th width="50%">Email</Th>
-              <Th width="10%">Role</Th>
-              <Th width="10%">Status</Th>
-              <Th width="10%">Actions</Th>
+              <Th width="15%">Full name</Th>
+              <Th width="40%">Email</Th>
+              <Th width="35%">Permissions</Th>
+              <Th width="5%">Status</Th>
+              <Th width="5%"></Th>
+              <Th width="5%"></Th>
             </Tr>
           </Thead>
           {isPending ? (
@@ -97,43 +95,11 @@ function UsersTable() {
           ) : (
             <Tbody>
               {users?.data.map((user) => (
-                <Tr key={user.id}>
-                  <Td
-                    color={!user.full_name ? "ui.dim" : "inherit"}
-                    isTruncated
-                    maxWidth="150px"
-                  >
-                    {user.full_name || "N/A"}
-                    {currentUser?.id === user.id && (
-                      <Badge ml="1" colorScheme="teal">
-                        You
-                      </Badge>
-                    )}
-                  </Td>
-                  <Td isTruncated maxWidth="150px">
-                    {user.email}
-                  </Td>
-                  <Td>{user.is_superuser ? "Superuser" : "User"}</Td>
-                  <Td>
-                    <Flex gap={2}>
-                      <Box
-                        w="2"
-                        h="2"
-                        borderRadius="50%"
-                        bg={user.is_active ? "ui.success" : "ui.danger"}
-                        alignSelf="center"
-                      />
-                      {user.is_active ? "Active" : "Inactive"}
-                    </Flex>
-                  </Td>
-                  <Td>
-                    <ActionsMenu
-                      type="User"
-                      value={user}
-                      disabled={currentUser?.id === user.id}
-                    />
-                  </Td>
-                </Tr>
+                <UserRow
+                  key={user.id}
+                  user={user}
+                  currentUserId={currentUser?.id}
+                />
               ))}
             </Tbody>
           )}
@@ -149,7 +115,7 @@ function UsersTable() {
   )
 }
 
-function Admin() {
+function Users() {
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>

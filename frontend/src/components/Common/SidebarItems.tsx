@@ -23,11 +23,11 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   let finalItems = items
 
   finalItems = currentUser?.is_superuser
-    ? [...finalItems, { icon: FiUsers, title: "Admin", path: "/admin" }, { icon: FiTool, title: "Create Item", path: "/createitem" }]
+    ? [...finalItems, { icon: FiUsers, title: "Users", path: "/users" }, { icon: FiTool, title: "Create Item", path: "/createitem" }]
     : finalItems;
 
   if (currentUser?.is_active)
-    finalItems = [...finalItems, { icon: FiSettings, title: "User Settings", path: "/settings" }]
+    finalItems = [...finalItems, { icon: FiSettings, title: "My Settings", path: "/settings" }]
 
   const listItems = finalItems.map(({ icon, title, path }) => (
     <Flex
