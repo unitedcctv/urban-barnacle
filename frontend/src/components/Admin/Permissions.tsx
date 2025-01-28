@@ -29,13 +29,13 @@ const PermissionsCheckboxGroup = ({
       <FormControl mt={4}>
         <Checkbox
           colorScheme="teal"
-          value="user"
-          isChecked={permissions.includes("user")}
+          value="extended"
+          isChecked={permissions.includes("extended")}
           onChange={(e) =>
             handlePermissionChange(e.target.value, e.target.checked)
           }
         >
-          User
+          Extended
         </Checkbox>
       </FormControl>
       <FormControl mt={4}>

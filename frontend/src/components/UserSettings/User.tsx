@@ -80,27 +80,28 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
         </Button>
       </Td>
       <Td>
-      <Button
-          onClick={editUserModal.onOpen}
-          cursor="pointer"
-          borderRadius="50%"
-          h={12}
-        >
+        <Button
+            onClick={editUserModal.onOpen}
+            cursor="pointer"
+            borderRadius="50%"
+            h={12}
+          >
           <Icon as={FiEdit} alignSelf="center" />
         </Button>
       </Td>
-
-      <EditUser
-          user={user as UserPublic}
-          isOpen={editUserModal.isOpen}
-          onClose={editUserModal.onClose}
+      <Td>
+        <EditUser
+            user={user as UserPublic}
+            isOpen={editUserModal.isOpen}
+            onClose={editUserModal.onClose}
+          />
+        <Delete
+          type="User"
+          id={user.id}
+          isOpen={deleteModal.isOpen}
+          onClose={deleteModal.onClose}
         />
-      <Delete
-        type="User"
-        id={user.id}
-        isOpen={deleteModal.isOpen}
-        onClose={deleteModal.onClose}
-      />
+      </Td>
     </Tr>
   )
 }

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -12,31 +13,30 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-} from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { type SubmitHandler, useForm } from "react-hook-form"
-import { useState } from "react"
+} from "@chakra-ui/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { type UserCreate,  } from "../../client/types.gen"
-import { usersCreateUser } from "../../client/sdk.gen"
-import type { ApiError } from "../../client/core/ApiError"
-import useCustomToast from "../../hooks/useCustomToast"
-import { emailPattern, handleError } from "../../utils"
-import PermissionsCheckboxGroup from "./Permissions"
+import { type UserCreate } from "../../client/types.gen";
+import { usersCreateUser } from "../../client/sdk.gen";
+import type { ApiError } from "../../client/core/ApiError";
+import useCustomToast from "../../hooks/useCustomToast";
+import { emailPattern, handleError } from "../../utils";
+import PermissionsCheckboxGroup from "./Permissions";
 
 interface AddUserProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 interface UserCreateForm extends UserCreate {
-  confirm_password: string
+  confirm_password: string;
 }
 
 const AddUser = ({ isOpen, onClose }: AddUserProps) => {
-  const queryClient = useQueryClient()
-  const showToast = useCustomToast()
-  const [permissions, setPermissions] = useState<string>("")
+  const queryClient = useQueryClient();
+  const showToast = useCustomToast();
+  const [permissions, setPermissions] = useState<string>("user");
   const {
     register,
     handleSubmit,
@@ -54,36 +54,45 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
       permissions: "user",
       is_active: false,
     },
-  })
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      reset({
+        email: "",
+        full_name: "",
+        password: "",
+        confirm_password: "",
+        permissions: "user",
+        is_active: false,
+      });
+      setPermissions("user"); // Reset permissions state
+    }
+  }, [isOpen, reset]);
 
   const mutation = useMutation({
-    mutationFn: (data: UserCreate) =>
-      usersCreateUser({ requestBody: data }),
+    mutationFn: (data: UserCreate) => usersCreateUser({ requestBody: data }),
     onSuccess: () => {
-      showToast("Success!", "User created successfully.", "success")
-      reset()
-      onClose()
+      showToast("Success!", "User created successfully.", "success");
+      reset();
+      onClose();
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast)
+      handleError(err, showToast);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-  })
+  });
 
   const onSubmit: SubmitHandler<UserCreateForm> = (data) => {
-    mutation.mutate(data)
-  }
+    data.permissions = permissions
+    mutation.mutate(data);
+  };
 
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        size={{ base: "sm", md: "md" }}
-        isCentered
-      >
+      <Modal isOpen={isOpen} onClose={onClose} size={{ base: "sm", md: "md" }} isCentered>
         <ModalOverlay />
         <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>Add User</ModalHeader>
@@ -105,11 +114,11 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
               )}
             </FormControl>
             <FormControl mt={4} isInvalid={!!errors.full_name}>
-              <FormLabel htmlFor="name">Full name</FormLabel>
+              <FormLabel htmlFor="name">User Name</FormLabel>
               <Input
                 id="name"
                 {...register("full_name")}
-                placeholder="Full name"
+                placeholder="User Name"
                 type="text"
               />
               {errors.full_name && (
@@ -134,11 +143,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 <FormErrorMessage>{errors.password.message}</FormErrorMessage>
               )}
             </FormControl>
-            <FormControl
-              mt={4}
-              isRequired
-              isInvalid={!!errors.confirm_password}
-            >
+            <FormControl mt={4} isRequired isInvalid={!!errors.confirm_password}>
               <FormLabel htmlFor="confirm_password">Confirm Password</FormLabel>
               <Input
                 id="confirm_password"
@@ -152,9 +157,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 type="password"
               />
               {errors.confirm_password && (
-                <FormErrorMessage>
-                  {errors.confirm_password.message}
-                </FormErrorMessage>
+                <FormErrorMessage>{errors.confirm_password.message}</FormErrorMessage>
               )}
             </FormControl>
             <PermissionsCheckboxGroup
@@ -176,7 +179,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
         </ModalContent>
       </Modal>
     </>
-  )
-}
+  );
+};
 
-export default AddUser
+export default AddUser;

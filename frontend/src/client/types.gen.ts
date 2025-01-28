@@ -242,23 +242,40 @@ export type ItemsDeleteItemResponse = Message
 
 export type ImagesUploadFileData = {
   formData: Body_images_upload_file
+  itemId: string
+  userId: string
 }
 
 export type ImagesUploadFileResponse = unknown
 
+export type ImagesGetFilesData = {
+  itemId: string
+  userId: string
+}
+
+export type ImagesGetFilesResponse = unknown
+
 export type ImagesDeleteFileData = {
   fileName: string
+  itemId: string
+  userId: string
 }
 
 export type ImagesDeleteFileResponse = unknown
 
-export type ImagesGetFilesResponse = unknown
-
 export type ImagesGetFileData = {
   fileName: string
+  itemId: string
+  userId: string
 }
 
 export type ImagesGetFileResponse = unknown
+
+export type ImagesDeleteItemImagesData = {
+  itemId: string
+}
+
+export type ImagesDeleteItemImagesResponse = unknown
 
 export type PrivateCreateUserData = {
   requestBody: PrivateUserCreate

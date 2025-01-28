@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Button,
   FormControl,
@@ -15,11 +14,13 @@ import { type ApiError } from "../../client/core/ApiError";
 import { itemsUpdateItem } from "../../client/sdk.gen";
 import useCustomToast from "../../hooks/useCustomToast";
 import { handleError } from "../../utils";
+import { UserPublic } from "../../client";
 
 import ImagesUploader from "./ImagesUploader";
 
 const EditItem = ({ item, onSuccess }: { item: ItemPublic; onSuccess: () => void }) => {
   const queryClient = useQueryClient();
+  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const showToast = useCustomToast();
 
   const {
@@ -33,7 +34,7 @@ const EditItem = ({ item, onSuccess }: { item: ItemPublic; onSuccess: () => void
     criteriaMode: "all",
     defaultValues: {
       id: item?.id,
-      owner_id: item?.owner_id,
+      owner_id: item?.owner_id || currentUser?.id,
       title: item?.title,
       description: item?.description || "",
       model: item?.model || "",
@@ -49,7 +50,7 @@ const EditItem = ({ item, onSuccess }: { item: ItemPublic; onSuccess: () => void
       showToast("Success!", "Item updated successfully.", "success");
       reset();
       queryClient.invalidateQueries({ queryKey: ["items"] }); // Ensure item list refreshes
-      onSuccess(); // Close the modal and update parent
+      onSuccess();
     },
     onError: (err: ApiError) => {
       handleError(err, showToast);
@@ -84,19 +85,16 @@ const EditItem = ({ item, onSuccess }: { item: ItemPublic; onSuccess: () => void
         {errors.title && <FormErrorMessage>{errors.title.message}</FormErrorMessage>}
       </FormControl>
 
-      {/* Description Field */}
       <FormControl mt={4}>
         <FormLabel htmlFor="description">Description</FormLabel>
         <Input id="description" {...register("description")} placeholder="Description" />
       </FormControl>
 
-      {/* Model Field */}
       <FormControl mt={4}>
         <FormLabel htmlFor="model">Model</FormLabel>
         <Input id="model" {...register("model")} placeholder="Model" />
       </FormControl>
 
-      {/* Certificate Field */}
       <FormControl mt={4}>
         <FormLabel htmlFor="certificate">Certificate</FormLabel>
         <Input id="certificate" {...register("certificate")} placeholder="Certificate" />
@@ -104,7 +102,6 @@ const EditItem = ({ item, onSuccess }: { item: ItemPublic; onSuccess: () => void
 
       <ImagesUploader onImagesChange={handleImagesChange} _item={item ?? {}} />
 
-      {/* Submit Button */}
       <Button
         variant="primary"
         type="submit"

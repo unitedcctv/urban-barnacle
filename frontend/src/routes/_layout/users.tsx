@@ -74,7 +74,7 @@ function UsersTable() {
         <Table size={{ base: "sm", md: "md" }}>
           <Thead>
             <Tr>
-              <Th width="15%">Full name</Th>
+              <Th width="15%">User Name</Th>
               <Th width="40%">Email</Th>
               <Th width="35%">Permissions</Th>
               <Th width="5%">Status</Th>

@@ -12,7 +12,7 @@ const ItemShow = ({ item }: { item: ItemPublic }) => {
     if (item.images) {
       const firstFileName = item.images.split(",")[0]?.trim();
       if (firstFileName) {
-        const src = images_url + firstFileName;
+        const src = images_url.concat(item.id, "/", item.owner_id, "/", firstFileName)
         setImageSrc(src);
       }
     }

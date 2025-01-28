@@ -46,11 +46,14 @@ import type {
   ItemsDeleteItemResponse,
   ImagesUploadFileData,
   ImagesUploadFileResponse,
+  ImagesGetFilesData,
+  ImagesGetFilesResponse,
   ImagesDeleteFileData,
   ImagesDeleteFileResponse,
-  ImagesGetFilesResponse,
   ImagesGetFileData,
   ImagesGetFileResponse,
+  ImagesDeleteItemImagesData,
+  ImagesDeleteItemImagesResponse,
   PrivateCreateUserData,
   PrivateCreateUserResponse,
 } from "./types.gen"
@@ -529,6 +532,8 @@ export const itemsDeleteItem = (
 /**
  * Upload File
  * @param data The data for the request.
+ * @param data.itemId
+ * @param data.userId
  * @param data.formData
  * @returns unknown Successful Response
  * @throws ApiError
@@ -538,7 +543,11 @@ export const imagesUploadFile = (
 ): CancelablePromise<ImagesUploadFileResponse> => {
   return __request(OpenAPI, {
     method: "POST",
-    url: "/api/v1/images/",
+    url: "/api/v1/images/{item_id}/{user_id}",
+    path: {
+      item_id: data.itemId,
+      user_id: data.userId,
+    },
     formData: data.formData,
     mediaType: "multipart/form-data",
     errors: {
@@ -548,8 +557,34 @@ export const imagesUploadFile = (
 }
 
 /**
+ * Get Files
+ * @param data The data for the request.
+ * @param data.itemId
+ * @param data.userId
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const imagesGetFiles = (
+  data: ImagesGetFilesData,
+): CancelablePromise<ImagesGetFilesResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/images/{item_id}/{user_id}",
+    path: {
+      item_id: data.itemId,
+      user_id: data.userId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
  * Delete File
  * @param data The data for the request.
+ * @param data.itemId
+ * @param data.userId
  * @param data.fileName
  * @returns unknown Successful Response
  * @throws ApiError
@@ -559,8 +594,10 @@ export const imagesDeleteFile = (
 ): CancelablePromise<ImagesDeleteFileResponse> => {
   return __request(OpenAPI, {
     method: "DELETE",
-    url: "/api/v1/images/",
-    query: {
+    url: "/api/v1/images/{item_id}/{user_id}/{file_name}",
+    path: {
+      item_id: data.itemId,
+      user_id: data.userId,
       file_name: data.fileName,
     },
     errors: {
@@ -570,20 +607,10 @@ export const imagesDeleteFile = (
 }
 
 /**
- * Get Files
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const imagesGetFiles = (): CancelablePromise<ImagesGetFilesResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/images/",
-  })
-}
-
-/**
  * Get File
  * @param data The data for the request.
+ * @param data.itemId
+ * @param data.userId
  * @param data.fileName
  * @returns unknown Successful Response
  * @throws ApiError
@@ -593,9 +620,33 @@ export const imagesGetFile = (
 ): CancelablePromise<ImagesGetFileResponse> => {
   return __request(OpenAPI, {
     method: "GET",
-    url: "/api/v1/images/{file_name}",
+    url: "/api/v1/images/{item_id}/{user_id}/{file_name}",
     path: {
+      item_id: data.itemId,
+      user_id: data.userId,
       file_name: data.fileName,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Delete Item Images
+ * @param data The data for the request.
+ * @param data.itemId
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const imagesDeleteItemImages = (
+  data: ImagesDeleteItemImagesData,
+): CancelablePromise<ImagesDeleteItemImagesResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/api/v1/images/{item_id}",
+    path: {
+      item_id: data.itemId,
     },
     errors: {
       422: "Validation Error",

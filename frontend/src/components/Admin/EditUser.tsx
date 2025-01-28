@@ -41,7 +41,7 @@ const EditUser = ({ user, isOpen, onClose }: EditUserProps) => {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isDirty },
+    formState: { isSubmitting },
   } = useForm<UserUpdateForm>({
     mode: "onBlur",
     criteriaMode: "all",
@@ -67,7 +67,7 @@ const EditUser = ({ user, isOpen, onClose }: EditUserProps) => {
   })
 
   const onSubmit: SubmitHandler<UserUpdateForm> = async (data) => {
-    data.permissions = permissions // Add the permissions string to the form data
+    data.permissions = permissions
     mutation.mutate(data)
   }
 

@@ -44,40 +44,40 @@ export default function Home() {
     <Box>
       {items.data.map((item: any) => {
 
-      if (!item?.images) return null
-      const [firstImage] = item.images.split(",")
+        if (!item?.images) return null
+        const [firstImage] = item.images.split(",")
 
-      if (!firstImage?.trim()) return null
-      const image_url = images_url.concat(firstImage.trim())
+        if (!firstImage?.trim()) return null
+        const image_url = images_url.concat(item.id, "/", item.owner_id, "/", firstImage.trim())
 
-        return (
-          <Flex
-            key={item.id}
-            bgImage={`url(${image_url})`}
-            bgAttachment="fixed"
-            bgSize="cover"
-            bgPosition="center"
-            h="72rem"
-            mb="2rem"
-            align="center"
-            justify="center"
-            direction="column"
-            color="white"
-          >
-          <Box
-            w="30%"
-            padding="1rem"
-            bg="rgba(0,0,0,0.5)"
-            position="absolute"
-            left={0}
-          >
-            <Heading size="lg" mb={2}>
-              {item.title ?? "Parallax Title"}
-            </Heading>
-            <Text>This is a placeholder for text fields that can be populated later.</Text>
-          </Box>
-          </Flex>
-        )
+          return (
+            <Flex
+              key={item.id}
+              bgImage={`url(${image_url})`}
+              bgAttachment="fixed"
+              bgSize="cover"
+              bgPosition="center"
+              h="72rem"
+              mb="2rem"
+              align="center"
+              justify="center"
+              direction="column"
+              color="white"
+            >
+            <Box
+              w="30%"
+              padding="1rem"
+              bg="rgba(0,0,0,0.5)"
+              position="absolute"
+              left={0}
+            >
+              <Heading size="lg" mb={2}>
+                {item.title ?? "Parallax Title"}
+              </Heading>
+              <Text>This is a placeholder for text fields that can be populated later.</Text>
+            </Box>
+            </Flex>
+          )
       })}
     </Box>
   )

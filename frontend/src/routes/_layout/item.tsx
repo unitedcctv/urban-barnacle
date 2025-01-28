@@ -19,8 +19,8 @@ import {
 import { type ItemPublic } from "../../client/index.ts";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import EditItem from "../../components/Items/EditItem.tsx";
-import { itemsReadItem, itemsDeleteItem } from "../../client/sdk.gen.ts";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { itemsReadItem, itemsDeleteItem, imagesDeleteItemImages } from "../../client/sdk.gen.ts";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useCustomToast from "../../hooks/useCustomToast";
 import { images_url } from "../../utils";
 import { useNavigate } from "@tanstack/react-router";
@@ -35,6 +35,7 @@ function Item({ item }: { item: ItemPublic }) {
   const itemId = (search as { id: string }).id;
   const navigate = useNavigate();
   const showToast = useCustomToast();
+  const queryClient = useQueryClient();
 
   // Use the item directly if passed in, or fetch below
   let itemData: ItemPublic | undefined = item;
@@ -61,10 +62,29 @@ function Item({ item }: { item: ItemPublic }) {
 
   const [buttonsDisabled, setButtonsDisabled] = React.useState(false);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (itemId) {
-      deleteMutation.mutate(itemId);
-      navigate({ to: "/gallery" });
+      try {
+        // Attempt to delete the item images first
+        await imagesDeleteItemImages({itemId});
+      } catch (error) {
+        console.error(`Error deleting images for item ${itemId}:`, error);
+        showToast("Error!", `Failed to delete images for item ${itemId}.`, "error");
+      } finally {
+        // Always attempt to delete the item
+        try {
+          deleteMutation.mutate(itemId, {
+            onSuccess: () => {
+              // Invalidate the items query to refetch the items list
+              queryClient.invalidateQueries({ queryKey: ['items'] });
+              navigate({ to: "/gallery" });
+            }
+          });
+        } catch (error) {
+          console.error(`Error deleting item ${itemId}:`, error);
+          showToast("Error!", `Failed to delete item ${itemId}.`, "error");
+        }
+      }
     } else {
       showToast("Error!", "Failed to delete item.", "error");
     }
@@ -82,7 +102,7 @@ function Item({ item }: { item: ItemPublic }) {
     if (itemData?.images && typeof itemData.images === "string") {
       return itemData.images
         .split(",")
-        .map((img) => images_url.concat(img.trim()))
+        .map((img) => images_url.concat(itemData.id, "/", itemData.owner_id, "/", img.trim()))
         .filter(Boolean);
     }
     return [];

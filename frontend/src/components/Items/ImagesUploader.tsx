@@ -111,7 +111,7 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({
 
     for (const file of e.target.files) {
       try {
-        const response = await imagesUploadFile({ formData: { file } }) as { url: string }
+        const response = await imagesUploadFile({ formData: { file }, itemId: _item.id, userId: _item.owner_id }) as { url: string }
         const uploadedUrl = response.url
         const fileNameWithSuffix = uploadedUrl.split("/").pop()
         const fileNameWithoutSuffix = fileNameWithSuffix?.split(".")[0] ?? ""
@@ -146,7 +146,7 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({
   const handleDeleteFile = async (fileToDelete: UploadedFile) => {
     try {
       // Call the SDK function to delete the file on the server
-      await imagesDeleteFile({ fileName: fileToDelete.url })
+      await imagesDeleteFile({ fileName: fileToDelete.url, itemId: _item.id, userId: _item.owner_id })
 
       // Update local state after successful deletion
       setFiles((prev) => {

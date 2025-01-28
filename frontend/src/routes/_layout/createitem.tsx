@@ -17,6 +17,7 @@ import useCustomToast from "../../hooks/useCustomToast";
 import { handleError } from "../../utils";
 import ImagesUploader from "../../components/Items/ImagesUploader";
 import { createFileRoute } from "@tanstack/react-router";
+import { UserPublic } from "../../client";
 
 export const Route = createFileRoute("/_layout/createitem")({
   component: CreateItem,
@@ -28,10 +29,11 @@ function CreateItem() {
   const queryClient = useQueryClient();
   const showToast = useCustomToast();
   const navigate = useNavigate();
+  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
 
   let item: ItemPublic = {
-    id: "",
-    owner_id: "",
+    id: createdItemId || "",
+    owner_id: currentUser?.id || "",
     title: "",
     description: "",
     model: "",
@@ -159,7 +161,7 @@ function CreateItem() {
         mt={4}
         isDisabled={!isItemStarted && !title}
       >
-        {isItemStarted ? "Create Item" : "Initialise Item"}
+        {isItemStarted ? "Update Item" : "Initialise Item"}
       </Button>
     </Box>
   );
