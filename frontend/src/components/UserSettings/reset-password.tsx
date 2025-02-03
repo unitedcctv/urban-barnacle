@@ -15,7 +15,7 @@ import { type SubmitHandler, useForm } from "react-hook-form"
 import { type ApiError } from "../../client/core/ApiError"
 import { loginResetPassword } from "../../client/sdk.gen"
 import { type NewPassword } from "../../client/types.gen"
-import { isLoggedIn } from "../../hooks/useAuth"
+// import { isLoggedIn } from "../../hooks/useAuth"
 import useCustomToast from "../../hooks/useCustomToast"
 import { confirmPasswordRules, handleError, passwordRules } from "../../utils"
 
@@ -111,3 +111,5 @@ function ResetPassword() {
     </Container>
   )
 }
+
+export default ResetPassword

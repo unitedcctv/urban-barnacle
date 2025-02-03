@@ -1,18 +1,18 @@
-import { Flex, Icon, Text, useColorModeValue } from "@chakra-ui/react"
-import { useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
-import { FiTool, FiSettings, FiUsers, FiEye } from "react-icons/fi"
+import { Flex, Icon, Text, useColorModeValue } from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { FiTool, FiSettings, FiUsers, FiEye } from "react-icons/fi";
 import UrbanBarnacleLogo from "../../theme/assets/urban_barnacle.png";
 
-import type { UserPublic } from "../../client"
+import type { UserPublic } from "../../client";
 
 const items = [
   { icon: UrbanBarnacleLogo, title: "Urban Barnacle", path: "/" },
   { icon: FiEye, title: "Gallery", path: "/gallery" },
-]
+];
 
 interface SidebarItemsProps {
-  onClose?: () => void
+  onClose?: () => void;
 }
 
 const SidebarItems = ({ onClose }: SidebarItemsProps) => {
@@ -20,35 +20,34 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   const textColor = useColorModeValue("ui.main", "ui.light");
   const bgActive = useColorModeValue("#E2E8F0", "#4A5568");
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"]);
-  let finalItems = items
+  let finalItems = items;
 
   finalItems = currentUser
     ? [...finalItems, { icon: FiUsers, title: "Users", path: "/users" }, { icon: FiTool, title: "Create Item", path: "/createitem" }]
     : finalItems;
 
   if (currentUser?.is_active)
-    finalItems = [...finalItems, { icon: FiSettings, title: "My Settings", path: "/settings" }]
+    finalItems = [...finalItems, { icon: FiSettings, title: "My Settings", path: "/settings" }];
 
-  const listItems = finalItems.map(({ icon, title, path }) => (
+  const listItems = finalItems.map(({ icon, title, path }, index) => (
     <Flex
       as={Link}
       to={path}
       p={2}
       key={title}
-      activeProps={{
-        style: {
-          background: bgActive,
-        },
+      _active={{
+        bg: bgActive,
       }}
       color={textColor}
       onClick={onClose}
       align="center" // Ensures icon and text are aligned
+      style={index === 0 ? { fontFamily: 'Lobster, cursive' } : {}}
     >
-    {typeof icon === "string" ? (
-      <img src={icon} alt={title} style={{ width: "48px", height: "48px" }} />
-    ) : (
-      <Icon as={icon} alignSelf="center" />
-    )}
+      {typeof icon === "string" ? (
+        <img src={icon} alt={title} style={{ width: "48px", height: "48px" }} />
+      ) : (
+        <Icon as={icon} alignSelf="center" />
+      )}
       <Text ml={2}>{title}</Text>
     </Flex>
   ));
@@ -60,4 +59,4 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   );
 };
 
-export default SidebarItems
+export default SidebarItems;

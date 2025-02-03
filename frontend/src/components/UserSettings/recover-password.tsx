@@ -12,7 +12,7 @@ import { type SubmitHandler, useForm } from "react-hook-form"
 
 import { type ApiError } from "../../client/core/ApiError"
 import { loginRecoverPassword } from "../../client/sdk.gen"
-import { isLoggedIn } from "../../hooks/useAuth"
+// import { isLoggedIn } from "../../hooks/useAuth"
 import useCustomToast from "../../hooks/useCustomToast"
 import { emailPattern, handleError } from "../../utils"
 
@@ -91,3 +91,5 @@ function RecoverPassword() {
     </Container>
   )
 }
+
+export default RecoverPassword

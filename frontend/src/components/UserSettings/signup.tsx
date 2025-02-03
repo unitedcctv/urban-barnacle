@@ -11,13 +11,14 @@ import {
 } from "@chakra-ui/react"
 import {
   Link as RouterLink,
-  createFileRoute,
-  redirect,
+  // createFileRoute,
+  // redirect,
 } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
 import type { UserRegister } from "../../client"
-import useAuth, { isLoggedIn } from "../../hooks/useAuth"
+// import useAuth, { isLoggedIn } from "../../hooks/useAuth"
+import useAuth from "../../hooks/useAuth"
 import { confirmPasswordRules, emailPattern, passwordRules } from "../../utils"
 
 interface UserRegisterForm extends UserRegister {
