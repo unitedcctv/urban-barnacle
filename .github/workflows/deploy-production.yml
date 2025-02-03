@@ -25,6 +25,9 @@ jobs:
       EMAILS_FROM_EMAIL: ${{ secrets.EMAILS_FROM_EMAIL }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      FRONTEND_HOST: ${{ vars.FRONTEND_HOST }}
+      POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+      POSTGRES_DB: ${{ vars.POSTGRES_DB }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
