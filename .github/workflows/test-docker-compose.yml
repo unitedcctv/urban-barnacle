@@ -3,7 +3,7 @@ name: Test Docker Compose
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     types:
       - opened
@@ -13,10 +13,6 @@ jobs:
 
   test-docker-compose:
     runs-on: ubuntu-latest
-    env:
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-      POSTGRES_DB: ${{ vars.POSTGRES_DB }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

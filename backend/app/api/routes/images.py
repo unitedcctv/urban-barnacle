@@ -21,7 +21,7 @@ class FileRequest(BaseModel):
     item_id: str
 
 @router.post("/{item_id}/{user_id}")
-async def upload_file(item_id: str, user_id: str, file: UploadFile = File(...)):
+async def upload_file(item_id: str, user_id: str, file: UploadFile = File(...)) -> dict:
     if settings.ENVIRONMENT == "production":
         # Save to S3 in production
         return {"url": await save_to_s3(file)}
@@ -30,10 +30,10 @@ async def upload_file(item_id: str, user_id: str, file: UploadFile = File(...)):
         return {"url": await save_to_local(file, item_id, user_id)}
 
 @router.delete("/{item_id}/{user_id}/{file_name}")
-async def delete_file(item_id: str, user_id: str, file_name: str):
+async def delete_file(item_id: str, user_id: str, file_name: str) -> dict:
     if settings.ENVIRONMENT == "production":
         # Delete the file from S3 in production
-        pass
+        raise HTTPException(status_code=501, detail="S3 listing not implemented")
     else:
         # Delete the file from the local folder in development
         file_path = Path(f"{UPLOAD_DIR}/{item_id}/{user_id}/{file_name}")
@@ -48,10 +48,10 @@ async def delete_file(item_id: str, user_id: str, file_name: str):
             raise HTTPException(status_code=500, detail="Failed to delete file")
 
 @router.delete("/{item_id}")
-async def delete_item_images(item_id: str):
+async def delete_item_images(item_id: str) -> dict:
     if settings.ENVIRONMENT == "production":
         # Delete the folder from S3 in production
-        pass
+        raise HTTPException(status_code=501, detail="S3 listing not implemented")
     else:
         # Delete the folder from the local folder in development
         item_dir = Path(f"{UPLOAD_DIR}/{item_id}")
@@ -68,10 +68,10 @@ async def delete_item_images(item_id: str):
             raise HTTPException(status_code=500, detail="Failed to delete item images")
 
 @router.get("/{item_id}/{user_id}")
-async def get_files(item_id: str, user_id: str):
+async def get_files(item_id: str, user_id: str) -> dict:
     if settings.ENVIRONMENT == "production":
         # Get files from S3 in production
-        pass
+        raise HTTPException(status_code=501, detail="S3 listing not implemented")
     else:
         # Get files from the local folder in development
         upload_dir = Path(f"{UPLOAD_DIR}/{item_id}/{user_id}")
@@ -79,7 +79,7 @@ async def get_files(item_id: str, user_id: str):
         return {"files": files}
 
 @router.get("/{item_id}/{user_id}/{file_name}")
-async def get_file(item_id: str, user_id: str, file_name: str):
+async def get_file(item_id: str, user_id: str, file_name: str) -> FileResponse:
     if settings.ENVIRONMENT == "production":
         # Implement logic to stream file from S3 in production
         # For example, use `boto3` to fetch the file and stream it

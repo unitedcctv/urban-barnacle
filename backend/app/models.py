@@ -67,7 +67,7 @@ class ItemBase(SQLModel):
     def get_images(self) -> list[str]:
         return self.images.split(',') if self.images else []
 
-    def set_images(self, images: list[str]):
+    def set_images(self, images: list[str]) -> None:
         self.images = ','.join(images)
 
 
