@@ -1,11 +1,13 @@
 import os
-from pathlib import Path
-from app.core.config import settings
 from logging import getLogger
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
+from pathlib import Path
+
+import boto3
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-import boto3
+
+from app.core.config import settings
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -42,7 +44,7 @@ async def delete_file(item_id: str, user_id: str, file_name: str):
             if not any(user_dir.iterdir()):
                 user_dir.rmdir()
             return {"message": "File deleted successfully"}
-        except Exception as e:
+        except Exception as _:
             raise HTTPException(status_code=500, detail="Failed to delete file")
 
 @router.delete("/{item_id}")
@@ -62,7 +64,7 @@ async def delete_item_images(item_id: str):
                         user_dir.rmdir()
                 item_dir.rmdir()
             return {"message": "Item images deleted successfully"}
-        except Exception as e:
+        except Exception as _:
             raise HTTPException(status_code=500, detail="Failed to delete item images")
 
 @router.get("/{item_id}/{user_id}")
@@ -103,16 +105,18 @@ async def save_to_s3(file: UploadFile) -> str:
     except Exception as e:
         logging.error(f"Failed to upload file to S3: {e}")
         raise HTTPException(status_code=500, detail="Failed to upload file")
-    
+
 async def save_to_local(file: UploadFile, item_id: str, user_id: str) -> str:
     """Save the file to a local folder and return the file's local path."""
     upload_dir = Path(f"{UPLOAD_DIR}/{item_id}/{user_id}/")
     upload_dir.mkdir(parents=True, exist_ok=True)
 
-    file_path = upload_dir / file.filename
+    if file.filename is not None:
+        file_path = upload_dir / file.filename
+
     try:
         with file_path.open("wb") as f:
             f.write(await file.read())
         return str(file_path)
-    except Exception as e:
+    except Exception as _:
         raise HTTPException(status_code=500, detail="Failed to save file locally")

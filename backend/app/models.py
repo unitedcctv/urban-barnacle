@@ -8,7 +8,7 @@ from sqlmodel import Field, Relationship, SQLModel
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     is_active: bool = True
-    permissions: str | None = Field(default=None, max_length=255)
+    permissions: str = Field(default="", max_length=255)
     full_name: str | None = Field(default=None, max_length=255)
 
 
@@ -122,7 +122,7 @@ class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
 
-class ImageUpload():
+class ImageUpload:
     image: str
     item_id: uuid.UUID
     owner_id: uuid.UUID = Field(
