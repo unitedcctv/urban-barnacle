@@ -16,18 +16,23 @@ logging.setLevel("INFO")
 
 UPLOAD_DIR = "./uploads"
 
+
 class FileRequest(BaseModel):
     user_id: str
     item_id: str
 
+
 @router.post("/{item_id}/{user_id}")
-async def upload_file(item_id: str, user_id: str, file: UploadFile = File(...)) -> dict[str, str]:
+async def upload_file(
+    item_id: str, user_id: str, file: UploadFile = File(...)
+) -> dict[str, str]:
     if settings.ENVIRONMENT == "production":
         # Save to S3 in production
         return {"url": await save_to_s3(file)}
     else:
         # Save to local folder in development
         return {"url": await save_to_local(file, item_id, user_id)}
+
 
 @router.delete("/{item_id}/{user_id}/{file_name}")
 async def delete_file(item_id: str, user_id: str, file_name: str) -> dict[str, str]:
@@ -46,6 +51,7 @@ async def delete_file(item_id: str, user_id: str, file_name: str) -> dict[str, s
             return {"message": "File deleted successfully"}
         except Exception as _:
             raise HTTPException(status_code=500, detail="Failed to delete file")
+
 
 @router.delete("/{item_id}")
 async def delete_item_images(item_id: str) -> dict[str, str]:
@@ -67,6 +73,7 @@ async def delete_item_images(item_id: str) -> dict[str, str]:
         except Exception as _:
             raise HTTPException(status_code=500, detail="Failed to delete item images")
 
+
 @router.get("/{item_id}/{user_id}")
 async def get_files(item_id: str, user_id: str) -> dict[str, str | list[str]]:
     if settings.ENVIRONMENT == "production":
@@ -77,6 +84,7 @@ async def get_files(item_id: str, user_id: str) -> dict[str, str | list[str]]:
         upload_dir = Path(f"{UPLOAD_DIR}/{item_id}/{user_id}")
         files = [file.name for file in upload_dir.iterdir()]
         return {"files": files}
+
 
 @router.get("/{item_id}/{user_id}/{file_name}")
 async def get_file(item_id: str, user_id: str, file_name: str) -> FileResponse:
@@ -90,6 +98,7 @@ async def get_file(item_id: str, user_id: str, file_name: str) -> FileResponse:
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="File not found")
         return FileResponse(file_path)
+
 
 async def save_to_s3(file: UploadFile) -> str:
     """Save the file to an S3 bucket and return the file's URL."""
@@ -105,6 +114,7 @@ async def save_to_s3(file: UploadFile) -> str:
     except Exception as e:
         logging.error(f"Failed to upload file to S3: {e}")
         raise HTTPException(status_code=500, detail="Failed to upload file")
+
 
 async def save_to_local(file: UploadFile, item_id: str, user_id: str) -> str:
     """Save the file to a local folder and return the file's local path."""

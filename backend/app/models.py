@@ -65,10 +65,10 @@ class ItemBase(SQLModel):
     certificate: str | None = Field(default=None)
 
     def get_images(self) -> list[str]:
-        return self.images.split(',') if self.images else []
+        return self.images.split(",") if self.images else []
 
     def set_images(self, images: list[str]) -> None:
-        self.images = ','.join(images)
+        self.images = ",".join(images)
 
 
 # Properties to receive on item creation
@@ -121,6 +121,7 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
 
 class ImageUpload:
     image: str
