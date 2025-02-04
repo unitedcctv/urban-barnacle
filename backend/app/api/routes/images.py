@@ -21,7 +21,7 @@ class FileRequest(BaseModel):
     item_id: str
 
 @router.post("/{item_id}/{user_id}")
-async def upload_file(item_id: str, user_id: str, file: UploadFile = File(...)) -> dict:
+async def upload_file(item_id: str, user_id: str, file: UploadFile = File(...)) -> dict[str, str]:
     if settings.ENVIRONMENT == "production":
         # Save to S3 in production
         return {"url": await save_to_s3(file)}
@@ -30,7 +30,7 @@ async def upload_file(item_id: str, user_id: str, file: UploadFile = File(...)) 
         return {"url": await save_to_local(file, item_id, user_id)}
 
 @router.delete("/{item_id}/{user_id}/{file_name}")
-async def delete_file(item_id: str, user_id: str, file_name: str) -> dict:
+async def delete_file(item_id: str, user_id: str, file_name: str) -> dict[str, str]:
     if settings.ENVIRONMENT == "production":
         # Delete the file from S3 in production
         raise HTTPException(status_code=501, detail="S3 listing not implemented")
@@ -48,7 +48,7 @@ async def delete_file(item_id: str, user_id: str, file_name: str) -> dict:
             raise HTTPException(status_code=500, detail="Failed to delete file")
 
 @router.delete("/{item_id}")
-async def delete_item_images(item_id: str) -> dict:
+async def delete_item_images(item_id: str) -> dict[str, str]:
     if settings.ENVIRONMENT == "production":
         # Delete the folder from S3 in production
         raise HTTPException(status_code=501, detail="S3 listing not implemented")
@@ -68,7 +68,7 @@ async def delete_item_images(item_id: str) -> dict:
             raise HTTPException(status_code=500, detail="Failed to delete item images")
 
 @router.get("/{item_id}/{user_id}")
-async def get_files(item_id: str, user_id: str) -> dict:
+async def get_files(item_id: str, user_id: str) -> dict[str, str | list[str]]:
     if settings.ENVIRONMENT == "production":
         # Get files from S3 in production
         raise HTTPException(status_code=501, detail="S3 listing not implemented")
