@@ -18,7 +18,6 @@ jobs:
       POSTGRES_DB: test_db
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      POSTGRES_URL: postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}
       SECRET_KEY: "testsecret"
       FIRST_SUPERUSER: ${{ secrets.FIRST_SUPERUSER }}
       STACK_NAME: ${{ vars.STACK_NAME_STAGING }}
