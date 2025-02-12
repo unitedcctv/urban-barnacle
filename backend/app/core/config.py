@@ -63,12 +63,14 @@ class Settings(BaseSettings):
             scheme="postgresql+psycopg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
-            hosts=[{
-                "host": self.POSTGRES_SERVER,
-                "username": self.POSTGRES_USER,
-                "password": self.POSTGRES_PASSWORD,
-                "port": int(self.POSTGRES_PORT)
-            }],
+            hosts=[
+                MultiHostHost(
+                    host=self.POSTGRES_SERVER,
+                    username=self.POSTGRES_USER,
+                    password=self.POSTGRES_PASSWORD,
+                    port=int(self.POSTGRES_PORT),
+                )
+            ],
             port=int(self.POSTGRES_PORT),
             path=f"/{self.POSTGRES_DB}",
         )
