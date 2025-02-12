@@ -33,5 +33,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Prune Docker
+        run: docker system prune -af
       - run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} build
       - run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} up -d
