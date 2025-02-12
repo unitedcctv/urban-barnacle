@@ -31,6 +31,8 @@ jobs:
       DOCKER_IMAGE_BACKEND: ${{ vars.DOCKER_IMAGE_BACKEND }}
       DOCKER_IMAGE_FRONTEND: ${{ vars.DOCKER_IMAGE_FRONTEND }}
     steps:
+      - name: Configure sudoers
+        run: "echo \"$USER ALL=(ALL) NOPASSWD: /bin/rm, /usr/bin/apt-get\" | sudo tee /etc/sudoers.d/$USER"
       - name: Clean up disk space
         run: |
           sudo rm -rf /var/lib/docker
