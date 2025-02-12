@@ -31,6 +31,10 @@ jobs:
       DOCKER_IMAGE_BACKEND: ${{ vars.DOCKER_IMAGE_BACKEND }}
       DOCKER_IMAGE_FRONTEND: ${{ vars.DOCKER_IMAGE_FRONTEND }}
     steps:
+      - name: Clean up disk space
+        run: |
+          sudo rm -rf /var/lib/docker
+          sudo apt-get clean
       - name: Checkout
         uses: actions/checkout@v4
       - run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} build
