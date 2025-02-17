@@ -5,5 +5,5 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-urban_barnacle.pem
+barnacle_ssh.pem
 repo_env
