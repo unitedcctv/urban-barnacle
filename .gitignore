@@ -1,5 +1,5 @@
 .vscode
-.env
+*.env
 node_modules/
 /test-results/
 /playwright-report/
@@ -7,3 +7,4 @@ node_modules/
 /playwright/.cache/
 barnacle_ssh.pem
 repo_env
+*.pem
