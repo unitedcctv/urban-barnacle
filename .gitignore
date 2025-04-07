@@ -8,3 +8,4 @@ node_modules/
 barnacle_ssh.pem
 repo_env
 *.pem
+**/.venv
