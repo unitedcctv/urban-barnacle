@@ -6,11 +6,9 @@ from pydantic import (
     AnyUrl,
     BeforeValidator,
     HttpUrl,
-    PostgresDsn,
     computed_field,
     model_validator,
 )
-from pydantic_core import MultiHostHost
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
 
@@ -41,8 +39,7 @@ class Settings(BaseSettings):
         list[AnyUrl] | str, BeforeValidator(parse_cors)
     ] = []
 
-    @computed_field  # type: ignore[prop-decorator]
-    @property
+    @computed_field
     def all_cors_origins(self) -> list[str]:
         return [str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS] + [
             self.FRONTEND_HOST
@@ -56,23 +53,11 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
 
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
-        return PostgresDsn.build(
-            scheme="postgresql+psycopg",
-            username=self.POSTGRES_USER,
-            password=self.POSTGRES_PASSWORD,
-            hosts=[
-                MultiHostHost(
-                    host=self.POSTGRES_SERVER,
-                    username=self.POSTGRES_USER,
-                    password=self.POSTGRES_PASSWORD,
-                    port=int(self.POSTGRES_PORT),
-                )
-            ],
-            port=int(self.POSTGRES_PORT),
-            path=f"/{self.POSTGRES_DB}",
+    @computed_field
+    def SQLALCHEMY_DATABASE_URI(self) -> str:
+        return (
+            f"postgresql+psycopg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
 
     SMTP_TLS: bool = True
@@ -93,8 +78,7 @@ class Settings(BaseSettings):
 
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
 
-    @computed_field  # type: ignore[prop-decorator]
-    @property
+    @computed_field
     def emails_enabled(self) -> bool:
         return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
 
