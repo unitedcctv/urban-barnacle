@@ -1,4 +1,3 @@
-
 import disabledStyles from "./disabled-styles";
 
 const components = {
@@ -8,13 +7,12 @@ const components = {
         backgroundColor: "ui.main",
         color: "ui.light",
         _hover: {
-          backgroundColor: "#00766C",
+          // Replaced the teal color with a darker gray shade
+          backgroundColor: "ui.darkSlate",
         },
         _disabled: {
           ...disabledStyles,
-          _hover: {
-            ...disabledStyles,
-          },
+          _hover: { ...disabledStyles },
         },
       },
       danger: {
@@ -37,7 +35,41 @@ const components = {
       },
     },
   },
+  Radio: {
+    baseStyle: {
+      control: {
+        _checked: {
+          bg: "ui.main",
+          borderColor: "ui.main",
+          color: "ui.light", // color of the checkmark
+        },
+      },
+    },
+  },
+  Badge: {
+    baseStyle: {
+      borderRadius: "md",
+      px: 2,
+      py: 1,
+      textTransform: "uppercase",
+      fontSize: "sm",
+      fontWeight: "bold",
+    },
+    variants: {
+      solid: {
+        bg: "ui.main",
+        color: "ui.light",
+      },
+      subtle: {
+        bg: "ui.light",
+        color: "ui.main",
+      },
+      outline: {
+        color: "ui.main",
+        borderColor: "ui.main",
+      },
+    },
+  },
 };
 
 export default components;
-  

@@ -16,9 +16,9 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
 
   const renderPermissions = (permissions: string | null | undefined) => {
     if (!permissions) return <Text color="gray.500">No permissions</Text>
-  
+
     const permissionArray = permissions.split(",") // Split the string into an array
-  
+
     return (
       <Flex gap={2} wrap="wrap">
         {permissionArray.map((permission) => (

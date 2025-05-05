@@ -99,7 +99,7 @@ const EditUser = ({ user, isOpen, onClose }: EditUserProps) => {
                 Is active?
               </Checkbox>
             </FormControl>
-            
+
           </ModalBody>
 
           <ModalFooter gap={3}>

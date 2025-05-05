@@ -18,11 +18,13 @@ import type { UserPublic } from "../../client"
 import useAuth from "../../hooks/useAuth"
 import SidebarItems from "./SidebarItems"
 import LogInOut from "./LogInOut"
+import colors from "../../theme/colors";
 
 const Sidebar = () => {
   const queryClient = useQueryClient()
-  const textColor = useColorModeValue("ui.dark", "ui.light")
-  const secBgColor = useColorModeValue("ui.secondary", "ui.darkSlate")
+  const textColor = useColorModeValue(colors.ui.dark, colors.ui.light);
+  const secBgColor = useColorModeValue(colors.ui.light, colors.ui.dark);
+  const secBgHover = useColorModeValue(colors.ui.hoverLight, colors.ui.hoverDark);
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { logout } = useAuth()
@@ -58,15 +60,22 @@ const Sidebar = () => {
                   color="ui.danger"
                   fontWeight="bold"
                   alignItems="center"
+                  _hover={{ bg: secBgHover }}
                 >
                   <FiLogOut />
                   <Text ml={2}>Log out</Text>
                 </Flex>
               </Box>
               {currentUser?.email && (
-                <Text color={textColor} noOfLines={2} fontSize="sm" p={2}>
-                  Logged in as: {currentUser.email}
-                </Text>
+                <Flex
+                  p={2}
+                  bg={secBgColor}
+                  _hover={{ bg: secBgHover }}
+                >
+                  <Text color={textColor} noOfLines={2} fontSize="sm">
+                    Logged in as: {currentUser.email}
+                  </Text>
+                </Flex>
               )}
             </Flex>
           </DrawerBody>
@@ -92,13 +101,14 @@ const Sidebar = () => {
 
         <Flex align="center" gap={2}>
           {currentUser?.email && (
-            <Text
-              color={textColor}
-              noOfLines={1}
-              p={1}
+            <Flex
+              p={2}
+              bg={secBgColor}
             >
-              Logged in as: {currentUser.email}
-            </Text>
+              <Text color={textColor} noOfLines={1}>
+                Logged in as: {currentUser.email}
+              </Text>
+            </Flex>
           )}
         </Flex>
       </Flex>

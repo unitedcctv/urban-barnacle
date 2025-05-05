@@ -132,7 +132,7 @@ function UserInformation(){
           </Box>
           <Box mt={2} fontSize="sm" color="ui.dim">
             {permissions?.map((perm) => (
-              <Text key={perm}>{perm}</Text> 
+              <Text key={perm}>{perm}</Text>
             ))}
           </Box>
           <Flex mt={4} gap={3}>

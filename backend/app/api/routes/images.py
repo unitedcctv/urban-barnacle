@@ -2,7 +2,7 @@ import os
 from logging import getLogger
 from pathlib import Path
 
-import boto3
+import requests  # type: ignore
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -27,8 +27,8 @@ async def upload_file(
     item_id: str, user_id: str, file: UploadFile = File(...)
 ) -> dict[str, str]:
     if settings.ENVIRONMENT == "production":
-        # Save to S3 in production
-        return {"url": await save_to_s3(file)}
+        # Save to BunnyCDN in production
+        return {"url": await save_to_bunnycdn(file)}
     else:
         # Save to local folder in development
         return {"url": await save_to_local(file, item_id, user_id)}
@@ -89,9 +89,10 @@ async def get_files(item_id: str, user_id: str) -> dict[str, str | list[str]]:
 @router.get("/{item_id}/{user_id}/{file_name}")
 async def get_file(item_id: str, user_id: str, file_name: str) -> FileResponse:
     if settings.ENVIRONMENT == "production":
-        # Implement logic to stream file from S3 in production
-        # For example, use `boto3` to fetch the file and stream it
-        raise HTTPException(status_code=501, detail="S3 streaming not implemented")
+        # For BunnyCDN, streaming from storage is not implemented here
+        raise HTTPException(
+            status_code=501, detail="BunnyCDN file streaming not implemented"
+        )
     else:
         # Stream the file from the local folder in development
         file_path = Path(f"{UPLOAD_DIR}/{item_id}/{user_id}/{file_name}")
@@ -100,19 +101,37 @@ async def get_file(item_id: str, user_id: str, file_name: str) -> FileResponse:
         return FileResponse(file_path)
 
 
-async def save_to_s3(file: UploadFile) -> str:
-    """Save the file to an S3 bucket and return the file's URL."""
-    logging.info("Uploading file to S3")
-    s3_client = boto3.client("s3")
-    bucket_name = "your-s3-bucket-name"
+async def save_to_bunnycdn(file: UploadFile) -> str:
+    """Save the file to BunnyCDN storage and return the accessible URL."""
+    logging.info("Uploading file to BunnyCDN")
+    # Adjust these to match your BunnyCDN config:
+    storage_zone = "your-storage-zone"
+    bunny_api_key = "your-api-key"
+    folder_name = "YourFolderName"
 
     try:
-        s3_key = f"uploads/{file.filename}"
-        s3_client.upload_fileobj(file.file, bucket_name, s3_key)
-        s3_url = f"https://{bucket_name}.s3.amazonaws.com/{s3_key}"
-        return s3_url
+        # Read file content
+        content = await file.read()
+        bunny_path = f"{folder_name}/{file.filename}"
+        url = f"https://storage.bunnycdn.com/{storage_zone}/{bunny_path}"
+
+        headers = {
+            "AccessKey": bunny_api_key,
+            "Content-Type": "application/octet-stream",
+        }
+        # Upload via PUT
+        response = requests.put(url, data=content, headers=headers)
+        if response.status_code not in (200, 201):
+            raise HTTPException(
+                status_code=500, detail="Failed to upload file to BunnyCDN"
+            )
+
+        # Construct a public CDN URL for the uploaded file
+        bunny_url = f"https://{storage_zone}.b-cdn.net/{bunny_path}"
+        return bunny_url
+
     except Exception as e:
-        logging.error(f"Failed to upload file to S3: {e}")
+        logging.error(f"Failed to upload file to BunnyCDN: {e}")
         raise HTTPException(status_code=500, detail="Failed to upload file")
 
 
