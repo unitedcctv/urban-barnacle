@@ -14,6 +14,7 @@ jobs:
       - production
     env:
       ENVIRONMENT: production
+      BACKEND_CORS_ORIGINS: ${{ vars.BACKEND_CORS_ORIGINS }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       FIRST_SUPERUSER: ${{ secrets.FIRST_SUPERUSER }}
       FIRST_SUPERUSER_PASSWORD: ${{ secrets.FIRST_SUPERUSER_PASSWORD }}
