@@ -6,6 +6,5 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 barnacle_ssh.pem
-repo_env
 *.pem
 **/.venv
