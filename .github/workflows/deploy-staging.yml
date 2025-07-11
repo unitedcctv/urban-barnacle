@@ -41,3 +41,7 @@ jobs:
         run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} build
       - name: Deploy
         run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} up -d
+      - name: Show prestart logs if it fails
+        if: failure()
+        run: |
+          docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} logs prestart
