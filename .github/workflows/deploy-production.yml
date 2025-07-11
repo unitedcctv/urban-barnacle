@@ -21,6 +21,7 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
       SMTP_HOST: ${{ vars.SMTP_HOST }}
