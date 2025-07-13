@@ -18,7 +18,8 @@ import Login from "./login"
 import useAuth, { isLoggedIn } from "../../hooks/useAuth"
 
 async function fetchCurrentUser(): Promise<UserPublic | null> {
-  const response = await fetch("/api/currentUser")
+  // Correct backend endpoint for current user
+  const response = await fetch("/api/v1/users/me")
   if (!response.ok) return null
   return response.json()
 }
