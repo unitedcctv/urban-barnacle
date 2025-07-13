@@ -31,3 +31,14 @@ if settings.all_cors_origins:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+# Convenience endpoint for front-end requesting current user
+from app.api.deps import CurrentUser  # noqa: E402  noqa: F401
+from app.models import UserPublic  # noqa: E402
+
+
+@app.get("/api/currentUser", response_model=UserPublic, tags=["users"])
+def api_current_user(current_user: CurrentUser) -> UserPublic:  # noqa: D401
+    """Return the authenticated user (used by React app)."""
+    return current_user

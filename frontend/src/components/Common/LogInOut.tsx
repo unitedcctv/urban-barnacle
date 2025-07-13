@@ -18,8 +18,7 @@ import Login from "./login"
 import useAuth, { isLoggedIn } from "../../hooks/useAuth"
 
 async function fetchCurrentUser(): Promise<UserPublic | null> {
-  // Correct backend endpoint for current user
-  const response = await fetch("/api/v1/users/me")
+  const response = await fetch("/api/currentUser")
   if (!response.ok) return null
   return response.json()
 }
@@ -29,14 +28,14 @@ const LogInOut = () => {
   const queryClient = useQueryClient()
   const { logout } = useAuth()
 
+  const authenticated = isLoggedIn()
+
   // If you need the user data for display (e.g., to show "Logout" vs "Login"):
   const { data: currentUser } = useQuery<UserPublic | null>({
-    queryKey: ["currentUser"],
+    enabled: authenticated,
     queryFn: fetchCurrentUser,
+    queryKey: ["currentUser"],
   })
-
-  // Check if the user is logged in from your auth hook
-  const authenticated = isLoggedIn()
 
   // Whenever the user becomes authenticated, close the modal
   React.useEffect(() => {
