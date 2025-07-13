@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
 import { images_url } from "../../utils";
 import { Box, Text, Heading, Flex } from "@chakra-ui/react"
+import Login from "../../components/Common/login"
 
 export const Route = createFileRoute("/_layout/")({
     component: Home,
@@ -40,7 +41,7 @@ export default function Home() {
   }
 
   if (isError || !items) {
-    return <div>Error loading data.</div>
+    return <Login />
   }
 
   return (
