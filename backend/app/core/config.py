@@ -37,7 +37,9 @@ class Settings(BaseSettings):
 
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
-    ] = []
+    ] = [
+        "https://staging.urban-barnacle.io"
+    ]
 
     @computed_field
     def all_cors_origins(self) -> list[str]:

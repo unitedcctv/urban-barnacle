@@ -18,9 +18,12 @@ function getItemsQueryOptions() {
 }
 
 export default function Home() {
-  const { data: items, isLoading, isError } = useQuery(
-    getItemsQueryOptions()
-  )
+  const { data: items, isLoading, isError } = useQuery({
+    ...getItemsQueryOptions(),
+    enabled:
+      typeof window !== "undefined" &&
+      localStorage.getItem("access_token") !== null,
+  })
 
 // const imagesArray = React.useMemo(() => {
 //     if (itemData?.images && typeof itemData.images === "string") {
