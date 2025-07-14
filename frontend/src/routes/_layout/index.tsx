@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
 import { images_url } from "../../utils";
 import { Box, Text, Heading, Flex } from "@chakra-ui/react"
-import Login from "../../components/Common/login"
+import ErrorPage from "../../components/Common/ErrorPage"
+import HoldingPage from "../../components/Common/HoldingPage"
 
 export const Route = createFileRoute("/_layout/")({
     component: Home,
@@ -19,7 +20,7 @@ function getItemsQueryOptions() {
 }
 
 export default function Home() {
-  const { data: items, isLoading, isError } = useQuery({
+  const { data: items, isLoading, isError, error } = useQuery({
     ...getItemsQueryOptions(),
     enabled:
       typeof window !== "undefined" &&
@@ -40,8 +41,12 @@ export default function Home() {
     return <div>Loading...</div>
   }
 
-  if (isError || !items) {
-    return <Login />
+  if (isError) {
+    return <ErrorPage message={error instanceof Error ? error.message : undefined} />
+  }
+
+  if (!items) {
+    return <HoldingPage />
   }
 
   return (
