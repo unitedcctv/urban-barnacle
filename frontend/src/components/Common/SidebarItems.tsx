@@ -28,8 +28,9 @@ const SidebarItems = ({ onClose }: { onClose?: () => void }) => {
     return res.json();
   }
 
+  const token = localStorage.getItem("access_token");
   const { data: items = [], isLoading } = useQuery<SidebarItem[]>({
-    queryKey: ["sidebar"],
+    queryKey: ["sidebar", token],
     queryFn: fetchSidebar,
   });
   
