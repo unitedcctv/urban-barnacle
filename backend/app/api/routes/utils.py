@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic.networks import EmailStr
 
 from app.api.deps import get_current_active_superuser
-from app.models import Message
+from app.models import Message, UserPermission
 from app.utils import generate_test_email, send_email
 
 router = APIRouter(prefix="/utils", tags=["utils"])
@@ -24,6 +24,12 @@ def test_email(email_to: EmailStr) -> Message:
         html_content=email_data.html_content,
     )
     return Message(message="Test email sent")
+
+
+@router.get("/permissions/", response_model=list[str])
+async def list_permissions() -> list[str]:
+    """Return available user-permission strings."""
+    return [perm.value for perm in UserPermission]
 
 
 @router.get("/health-check/")

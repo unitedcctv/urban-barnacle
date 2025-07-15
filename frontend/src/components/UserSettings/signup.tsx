@@ -25,7 +25,12 @@ interface UserRegisterForm extends UserRegister {
   confirm_password: string
 }
 
-function SignUp() {
+interface SignUpProps {
+  onClose?: () => void
+  openLogin?: () => void
+}
+
+function SignUp({ onClose, openLogin }: SignUpProps = {}) {
   const { signUpMutation } = useAuth()
   const {
     register,
@@ -49,11 +54,10 @@ function SignUp() {
 
   return (
     <>
-      <Flex flexDir={{ base: "column", md: "row" }} justify="center" h="100vh">
+      <Flex flexDir={{ base: "column", md: "row" }} justify="center">
         <Container
           as="form"
           onSubmit={handleSubmit(onSubmit)}
-          h="100vh"
           maxW="sm"
           alignItems="stretch"
           justifyContent="center"
@@ -131,7 +135,18 @@ function SignUp() {
           </Button>
           <Text>
             Already have an account?{" "}
-            <Link as={RouterLink} to="/login" color="blue.500">
+            <Link
+              as={RouterLink}
+              to="/login"
+              color="blue.500"
+              onClick={(e) => {
+                if (onClose || openLogin) {
+                  e.preventDefault()
+                  onClose?.()
+                  if (openLogin) setTimeout(openLogin, 0)
+                }
+              }}
+            >
               Log In
             </Link>
           </Text>

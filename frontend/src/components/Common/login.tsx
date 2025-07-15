@@ -16,11 +16,18 @@ import {
   Link as RouterLink,
 } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
+
 import type { Body_login_login_access_token as AccessToken } from "../../client/types.gen"
+
 import useAuth from "../../hooks/useAuth"
 import { emailPattern } from "../../utils"
 
-function Login() {
+interface LoginProps {
+  onClose?: () => void
+  openSignUp?: () => void
+}
+
+function Login({ onClose, openSignUp }: LoginProps) {
   const [show, setShow] = useBoolean()
   const { loginMutation, error, resetError } = useAuth()
   const {
@@ -109,7 +116,14 @@ function Login() {
         </Button>
         <Text>
           Don't have an account?{" "}
-          <Link as={RouterLink} to="/signup" color="blue.500">
+          <Link
+            color="blue.500"
+            onClick={() => {
+              // Close the login modal first, then open sign-up on next tick so state updates don't clash
+              if (onClose) onClose()
+              if (openSignUp) setTimeout(openSignUp, 0)
+            }}
+          >
             Sign up
           </Link>
         </Text>

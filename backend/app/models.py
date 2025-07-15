@@ -1,14 +1,24 @@
 import uuid
 
 from pydantic import EmailStr
+from enum import Enum
+from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship, SQLModel
 
 
 # Shared properties
+class UserPermission(str, Enum):
+    SUPERUSER = "superuser"
+    USER = "user"
+
+
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     is_active: bool = True
-    permissions: str = Field(default="", max_length=255)
+    permissions: UserPermission = Field(
+        default=UserPermission.USER,
+        sa_column=Column(String(length=255), nullable=False),
+    )
     full_name: str | None = Field(default=None, max_length=255)
 
 

@@ -1,4 +1,4 @@
-import { Checkbox, FormControl } from "@chakra-ui/react"
+import { Checkbox, FormControl, Spinner } from "@chakra-ui/react"
 import { useState, useEffect } from "react"
 
 interface PermissionsCheckboxGroupProps {
@@ -11,6 +11,26 @@ const PermissionsCheckboxGroup = ({
   onPermissionsChange,
 }: PermissionsCheckboxGroupProps) => {
   const [permissions, setPermissions] = useState<string[]>([])
+  const [allPerms, setAllPerms] = useState<string[] | null>(null)
+
+  // Fetch list of available permissions from backend once
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/utils/permissions/`)
+        if (res.ok) {
+          const data: string[] = await res.json()
+          setAllPerms(data)
+        } else {
+          console.error("Failed to load permissions", await res.text())
+          setAllPerms([])
+        }
+      } catch (err) {
+        console.error("Error fetching permissions", err)
+        setAllPerms([])
+      }
+    })()
+  }, [])
 
   useEffect(() => {
     setPermissions(initialPermissions ? initialPermissions.split(",") : [])
@@ -24,46 +44,28 @@ const PermissionsCheckboxGroup = ({
     onPermissionsChange(updatedPermissions.join(",")) // Update parent component
   }
 
+  if (!allPerms) {
+    return <Spinner size="sm" />
+  }
+
   return (
     <>
-      <FormControl mt={4}>
-        <Checkbox
-          colorScheme="teal"
-          value="extended"
-          isChecked={permissions.includes("extended")}
-          onChange={(e) =>
-            handlePermissionChange(e.target.value, e.target.checked)
-          }
-        >
-          Extended
-        </Checkbox>
-      </FormControl>
-      <FormControl mt={4}>
-        <Checkbox
-          colorScheme="teal"
-          value="backstage"
-          isChecked={permissions.includes("backstage")}
-          onChange={(e) =>
-            handlePermissionChange(e.target.value, e.target.checked)
-          }
-        >
-          Back Stage
-        </Checkbox>
-      </FormControl>
-      <FormControl mt={4}>
-        <Checkbox
-          colorScheme="teal"
-          value="superuser"
-          isChecked={permissions.includes("superuser")}
-          onChange={(e) =>
-            handlePermissionChange(e.target.value, e.target.checked)
-          }
-        >
-          Super User
-        </Checkbox>
-      </FormControl>
+      {allPerms.map((perm) => (
+        <FormControl mt={4} key={perm}>
+          <Checkbox
+            colorScheme="teal"
+            value={perm}
+            isChecked={permissions.includes(perm)}
+            onChange={(e) =>
+              handlePermissionChange(e.target.value, e.target.checked)
+            }
+          >
+            {perm.charAt(0).toUpperCase() + perm.slice(1).replace(/_/g, " ")}
+          </Checkbox>
+        </FormControl>
+      ))}
     </>
-  )
+  );
 }
 
 export default PermissionsCheckboxGroup

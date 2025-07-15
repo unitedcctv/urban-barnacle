@@ -15,6 +15,7 @@ import { FiLogOut, FiLogIn } from "react-icons/fi"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { UserPublic } from "../../client"
 import Login from "./login"
+import SignUpModal from "../UserSettings/SignUpModal.tsx"
 import useAuth, { isLoggedIn } from "../../hooks/useAuth"
 
 async function fetchCurrentUser(): Promise<UserPublic | null> {
@@ -25,6 +26,7 @@ async function fetchCurrentUser(): Promise<UserPublic | null> {
 
 const LogInOut = () => {
   const { isOpen, onClose, onOpen } = useDisclosure()
+  const signUp = useDisclosure()
   const queryClient = useQueryClient()
   const { logout } = useAuth()
 
@@ -70,10 +72,12 @@ const LogInOut = () => {
           <ModalHeader>Login</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Login />
+            <Login onClose={onClose} openSignUp={signUp.onOpen} />
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      <SignUpModal isOpen={signUp.isOpen} onClose={signUp.onClose} openLogin={onOpen} />
     </>
   )
 }
