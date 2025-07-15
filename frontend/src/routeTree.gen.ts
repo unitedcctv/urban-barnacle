@@ -18,6 +18,7 @@ import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutGalleryImport } from './routes/_layout/gallery'
 import { Route as LayoutCreateitemImport } from './routes/_layout/createitem'
+import { Route as LayoutBusinessplanImport } from './routes/_layout/businessplan'
 
 // Create/Update Routes
 
@@ -56,6 +57,11 @@ const LayoutCreateitemRoute = LayoutCreateitemImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutBusinessplanRoute = LayoutBusinessplanImport.update({
+  path: '/businessplan',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -63,6 +69,10 @@ declare module '@tanstack/react-router' {
     '/_layout': {
       preLoaderRoute: typeof LayoutImport
       parentRoute: typeof rootRoute
+    }
+    '/_layout/businessplan': {
+      preLoaderRoute: typeof LayoutBusinessplanImport
+      parentRoute: typeof LayoutImport
     }
     '/_layout/createitem': {
       preLoaderRoute: typeof LayoutCreateitemImport
@@ -95,6 +105,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
+    LayoutBusinessplanRoute,
     LayoutCreateitemRoute,
     LayoutGalleryRoute,
     LayoutItemRoute,

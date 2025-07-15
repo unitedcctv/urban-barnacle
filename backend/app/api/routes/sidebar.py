@@ -1,0 +1,68 @@
+from typing import Annotated, List, TypedDict
+
+from fastapi import APIRouter, Depends, Header
+from sqlmodel import Session
+
+from app.api.deps import SessionDep, get_current_user
+from app.core import security
+from app.core.config import settings
+from app.models import TokenPayload, User
+import jwt
+from jwt.exceptions import InvalidTokenError
+from pydantic import ValidationError
+from app.models import UserPermission
+
+router = APIRouter(prefix="/sidebar", tags=["sidebar"])
+
+
+class SidebarItem(TypedDict):
+    title: str
+    path: str
+    icon: str
+
+
+def _get_user_optional(session: Session, authorization: str | None) -> User | None:
+    """Return current user if a valid Bearer token is supplied, else None."""
+    if not authorization:
+        return None
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not token:
+        return None
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+        )
+        token_data = TokenPayload(**payload)
+    except (InvalidTokenError, ValidationError):
+        return None
+    return session.get(User, token_data.sub)
+
+
+@router.get("/", response_model=List[SidebarItem])
+def get_sidebar_items(
+    *,
+    session: SessionDep,
+    authorization: str | None = Header(default=None, alias="Authorization"),
+) -> list[SidebarItem]:
+    """Return sidebar items appropriate for the current (optional) user."""
+
+    user = _get_user_optional(session, authorization)
+
+    items: list[SidebarItem] = [
+        {"title": "Gallery", "path": "/gallery", "icon": "FiEye"},
+    ]
+
+    if user:
+        # Logged-in users can create items.
+        items.append({"title": "My Settings", "path": "/settings", "icon": "FiSettings"})
+
+        if user.is_active:
+            items.append({"title": "Create Item", "path": "/createitem", "icon": "FiTool"})
+
+        if UserPermission.SUPERUSER in user.permissions:
+            items.append({"title": "Users", "path": "/users", "icon": "FiUsers"})
+
+        if user.permissions in [UserPermission.INVESTOR, UserPermission.SUPERUSER]:
+            items.append({"title": "Business Plan", "path": "/businessplan", "icon": "FiDollarSign"})
+
+    return items

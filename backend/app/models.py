@@ -10,6 +10,7 @@ from sqlmodel import Field, Relationship, SQLModel
 class UserPermission(str, Enum):
     SUPERUSER = "superuser"
     USER = "user"
+    INVESTOR = "investor"
 
 
 class UserBase(SQLModel):

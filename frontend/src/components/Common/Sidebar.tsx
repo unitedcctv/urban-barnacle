@@ -8,8 +8,10 @@ import {
   Flex,
   IconButton,
   Text,
-  useColorModeValue,
   useDisclosure,
+  Icon,
+  Flex as ChakraFlex,
+  useColorModeValue,
 } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { FiLogOut, FiMenu } from "react-icons/fi"
@@ -19,8 +21,18 @@ import useAuth from "../../hooks/useAuth"
 import SidebarItems from "./SidebarItems"
 import LogInOut from "./LogInOut"
 import colors from "../../theme/colors";
+import { Link } from "@tanstack/react-router";
+import type { ElementType } from "react";
+import UBLogoSvg from "../../theme/assets/UB.svg";
 
 const Sidebar = () => {
+  const logoColor = useColorModeValue(colors.ui.dark, colors.ui.light);
+  const UBLogo = () =>
+    typeof UBLogoSvg === "string" ? (
+      <img src={UBLogoSvg} alt="Urban Barnacle" style={{ width: "52px", height: "52px", padding: "4px" }} />
+    ) : (
+      <Icon as={UBLogoSvg as unknown as ElementType} boxSize={10} color={logoColor} />
+    );
   const queryClient = useQueryClient()
   const textColor = useColorModeValue(colors.ui.dark, colors.ui.light);
   const secBgColor = useColorModeValue(colors.ui.light, colors.ui.dark);
@@ -52,6 +64,10 @@ const Sidebar = () => {
           <DrawerBody py={8}>
             <Flex flexDir="column" justify="space-between">
               <Box>
+                <ChakraFlex as={Link} to="/" align="center" mb={4} _hover={{ textDecoration: "none" }} onClick={onClose}>
+                  <UBLogo />
+                  <Text ml={2} fontWeight="200" color={textColor} whiteSpace="nowrap" noOfLines={1}>Urban Barnacle</Text>
+                </ChakraFlex> 
                 <SidebarItems onClose={onClose} />
                 <Flex
                   as="button"
@@ -89,17 +105,22 @@ const Sidebar = () => {
         align="center"
         bg={secBgColor}
         p={4}
+        h="60px"
         w="100%"
         padding={0}
         position="fixed"
         top="0"
       >
-        <Flex justify="center">
+        <ChakraFlex as={Link} to="/" align="center" _hover={{ textDecoration: "none" }}>
+          <UBLogo />
+          <Text ml={3} fontWeight="200" color={textColor} whiteSpace="nowrap" noOfLines={1} width="200px">Urban Barnacle</Text>
+        </ChakraFlex>
+        <Flex justify="center" align="center" gap={4}>
           <SidebarItems />
-          <LogInOut />
         </Flex>
 
         <Flex align="center" gap={2}>
+          <LogInOut />
           {currentUser?.email && (
             <Flex
               p={2}

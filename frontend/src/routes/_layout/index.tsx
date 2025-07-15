@@ -45,7 +45,7 @@ export default function Home() {
     return <ErrorPage message={error instanceof Error ? error.message : undefined} />
   }
 
-  if (!items) {
+  if (!items || items.data.length === 0) {
     return <HoldingPage />
   }
 
