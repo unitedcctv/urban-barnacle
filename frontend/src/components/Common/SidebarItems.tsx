@@ -3,9 +3,14 @@ import type { ElementType } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { FiTool, FiSettings, FiUsers, FiEye, FiDollarSign } from "react-icons/fi";
+import { useEffect } from "react";
 
+interface SidebarItemsProps {
+  onClose?: () => void;
+  onCount?: (n: number) => void;
+}
 
-const SidebarItems = ({ onClose }: { onClose?: () => void }) => {
+const SidebarItems = ({ onClose, onCount }: SidebarItemsProps) => {
 
   interface SidebarItem {
     title: string;
@@ -34,6 +39,11 @@ const SidebarItems = ({ onClose }: { onClose?: () => void }) => {
     queryFn: fetchSidebar,
   });
   
+  // notify parent when item count changes
+  useEffect(() => {
+    onCount?.(items.length);
+  }, [items.length, onCount]);
+
   // Lighter text color and hover color.
   const textColor = useColorModeValue("ui.dark", "ui.light");
   const bgHover = useColorModeValue("#EDF2F7", "#4A5568");
@@ -53,6 +63,7 @@ const SidebarItems = ({ onClose }: { onClose?: () => void }) => {
   }
 
   if (!items) {
+    onCount?.(0);
     return null;
   }
 

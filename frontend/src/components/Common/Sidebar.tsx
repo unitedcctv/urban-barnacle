@@ -20,6 +20,7 @@ import type { UserPublic } from "../../client"
 import useAuth from "../../hooks/useAuth"
 import SidebarItems from "./SidebarItems"
 import LogInOut from "./LogInOut"
+import { useState } from "react";
 import colors from "../../theme/colors";
 import { Link } from "@tanstack/react-router";
 import type { ElementType } from "react";
@@ -40,6 +41,9 @@ const Sidebar = () => {
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { logout } = useAuth()
+
+  // Track number of sidebar items to decide alignment
+  const [itemCount, setItemCount] = useState(0);
 
   const handleLogout = async () => {
     logout()
@@ -68,7 +72,7 @@ const Sidebar = () => {
                   <UBLogo />
                   <Text ml={2} fontWeight="200" color={textColor} whiteSpace="nowrap" noOfLines={1}>Urban Barnacle</Text>
                 </ChakraFlex> 
-                <SidebarItems onClose={onClose} />
+                <SidebarItems onClose={onClose} onCount={setItemCount} />
                 <Flex
                   as="button"
                   onClick={handleLogout}
@@ -113,10 +117,10 @@ const Sidebar = () => {
       >
         <ChakraFlex as={Link} to="/" align="center" _hover={{ textDecoration: "none" }}>
           <UBLogo />
-          <Text ml={3} fontWeight="200" color={textColor} whiteSpace="nowrap" noOfLines={1} width="200px">Urban Barnacle</Text>
+          <Text ml={3} fontWeight="200" color={textColor} whiteSpace="nowrap" noOfLines={1}>Urban Barnacle</Text>
         </ChakraFlex>
-        <Flex justify="center" align="center" gap={4}>
-          <SidebarItems />
+        <Flex flex={itemCount <= 1 ? "1" : "unset"} justify={itemCount <= 1 ? "center" :"flex-start"} gap={4} ml={itemCount <= 1 ? 8 : 0}>
+          <SidebarItems onCount={setItemCount} />
         </Flex>
 
         <Flex align="center" gap={2}>
