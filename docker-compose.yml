@@ -106,10 +106,11 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
+      test: ["CMD-SHELL", "python -c 'import socket,sys; socket.create_connection((\"localhost\",8000),2).close()' || exit 1"]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
     build:
       context: ./backend

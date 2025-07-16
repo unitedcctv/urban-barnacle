@@ -30,8 +30,3 @@ def test_email(email_to: EmailStr) -> Message:
 async def list_permissions() -> list[str]:
     """Return available user-permission strings."""
     return [perm.value for perm in UserPermission]
-
-
-@router.get("/health-check/")
-async def health_check() -> bool:
-    return True
