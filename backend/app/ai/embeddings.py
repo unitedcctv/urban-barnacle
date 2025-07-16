@@ -1,6 +1,6 @@
 """Chunking the business plan and storing embeddings in PostgreSQL/pgvector."""
 from __future__ import annotations
-import os
+
 import textwrap
 from pathlib import Path
 
@@ -9,7 +9,7 @@ import psycopg
 
 from .settings import settings
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = settings.OPENAI_API_KEY
 
 EMBED_MODEL = "text-embedding-3-small"
 CHUNK_CHARS = 1200  # ~ 512 tokens

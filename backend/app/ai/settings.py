@@ -22,6 +22,12 @@ class AISettings:
     def DATA_DIR(self) -> str:
         return os.getenv("AI_DATA_DIR", "/tmp")
 
+    # OpenAI credentials
+    @cached_property
+    def OPENAI_API_KEY(self) -> str | None:
+        """API key used by OpenAI client."""
+        return os.getenv("OPENAI_API_KEY")
+
     # Reuse DB URL from core settings
     @cached_property
     def DATABASE_URL(self) -> str:

@@ -60,7 +60,7 @@ def get_sidebar_items(
             items.append({"title": "Create Item", "path": "/createitem", "icon": "FiTool"})
 
         if UserPermission.SUPERUSER in user.permissions:
-            items.append({"title": "Users", "path": "/users", "icon": "FiUsers"})
+            items.insert(0, {"title": "SU Admin", "path": "/users", "icon": "FiUsers"})
 
         if user.permissions in [UserPermission.INVESTOR, UserPermission.SUPERUSER]:
             items.append({"title": "Business Plan", "path": "/businessplan", "icon": "FiDollarSign"})

@@ -1,6 +1,5 @@
 """AI chat endpoint using pgvector similarity search."""
 from __future__ import annotations
-import os
 from typing import AsyncGenerator
 
 import openai
@@ -11,7 +10,7 @@ from fastapi.responses import StreamingResponse
 from app.ai.settings import settings as ai_settings
 
 router = APIRouter(prefix="/ai", tags=["ai"])
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = ai_settings.OPENAI_API_KEY
 
 
 def _top_context(q: str, k: int = 4) -> str:

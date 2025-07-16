@@ -119,7 +119,7 @@ function Users() {
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        Users Management
+        User Management
       </Heading>
 
       <Navbar type={"User"} addModalAs={AddUser} />

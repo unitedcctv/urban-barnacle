@@ -282,28 +282,28 @@ If you need to add extra environments you could use those as a starting point.
 
 ## URLs
 
-Replace `fastapi-project.example.com` with your domain.
+Replace `urban-barnacle.io` with your domain.
 
 ### Main Traefik Dashboard
 
-Traefik UI: `https://traefik.fastapi-project.example.com`
+Traefik UI: `https://traefik.urban-barnacle.io`
 
 ### Production
 
-Frontend: `https://dashboard.fastapi-project.example.com`
+Frontend: `https://dashboard.urban-barnacle.io`
 
-Backend API docs: `https://api.fastapi-project.example.com/docs`
+Backend API docs: `https://api.urban-barnacle.io/docs`
 
-Backend API base URL: `https://api.fastapi-project.example.com`
+Backend API base URL: `https://api.urban-barnacle.io`
 
-Adminer: `https://adminer.fastapi-project.example.com`
+Adminer: `https://adminer.urban-barnacle.io`
 
 ### Staging
 
-Frontend: `https://dashboard.staging.fastapi-project.example.com`
+Frontend: `https://dashboard.staging.urban-barnacle.io`
 
-Backend API docs: `https://api.staging.fastapi-project.example.com/docs`
+Backend API docs: `https://api.staging.urban-barnacle.io/docs`
 
-Backend API base URL: `https://api.staging.fastapi-project.example.com`
+Backend API base URL: `https://api.staging.urban-barnacle.io`
 
-Adminer: `https://adminer.staging.fastapi-project.example.com`
+Adminer: `https://adminer.staging.urban-barnacle.io`
