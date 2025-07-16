@@ -9,46 +9,45 @@ import {
   Th,
   Thead,
   Tr,
-} from "@chakra-ui/react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useEffect } from "react"
-import { z } from "zod"
+} from "@chakra-ui/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { z } from "zod";
 
-import { usersReadUsers } from "../../client/sdk.gen.ts"
-import { type UserPublic } from "../../client/types.gen.ts"
-import AddUser from "../../components/Admin/AddUser.tsx"
-import Navbar from "../../components/Common/Navbar.tsx"
-import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
-import { UserRow } from "../../components/UserSettings/User.tsx"
+import { usersReadUsers } from "../../client/sdk.gen.ts";
+import { type UserPublic } from "../../client/types.gen.ts";
+import AddUser from "../../components/Admin/AddUser.tsx";
+import Navbar from "../../components/Common/Navbar.tsx";
+import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx";
+import { UserRow } from "../../components/UserSettings/User.tsx";
 
 const usersSearchSchema = z.object({
   page: z.number().catch(1),
-})
+});
 
-export const Route = createFileRoute("/_layout/users")({
-  component: Users,
+export const Route = createFileRoute("/_layout/suadmin")({
+  component: SuAdmin,
   validateSearch: (search) => usersSearchSchema.parse(search),
-})
+});
 
-const PER_PAGE = 5
+const PER_PAGE = 5;
 
 function getUsersQueryOptions({ page }: { page: number }) {
   return {
-    queryFn: () =>
-      usersReadUsers({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
+    queryFn: () => usersReadUsers({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
     queryKey: ["users", { page }],
-  }
+  };
 }
 
 function UsersTable() {
-  const queryClient = useQueryClient()
-  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-  const { page } = Route.useSearch() as { page: number }
-  const navigate = useNavigate({ from: Route.fullPath })
+  const queryClient = useQueryClient();
+  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"]);
+  const { page } = Route.useSearch() as { page: number };
+  const navigate = useNavigate({ from: Route.fullPath });
   const setPage = (page: number) =>
     // @ts-ignore: Suppress TypeScript error
-    navigate({ search: (prev) => ({ ...prev, page }) })
+    navigate({ search: (prev) => ({ ...prev, page }) });
 
   const {
     data: users,
@@ -57,16 +56,16 @@ function UsersTable() {
   } = useQuery({
     ...getUsersQueryOptions({ page }),
     placeholderData: (prevData) => prevData,
-  })
+  });
 
-  const hasNextPage = !isPlaceholderData && users?.data.length === PER_PAGE
-  const hasPreviousPage = page > 1
+  const hasNextPage = !isPlaceholderData && users?.data.length === PER_PAGE;
+  const hasPreviousPage = page > 1;
 
   useEffect(() => {
     if (hasNextPage) {
-      queryClient.prefetchQuery(getUsersQueryOptions({ page: page + 1 }))
+      queryClient.prefetchQuery(getUsersQueryOptions({ page: page + 1 }));
     }
-  }, [page, queryClient, hasNextPage])
+  }, [page, queryClient, hasNextPage]);
 
   return (
     <>
@@ -95,11 +94,7 @@ function UsersTable() {
           ) : (
             <Tbody>
               {users?.data.map((user) => (
-                <UserRow
-                  key={user.id}
-                  user={user}
-                  currentUserId={currentUser?.id}
-                />
+                <UserRow key={user.id} user={user} currentUserId={currentUser?.id} />
               ))}
             </Tbody>
           )}
@@ -112,18 +107,20 @@ function UsersTable() {
         hasPreviousPage={hasPreviousPage}
       />
     </>
-  )
+  );
 }
 
-function Users() {
+function SuAdmin() {
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        User Management
+        Superuser Admin
       </Heading>
 
       <Navbar type={"User"} addModalAs={AddUser} />
       <UsersTable />
     </Container>
-  )
+  );
 }
+
+export default SuAdmin;

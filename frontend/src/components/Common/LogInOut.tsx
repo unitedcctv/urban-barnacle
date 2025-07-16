@@ -56,8 +56,8 @@ const LogInOut = () => {
     <>
       {currentUser?.is_active ? (
         <Flex p={2} onClick={handleLogout} align="center" cursor="pointer">
-          <Icon as={FiLogOut} alignSelf="center" />
-          <Text ml={2}>Logout</Text>
+          <Text>Logout</Text>
+          <Icon ml={2} as={FiLogOut} alignSelf="center" />
         </Flex>
       ) : (
         <Flex onClick={onOpen} p={2} align="center" cursor="pointer">

@@ -57,10 +57,10 @@ def get_sidebar_items(
         items.append({"title": "My Settings", "path": "/settings", "icon": "FiSettings"})
 
         if user.is_active:
-            items.append({"title": "Create Item", "path": "/createitem", "icon": "FiTool"})
+            items.append({"title": "Create Item", "path": "/createitem", "icon": "FiFilePlus"})
 
         if UserPermission.SUPERUSER in user.permissions:
-            items.insert(0, {"title": "SU Admin", "path": "/users", "icon": "FiUsers"})
+            items.insert(0, {"title": "SU Admin", "path": "/suadmin", "icon": "FiTool"})
 
         if user.permissions in [UserPermission.INVESTOR, UserPermission.SUPERUSER]:
             items.append({"title": "Business Plan", "path": "/businessplan", "icon": "FiDollarSign"})
