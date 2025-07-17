@@ -7,10 +7,6 @@ from app.core.config import settings as _core
 
 class AISettings:
     @cached_property
-    def GDRIVE_SERVICE_ACCOUNT_FILE(self) -> str:
-        return os.getenv("GDRIVE_SERVICE_ACCOUNT_FILE", "service_account.json")
-    
-    @cached_property
     def GDRIVE_SERVICE_ACCOUNT_JSON(self) -> str | None:
         return os.getenv("GDRIVE_SERVICE_ACCOUNT_JSON")
 

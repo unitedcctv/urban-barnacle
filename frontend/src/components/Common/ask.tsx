@@ -12,9 +12,15 @@ const AskBusinessPlan = () => {
     setLoading(true);
     setResponse(null);
     try {
-      const res = await fetch("/api/v1/ai/chat", {
+      const token = localStorage.getItem("access_token");
+      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const res = await fetch(`${apiBase}/api/v1/ai/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ message: query }),
       });
       const reader = res.body?.getReader();

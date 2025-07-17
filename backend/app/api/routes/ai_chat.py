@@ -14,14 +14,11 @@ openai.api_key = ai_settings.OPENAI_API_KEY
 
 
 def _top_context(q: str, k: int = 4) -> str:
-    q_vec = (
-        openai.embeddings.create(model="text-embedding-3-small", input=q)[
-            "data"
-        ][0]["embedding"]
-    )
+    response = openai.embeddings.create(model="text-embedding-3-small", input=q)
+    q_vec = response.data[0].embedding
     with psycopg.connect(ai_settings.DATABASE_URL) as conn:
         rows = conn.execute(
-            "SELECT chunk FROM chunks ORDER BY vec <#> %s LIMIT %s", (q_vec, k)
+            "SELECT chunk FROM chunks ORDER BY vec <#> %s::vector LIMIT %s", (q_vec, k)
         ).fetchall()
     return "\n\n".join(r[0] for r in rows)
 

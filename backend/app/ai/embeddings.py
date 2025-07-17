@@ -24,7 +24,7 @@ def rebuild_chunks(txt_path: Path) -> None:
 
         for para in textwrap.wrap(txt, CHUNK_CHARS):
             resp = openai.embeddings.create(model=EMBED_MODEL, input=para)
-            vec = resp["data"][0]["embedding"]
+            vec = resp.data[0].embedding
             cur.execute(
                 "INSERT INTO chunks(chunk, vec) VALUES (%s, %s)",
                 (para, vec),
