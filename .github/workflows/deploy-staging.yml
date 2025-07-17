@@ -33,6 +33,11 @@ jobs:
       STACK_NAME: ${{ vars.STACK_NAME_STAGING }}
       DOCKER_IMAGE_BACKEND: ${{ vars.DOCKER_IMAGE_BACKEND }}
       DOCKER_IMAGE_FRONTEND: ${{ vars.DOCKER_IMAGE_FRONTEND }}
+      BUSINESS_PLAN_DOC_ID: ${{ secrets.BUSINESS_PLAN_DOC_ID }}
+      AI_DATA_DIR: ${{ vars.AI_DATA_DIR }}
+      GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+      DRIVE_WEBHOOK_TOKEN: ${{ secrets.DRIVE_WEBHOOK_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

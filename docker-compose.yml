@@ -104,6 +104,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - SENTRY_DSN=${SENTRY_DSN}
+      - BUSINESS_PLAN_DOC_ID=${BUSINESS_PLAN_DOC_ID?Variable not set}
+      - AI_DATA_DIR=${AI_DATA_DIR?Variable not set}
+      - GDRIVE_SERVICE_ACCOUNT_JSON=${GDRIVE_SERVICE_ACCOUNT_JSON?Variable not set}
+      - DRIVE_WEBHOOK_TOKEN=${DRIVE_WEBHOOK_TOKEN?Variable not set}
+      - OPENAI_API_KEY=${OPENAI_API_KEY?Variable not set}
 
     healthcheck:
       test: ["CMD-SHELL", "python -c 'import socket,sys; socket.create_connection((\"localhost\",8000),2).close()' || exit 1"]

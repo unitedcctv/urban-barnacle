@@ -1,6 +1,7 @@
 """Google Drive export & webhook sync utilities."""
 import os
 import uuid
+import json
 from pathlib import Path
 from typing import Optional
 
@@ -16,9 +17,35 @@ EXPORT_PATH = Path(ai_settings.DATA_DIR) / "business_plan.txt"
 
 
 def _drive_client():
-    creds = service_account.Credentials.from_service_account_file(
-        ai_settings.GDRIVE_SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
+    """Create Google Drive client with credentials from file or environment.
+    
+    For development: Uses service account JSON file
+    For production: Uses GDRIVE_SERVICE_ACCOUNT_JSON environment variable
+    """
+    # Try to get credentials from environment variable first (production)
+    service_account_json = ai_settings.GDRIVE_SERVICE_ACCOUNT_JSON
+    
+    if service_account_json:
+        # Production: Load credentials from JSON string in environment variable
+        try:
+            service_account_info = json.loads(service_account_json)
+            creds = service_account.Credentials.from_service_account_info(
+                service_account_info, scopes=SCOPES
+            )
+        except (json.JSONDecodeError, ValueError) as e:
+            raise ValueError(f"Invalid GDRIVE_SERVICE_ACCOUNT_JSON format: {e}")
+    else:
+        # Development: Load credentials from file
+        service_account_file = ai_settings.GDRIVE_SERVICE_ACCOUNT_FILE
+        if not os.path.exists(service_account_file):
+            raise FileNotFoundError(
+                f"Service account file not found: {service_account_file}. "
+                "Set GDRIVE_SERVICE_ACCOUNT_JSON environment variable for production."
+            )
+        creds = service_account.Credentials.from_service_account_file(
+            service_account_file, scopes=SCOPES
+        )
+    
     return build("drive", "v3", credentials=creds, cache_discovery=False)
 
 

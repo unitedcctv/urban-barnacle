@@ -9,6 +9,10 @@ class AISettings:
     @cached_property
     def GDRIVE_SERVICE_ACCOUNT_FILE(self) -> str:
         return os.getenv("GDRIVE_SERVICE_ACCOUNT_FILE", "service_account.json")
+    
+    @cached_property
+    def GDRIVE_SERVICE_ACCOUNT_JSON(self) -> str | None:
+        return os.getenv("GDRIVE_SERVICE_ACCOUNT_JSON")
 
     @cached_property
     def BUSINESS_PLAN_DOC_ID(self) -> str:
