@@ -8,16 +8,16 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 from .embeddings import rebuild_chunks
-from .settings import settings
+from app.ai.settings import settings as ai_settings
 
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
-DOC_ID = settings.BUSINESS_PLAN_DOC_ID
-EXPORT_PATH = Path(settings.DATA_DIR) / "business_plan.txt"
+DOC_ID = ai_settings.BUSINESS_PLAN_DOC_ID
+EXPORT_PATH = Path(ai_settings.DATA_DIR) / "business_plan.txt"
 
 
 def _drive_client():
     creds = service_account.Credentials.from_service_account_file(
-        settings.GDRIVE_SERVICE_ACCOUNT_FILE, scopes=SCOPES
+        ai_settings.GDRIVE_SERVICE_ACCOUNT_FILE, scopes=SCOPES
     )
     return build("drive", "v3", credentials=creds, cache_discovery=False)
 
@@ -33,7 +33,8 @@ def export_doc() -> Path:
         .export(fileId=DOC_ID, mimeType="text/plain")
         .execute()
     )
-    EXPORT_PATH.write_bytes(data)
+    EXPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    EXPORT_PATH.write_bytes(data)   
     return EXPORT_PATH
 
 
@@ -45,12 +46,25 @@ def update_from_webhook():
 
 # Helpers for registering watch (run once manually)
 
-def register_watch(callback_url: str) -> dict:
+def register_watch() -> dict:
+    """Register a Google Drive webhook for the business plan document.
+    
+    Uses VITE_WEBHOOK_URL from environment if available (for local dev with ngrok),
+    otherwise constructs the callback URL from BACKEND_HOST.
+    """
+    from app.core.config import settings as core_settings
+    
+    # Use ngrok URL for local dev, or construct from backend host
+    webhook_url = ai_settings.VITE_WEBHOOK_URL
+    if not webhook_url:
+        backend_host = core_settings.BACKEND_HOST or "http://localhost:8000"
+        webhook_url = f"{backend_host}/api/v1/drive/webhook"
+    
     drive = _drive_client()
     body = {
         "id": f"business-plan-watch-{uuid.uuid4()}",
         "type": "web_hook",
-        "address": callback_url,
-        "token": settings.DRIVE_WEBHOOK_TOKEN,
+        "address": webhook_url,
+        "token": ai_settings.DRIVE_WEBHOOK_TOKEN,
     }
     return drive.files().watch(fileId=DOC_ID, body=body).execute()

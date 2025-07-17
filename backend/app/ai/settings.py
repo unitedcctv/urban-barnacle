@@ -19,6 +19,10 @@ class AISettings:
         return os.getenv("DRIVE_WEBHOOK_TOKEN")
 
     @cached_property
+    def VITE_WEBHOOK_URL(self) -> str | None:
+        return os.getenv("VITE_WEBHOOK_URL")
+
+    @cached_property
     def DATA_DIR(self) -> str:
         return os.getenv("AI_DATA_DIR", "/tmp")
 

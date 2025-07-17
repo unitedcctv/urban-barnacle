@@ -9,6 +9,9 @@ import {
   Th,
   Thead,
   Tr,
+  Button,
+  useToast,
+  Flex,
 } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -111,13 +114,40 @@ function UsersTable() {
 }
 
 function SuAdmin() {
+  const toast = useToast();
+  const registerWatch = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const res = await fetch(`${apiBase}/api/v1/drive/register-watch`, {
+        method: "POST",
+        credentials: "include", // send cookies if present
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || res.statusText);
+      }
+      toast({ title: "Google Drive watch registered", status: "success" });
+    } catch (err: any) {
+      toast({ title: "Failed to register watch", description: err.message, status: "error" });
+    }
+  };
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
         Superuser Admin
       </Heading>
 
-      <Navbar type={"User"} addModalAs={AddUser} />
+      <Flex mb={4} gap={4} direction={{ base: "column", md: "row" }}>
+        <Button colorScheme="teal" onClick={registerWatch}>
+          Register Drive Watch
+        </Button>
+        <Navbar type={"User"} addModalAs={AddUser} />
+      </Flex>
       <UsersTable />
     </Container>
   );
