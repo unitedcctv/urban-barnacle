@@ -1,4 +1,4 @@
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { Box, Text, Input, Button, VStack } from "@chakra-ui/react";
 import React, { useState } from "react";
 
 const AskBusinessPlan = () => {
@@ -43,21 +43,28 @@ const AskBusinessPlan = () => {
 
   return (
     <Box mt={8}>
-      <Heading as="h3" size="md" mb={4}>
-        Ask the Business Plan
-      </Heading>
       <form onSubmit={handleSubmit}>
-        <Box mb={4}>
-          <input
-            style={{ width: "100%", padding: "8px" }}
-            placeholder="Ask a question..."
+        <VStack spacing={4} align="stretch" w="100%">
+          <Input
+            placeholder="Question..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            size="lg"
+            focusBorderColor="ui.main"
           />
-        </Box>
-        <button type="submit" disabled={loading}>
-          {loading ? "Loading..." : "Send"}
-        </button>
+          <Button
+            type="submit"
+            isLoading={loading}
+            loadingText="Loading..."
+            colorScheme="blue"
+            bg="ui.main"
+            color="white"
+            _hover={{ bg: "ui.dark" }}
+            size="lg"
+          >
+            Ask Question
+          </Button>
+        </VStack>
       </form>
       {response && (
         <Box mt={6} p={4} bg="gray.50" borderRadius="md">

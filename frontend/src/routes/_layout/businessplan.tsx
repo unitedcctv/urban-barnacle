@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { Box, Heading, Text, Button, HStack, useToast } from "@chakra-ui/react";
+import { DownloadIcon } from "@chakra-ui/icons";
 import AskBusinessPlan from "../../components/Common/ask";
 
 export const Route = createFileRoute("/_layout/businessplan")({
@@ -7,15 +8,72 @@ export const Route = createFileRoute("/_layout/businessplan")({
 });
 
 function BusinessPlan() {
+  const toast = useToast();
+
+  const handleDownloadPDF = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      
+      const response = await fetch(`${apiBase}/api/v1/business-plan/download`, {
+        method: "GET",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download business plan");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "urban-barnacle-business-plan.pdf";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Download started",
+        description: "Business plan PDF is being downloaded.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error("Download error:", error);
+      toast({
+        title: "Download failed",
+        description: "Unable to download the business plan. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <Box p={8} maxW="4xl" mx="auto">
-      <Heading as="h1" size="lg" mb={4}>
-        Business Plan
-      </Heading>
-      <Text>
-        This is a placeholder for the Urban Barnacle business plan. Only investors and
-        superusers should have direct access to this page. Replace this text with the
-        actual business plan content when it is ready.
+      <HStack justify="space-between" align="center" mb={6}>
+        <Heading as="h1" size="lg">
+          Business Plan
+        </Heading>
+        <Button
+          leftIcon={<DownloadIcon />}
+          colorScheme="blue"
+          bg="ui.main"
+          color="white"
+          _hover={{ bg: "ui.dark" }}
+          onClick={handleDownloadPDF}
+        >
+          Download PDF
+        </Button>
+      </HStack>
+      <Text mb={4}>
+        TL;DR: If you have a question about the business plan, ask it here.
       </Text>
       <AskBusinessPlan />
     </Box>

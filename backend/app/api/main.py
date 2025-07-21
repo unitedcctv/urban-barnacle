@@ -10,6 +10,7 @@ from app.api.routes import (
     sidebar,
     ai_chat,
     drive_webhook,
+    business_plan,
 )
 from app.core.config import settings
 
@@ -22,6 +23,7 @@ api_router.include_router(images.router)
 api_router.include_router(sidebar.router)
 api_router.include_router(ai_chat.router)
 api_router.include_router(drive_webhook.router)
+api_router.include_router(business_plan.router)
 
 
 # Temporarily disabled to test signup endpoint
