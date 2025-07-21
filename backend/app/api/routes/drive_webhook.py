@@ -21,6 +21,21 @@ async def register_watch_endpoint(current_user: CurrentUser):
     return result
 
 
+@router.post("/populate-chunks", tags=["ai"])
+async def populate_chunks_endpoint(current_user: CurrentUser):
+    """Manually populate chunks table with business plan content.
+    Requires SUPERUSER permission.
+    """
+    if UserPermission.SUPERUSER not in current_user.permissions:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    try:
+        drive_sync.update_from_webhook()
+        return {"message": "Chunks table populated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to populate chunks: {str(e)}")
+
+
 @router.post("/webhook", status_code=status.HTTP_204_NO_CONTENT)
 async def drive_change_webhook(
     x_goog_resource_state: str = Header(None),

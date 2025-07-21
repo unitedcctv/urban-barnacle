@@ -136,6 +136,28 @@ function SuAdmin() {
       toast({ title: "Failed to register watch", description: err.message, status: "error" });
     }
   };
+
+  const populateChunks = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const res = await fetch(`${apiBase}/api/v1/drive/populate-chunks`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || res.statusText);
+      }
+      toast({ title: "AI chunks populated successfully", status: "success" });
+    } catch (err: any) {
+      toast({ title: "Failed to populate chunks", description: err.message, status: "error" });
+    }
+  };
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
@@ -143,12 +165,17 @@ function SuAdmin() {
       </Heading>
 
       <Flex mb={4} gap={4} direction={{ base: "column", md: "row" }}>
-        <Button colorScheme="teal" onClick={registerWatch}>
-          Register Drive Watch
-        </Button>
         <Navbar type={"User"} addModalAs={AddUser} />
       </Flex>
       <UsersTable />
+      <Flex gap={4}>
+        <Button colorScheme="teal" onClick={registerWatch}>
+          Register Drive Watch
+        </Button>
+        <Button colorScheme="blue" onClick={populateChunks}>
+          Populate AI Chunks
+        </Button>
+      </Flex>
     </Container>
   );
 }
