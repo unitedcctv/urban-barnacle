@@ -124,17 +124,17 @@ const Sidebar = () => {
         </Flex>
 
         <Flex align="center" gap={2}>
-          <LogInOut />
           {currentUser?.email && (
             <Flex
               p={2}
               bg={secBgColor}
             >
               <Text color={textColor} noOfLines={1}>
-                Logged in as: {currentUser.email}
+                {currentUser.full_name}
               </Text>
             </Flex>
           )}
+          <LogInOut />
         </Flex>
       </Flex>
     </>

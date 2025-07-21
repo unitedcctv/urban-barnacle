@@ -24,5 +24,6 @@ api_router.include_router(ai_chat.router)
 api_router.include_router(drive_webhook.router)
 
 
+# Temporarily disabled to test signup endpoint
 if settings.ENVIRONMENT == "local":
     api_router.include_router(private.router)

@@ -121,3 +121,41 @@ def verify_password_reset_token(token: str) -> str | None:
         return str(decoded_token["sub"])
     except InvalidTokenError:
         return None
+
+
+def generate_email_confirmation_token(email: str) -> str:
+    delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
+    now = datetime.now(timezone.utc)
+    expires = now + delta
+    exp = expires.timestamp()
+    encoded_jwt = jwt.encode(
+        {"exp": exp, "nbf": now, "sub": email, "type": "email_confirmation"},
+        settings.SECRET_KEY,
+        algorithm=security.ALGORITHM,
+    )
+    return encoded_jwt
+
+
+def verify_email_confirmation_token(token: str) -> str | None:
+    try:
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
+        if decoded_token.get("type") != "email_confirmation":
+            return None
+        return str(decoded_token["sub"])
+    except InvalidTokenError:
+        return None
+
+
+def generate_email_confirmation_email(email_to: str, token: str) -> EmailData:
+    project_name = settings.PROJECT_NAME
+    subject = f"{project_name} - Confirm your email address"
+    link = f"{settings.FRONTEND_HOST}/confirm-email?token={token}"
+    html_content = render_email_template(
+        template_name="confirm_email.html",
+        context={
+            "project_name": settings.PROJECT_NAME,
+            "email": email_to,
+            "confirmation_link": link,
+        },
+    )
+    return EmailData(html_content=html_content, subject=subject)

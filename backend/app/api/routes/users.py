@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -13,6 +14,7 @@ from app.api.deps import (
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    EmailConfirmation,
     Item,
     Message,
     UpdatePassword,
@@ -24,7 +26,7 @@ from app.models import (
     UserUpdate,
     UserUpdateMe,
 )
-from app.utils import generate_new_account_email, send_email
+from app.utils import generate_new_account_email, send_email, generate_email_confirmation_token, generate_email_confirmation_email, verify_email_confirmation_token
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -55,6 +57,7 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     """
     Create new user.
     """
+    print(f"DEBUG: ===== SUPERUSER CREATE ENDPOINT CALLED for email: {user_in.email} =====")
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
         raise HTTPException(
@@ -146,15 +149,77 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
     Create new user without the need to be logged in.
     """
+    print(f"DEBUG: ===== SIGNUP ENDPOINT CALLED for email: {user_in.email} =====")
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
         raise HTTPException(
             status_code=400,
             detail="The user with this email already exists in the system",
         )
+    
+    # Generate email confirmation token
+    confirmation_token = generate_email_confirmation_token(user_in.email)
+    
+    # Create user with inactive status - user must confirm email to activate
     user_create = UserCreate.model_validate(user_in)
+    user_create.is_active = False
+    
     user = crud.create_user(session=session, user_create=user_create)
+    
+    # Send confirmation email
+    print(f"DEBUG: emails_enabled = {settings.emails_enabled}")
+    print(f"DEBUG: SMTP_HOST = {settings.SMTP_HOST}")
+    print(f"DEBUG: EMAILS_FROM_EMAIL = {settings.EMAILS_FROM_EMAIL}")
+    
+    if settings.emails_enabled:
+        print(f"DEBUG: Sending confirmation email to {user.email}")
+        email_data = generate_email_confirmation_email(
+            email_to=user.email, token=confirmation_token
+        )
+        print(f"DEBUG: Email subject: {email_data.subject}")
+        send_email(
+            email_to=user.email,
+            subject=email_data.subject,
+            html_content=email_data.html_content,
+        )
+        print(f"DEBUG: Confirmation email sent successfully")
+    else:
+        print(f"DEBUG: Emails disabled - confirmation email NOT sent")
+    
     return user
+
+
+@router.post("/confirm-email", response_model=Message)
+def confirm_email(session: SessionDep, confirmation: EmailConfirmation) -> Any:
+    """
+    Confirm user email address and activate account.
+    """
+    email = verify_email_confirmation_token(confirmation.token)
+    if not email:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or expired confirmation token",
+        )
+    
+    user = crud.get_user_by_email(session=session, email=email)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+    
+    if user.is_active:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already confirmed",
+        )
+    
+    # Update user to active (confirmed)
+    user.is_active = True
+    session.add(user)
+    session.commit()
+    
+    return Message(message="Email confirmed successfully. Your account is now active.")
 
 
 @router.get("/{user_id}", response_model=UserPublic)

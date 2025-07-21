@@ -11,6 +11,9 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ResetPasswordImport } from './routes/reset-password'
+import { Route as RecoverPasswordImport } from './routes/recover-password'
+import { Route as ConfirmEmailImport } from './routes/confirm-email'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutSuadminImport } from './routes/_layout/suadmin'
@@ -21,6 +24,21 @@ import { Route as LayoutCreateitemImport } from './routes/_layout/createitem'
 import { Route as LayoutBusinessplanImport } from './routes/_layout/businessplan'
 
 // Create/Update Routes
+
+const ResetPasswordRoute = ResetPasswordImport.update({
+  path: '/reset-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const RecoverPasswordRoute = RecoverPasswordImport.update({
+  path: '/recover-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ConfirmEmailRoute = ConfirmEmailImport.update({
+  path: '/confirm-email',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const LayoutRoute = LayoutImport.update({
   id: '/_layout',
@@ -70,6 +88,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutImport
       parentRoute: typeof rootRoute
     }
+    '/confirm-email': {
+      preLoaderRoute: typeof ConfirmEmailImport
+      parentRoute: typeof rootRoute
+    }
+    '/recover-password': {
+      preLoaderRoute: typeof RecoverPasswordImport
+      parentRoute: typeof rootRoute
+    }
+    '/reset-password': {
+      preLoaderRoute: typeof ResetPasswordImport
+      parentRoute: typeof rootRoute
+    }
     '/_layout/businessplan': {
       preLoaderRoute: typeof LayoutBusinessplanImport
       parentRoute: typeof LayoutImport
@@ -113,6 +143,9 @@ export const routeTree = rootRoute.addChildren([
     LayoutSuadminRoute,
     LayoutIndexRoute,
   ]),
+  ConfirmEmailRoute,
+  RecoverPasswordRoute,
+  ResetPasswordRoute,
 ])
 
 /* prettier-ignore-end */

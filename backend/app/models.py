@@ -1,8 +1,9 @@
 import uuid
+from datetime import datetime
 
 from pydantic import EmailStr
 from enum import Enum
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -15,7 +16,7 @@ class UserPermission(str, Enum):
 
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
-    is_active: bool = True
+    is_active: bool = False  # Changed to False by default - users must confirm email
     permissions: UserPermission = Field(
         default=UserPermission.USER,
         sa_column=Column(String(length=255), nullable=False),
@@ -132,6 +133,10 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
+
+class EmailConfirmation(SQLModel):
+    token: str
 
 
 class ImageUpload:

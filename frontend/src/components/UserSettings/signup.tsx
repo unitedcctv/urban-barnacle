@@ -49,7 +49,14 @@ function SignUp({ onClose, openLogin }: SignUpProps = {}) {
   })
 
   const onSubmit: SubmitHandler<UserRegisterForm> = (data) => {
-    signUpMutation.mutate(data)
+    signUpMutation.mutate(data, {
+      onSuccess: () => {
+        // Close the modal after successful signup
+        if (onClose) {
+          onClose()
+        }
+      }
+    })
   }
 
   return (
