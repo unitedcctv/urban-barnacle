@@ -127,13 +127,35 @@ function SuAdmin() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
+      
       if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || res.statusText);
+        let errorMessage = "Unknown error occurred";
+        try {
+          // Try to parse JSON error response
+          const errorData = await res.json();
+          errorMessage = errorData.detail || errorData.message || res.statusText;
+        } catch {
+          // Fallback to text if JSON parsing fails
+          errorMessage = await res.text() || res.statusText;
+        }
+        throw new Error(errorMessage);
       }
-      toast({ title: "Google Drive watch registered", status: "success" });
+      
+      const result = await res.json();
+      toast({ 
+        title: "Google Drive watch registered successfully", 
+        description: result.message || "Drive watch is now active",
+        status: "success",
+        duration: 5000
+      });
     } catch (err: any) {
-      toast({ title: "Failed to register watch", description: err.message, status: "error" });
+      toast({ 
+        title: "Failed to register Drive watch", 
+        description: err.message || "An unexpected error occurred", 
+        status: "error",
+        duration: 8000,
+        isClosable: true
+      });
     }
   };
 
@@ -149,13 +171,35 @@ function SuAdmin() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
+      
       if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || res.statusText);
+        let errorMessage = "Unknown error occurred";
+        try {
+          // Try to parse JSON error response
+          const errorData = await res.json();
+          errorMessage = errorData.detail || errorData.message || res.statusText;
+        } catch {
+          // Fallback to text if JSON parsing fails
+          errorMessage = await res.text() || res.statusText;
+        }
+        throw new Error(errorMessage);
       }
-      toast({ title: "AI chunks populated successfully", status: "success" });
+      
+      const result = await res.json();
+      toast({ 
+        title: "AI chunks populated successfully", 
+        description: result.message || "Business plan content is now available for AI chat",
+        status: "success",
+        duration: 5000
+      });
     } catch (err: any) {
-      toast({ title: "Failed to populate chunks", description: err.message, status: "error" });
+      toast({ 
+        title: "Failed to populate AI chunks", 
+        description: err.message || "An unexpected error occurred", 
+        status: "error",
+        duration: 8000,
+        isClosable: true
+      });
     }
   };
   return (

@@ -11,14 +11,36 @@ router = APIRouter(prefix="/drive", tags=["ai"])
 
 @router.post("/register-watch", tags=["ai"])
 async def register_watch_endpoint(current_user: CurrentUser):
-    """Manually trigger creation of a Drive watch channel.
+    """
+    Manually trigger creation of a Drive watch channel.
     Requires SUPERUSER permission.
     """
     if UserPermission.SUPERUSER not in current_user.permissions:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    result = drive_sync.register_watch()
-    return result
+    try:
+        result = drive_sync.register_watch()
+        return {"success": True, "data": result, "message": "Drive watch registered successfully"}
+    except ValueError as e:
+        # Handle configuration errors (missing env vars, etc.)
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Configuration error: {str(e)}"
+        )
+    except Exception as e:
+        # Handle Google Drive API errors and other exceptions
+        error_msg = str(e)
+        if "HttpError" in str(type(e)):
+            # Extract meaningful error from Google API HttpError
+            if "webhookUrlNotHttps" in error_msg:
+                error_msg = "Webhook URL must be HTTPS. Check your VITE_WEBHOOK_URL or FRONTEND_HOST configuration."
+            elif "push.webhookCallbackUrlUnauthorized" in error_msg:
+                error_msg = "Webhook URL is not authorized. Ensure your domain is properly configured."
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to register Drive watch: {error_msg}"
+        )
 
 
 @router.post("/populate-chunks", tags=["ai"])

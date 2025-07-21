@@ -59,18 +59,30 @@ def update_from_webhook():
 # Helpers for registering watch (run once manually)
 
 def register_watch() -> dict:
-    """Register a Google Drive webhook for the business plan document.
-    
-    Uses VITE_WEBHOOK_URL from environment if available (for local dev with ngrok),
-    otherwise constructs the callback URL from BACKEND_HOST.
+    """
+    Register a Google Drive watch for the business plan document.
+    Uses VITE_WEBHOOK_URL if set, otherwise constructs the callback URL
+    from available environment variables or defaults to localhost for dev.
     """
     from app.core.config import settings as core_settings
     
-    # Use ngrok URL for local dev, or construct from backend host
+    # Priority order for webhook URL:
+    # 1. VITE_WEBHOOK_URL (explicit override, e.g., ngrok for local dev)
+    # 2. Construct from FRONTEND_HOST if it's HTTPS (staging/production)
+    # 3. Default to localhost for local development
     webhook_url = ai_settings.VITE_WEBHOOK_URL
+    
     if not webhook_url:
-        backend_host = core_settings.BACKEND_HOST or "http://localhost:8000"
-        webhook_url = f"{backend_host}/api/v1/drive/webhook"
+        # Try to use FRONTEND_HOST if it's HTTPS (staging/production)
+        frontend_host = getattr(core_settings, 'FRONTEND_HOST', None)
+        if frontend_host and frontend_host.startswith('https://'):
+            # Replace frontend port/path with backend webhook endpoint
+            # e.g., https://staging.example.com -> https://staging.example.com/api/v1/drive/webhook
+            base_url = frontend_host.rstrip('/')
+            webhook_url = f"{base_url}/api/v1/drive/webhook"
+        else:
+            # Default to localhost:8000 for local development
+            webhook_url = "http://localhost:8000/api/v1/drive/webhook"
     
     drive = _drive_client()
     body = {

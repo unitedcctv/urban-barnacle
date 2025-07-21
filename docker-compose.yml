@@ -108,6 +108,7 @@ services:
       - AI_DATA_DIR=${AI_DATA_DIR?Variable not set}
       - GDRIVE_SERVICE_ACCOUNT_JSON=${GDRIVE_SERVICE_ACCOUNT_JSON?Variable not set}
       - DRIVE_WEBHOOK_TOKEN=${DRIVE_WEBHOOK_TOKEN?Variable not set}
+      - VITE_WEBHOOK_URL=${VITE_WEBHOOK_URL}
       - OPENAI_API_KEY=${OPENAI_API_KEY?Variable not set}
 
     healthcheck:
