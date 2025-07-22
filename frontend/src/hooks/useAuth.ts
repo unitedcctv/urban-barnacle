@@ -19,11 +19,21 @@ const useAuth = () => {
   const navigate = useNavigate()
   const showToast = useCustomToast()
   const queryClient = useQueryClient()
-  const { data: user, isLoading } = useQuery<UserPublic | null, Error>({
+  const { data: user, isLoading, error: userError } = useQuery<UserPublic | null, Error>({
     queryKey: ["currentUser"],
     queryFn: usersReadUserMe,
     enabled: isLoggedIn(),
+    retry: false, // Don't retry on auth failures
   })
+
+  // Handle authentication errors
+  if (userError && isLoggedIn()) {
+    const error = userError as any
+    if (error?.status === 401 || error?.status === 403 || error?.message?.includes("User not found")) {
+      localStorage.removeItem("access_token")
+      navigate({ to: "/" })
+    }
+  }
 
   const signUpMutation = useMutation({
     mutationFn: (data: UserRegister) =>
