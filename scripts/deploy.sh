@@ -3,6 +3,9 @@
 # Exit in case of error
 set -e
 
+# Setup persistent volumes first
+./scripts/setup-volumes.sh
+
 DOMAIN=${DOMAIN?Variable not set} \
 STACK_NAME=${STACK_NAME?Variable not set} \
 TAG=${TAG?Variable not set} \

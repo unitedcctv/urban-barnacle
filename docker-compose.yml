@@ -168,6 +168,7 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.middlewares=https-redirect
 volumes:
   app-db-data:
+    external: true
 
 networks:
   traefik-public:
