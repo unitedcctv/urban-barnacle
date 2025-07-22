@@ -75,6 +75,12 @@ class ItemBase(SQLModel):
     images: str | None = Field(default=None)  # Store as comma-separated string
     model: str | None = Field(default=None)
     certificate: str | None = Field(default=None)
+    # NFT-related fields
+    nft_token_id: int | None = Field(default=None)
+    nft_contract_address: str | None = Field(default=None, max_length=255)
+    nft_transaction_hash: str | None = Field(default=None, max_length=255)
+    nft_metadata_uri: str | None = Field(default=None, max_length=500)
+    is_nft_enabled: bool = Field(default=True)  # Whether to create NFT for this item
 
     def get_images(self) -> list[str]:
         return self.images.split(",") if self.images else []

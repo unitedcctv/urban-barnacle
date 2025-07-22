@@ -27,6 +27,9 @@ dependencies = [
     "google-api-python-client>=2.126.0",
     "google-auth>=2.29.0",
     "google-auth-httplib2>=0.2.0",
+    # Blockchain dependencies
+    "web3>=6.15.1",
+    "eth-account>=0.10.0",
 ]
 
 [tool.uv]
