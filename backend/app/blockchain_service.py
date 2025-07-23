@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Optional, Dict, Any
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
+from web3.middleware import ExtraDataToPOAMiddleware
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class BlockchainService:
             
             # Add PoA middleware for local development
             if "127.0.0.1" in self.web3_url or "localhost" in self.web3_url or "blockchain" in self.web3_url:
-                self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+                self.web3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
             
             if self.private_key:
                 self.account = self.web3.eth.account.from_key(self.private_key)

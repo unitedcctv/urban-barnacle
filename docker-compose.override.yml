@@ -62,6 +62,15 @@ services:
       - "8000:8000"
     build:
       context: ./backend
+    labels:
+      # Override production Traefik labels for local development
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.constraint-label=traefik-public
+      - traefik.http.services.backend-dev.loadbalancer.server.port=8000
+      - traefik.http.routers.backend-dev-http.rule=Host(`localhost`) && PathPrefix(`/api/`)
+      - traefik.http.routers.backend-dev-http.entrypoints=http
+      - traefik.http.routers.backend-dev-http.service=backend-dev
     command:
       - fastapi
       - run
@@ -84,6 +93,8 @@ services:
       SMTP_PORT: "1025"
       SMTP_TLS: "false"
       EMAILS_FROM_EMAIL: "noreply@example.com"
+      # CORS configuration for local development
+      BACKEND_CORS_ORIGINS: "http://localhost:5173,http://localhost:3000,http://localhost"
       # Blockchain configuration
       WEB3_URL: "http://blockchain:8545"
       BLOCKCHAIN_ENABLED: "true"
@@ -105,6 +116,9 @@ services:
       - "5173:80"
     build:
       context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:8000
+        - NODE_ENV=development
     develop:
       watch:
         - path: ./frontend
