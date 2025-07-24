@@ -6,6 +6,7 @@ import {
   Input,
   Box,
   HStack,
+  Text,
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -13,7 +14,7 @@ import { useState, useEffect } from "react";
 import { ItemPublic } from "../../client";
 import { type ItemUpdate } from "../../client/types.gen";
 import { type ApiError } from "../../client/core/ApiError";
-import { itemsUpdateItem } from "../../client/sdk.gen";
+import { itemsUpdateItem, modelsUploadModel, modelsDeleteModel } from "../../client/sdk.gen";
 import useCustomToast from "../../hooks/useCustomToast";
 import { handleError } from "../../utils";
 import { UserPublic } from "../../client";
@@ -44,7 +45,12 @@ const EditItem = ({
     images: item?.images || "",
   };
 
-  const [currentImages, setCurrentImages] = useState(item?.images || "");
+  const [originalImages, setOriginalImages] = useState<string>("");
+  const [currentImages, setCurrentImages] = useState<string>("");
+  const [imagesDeleted, setImagesDeleted] = useState(false);
+  const [currentModel, setCurrentModel] = useState<string | null>(null);
+  const [modelFile, setModelFile] = useState<File | null>(null);
+  const [modelDeleted, setModelDeleted] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
   const {
@@ -71,17 +77,33 @@ const EditItem = ({
   // Watch form values for changes
   const watchedValues = watch();
 
-  // Check for changes whenever form values or images change
+  // Initialize images state
+  useEffect(() => {
+    const images = item.images || "";
+    setOriginalImages(images);
+    setCurrentImages(images);
+    setImagesDeleted(false);
+    
+    // Initialize model state
+    setCurrentModel(item.model || null);
+    setModelFile(null);
+    setModelDeleted(false);
+  }, [item.images, item.model]);
+
+  // Check for changes whenever form values, images, or model change
   useEffect(() => {
     const formHasChanges = 
       (watchedValues.title || "") !== originalValues.title ||
       (watchedValues.description || "") !== originalValues.description ||
       (watchedValues.model || "") !== originalValues.model ||
       (watchedValues.certificate || "") !== originalValues.certificate ||
-      currentImages !== originalValues.images;
+      currentImages !== originalImages ||
+      imagesDeleted ||
+      modelDeleted ||
+      modelFile !== null;
     
     setHasChanges(formHasChanges);
-  }, [watchedValues, currentImages, originalValues]);
+  }, [watchedValues, currentImages, originalImages, imagesDeleted, modelDeleted, modelFile, originalValues]);
 
   const mutation = useMutation({
     mutationFn: (data: ItemUpdate) =>
@@ -97,9 +119,66 @@ const EditItem = ({
     },
   });
 
-  const handleImagesChange = (commaSeparatedUrls: string) => {
-    setValue("images", commaSeparatedUrls);
-    setCurrentImages(commaSeparatedUrls);
+  const handleImagesChange = (urls: string) => {
+    setCurrentImages(urls);
+    setValue("images", urls, { shouldDirty: true });
+    // Track if images were deleted
+    if (urls !== originalImages) {
+      setImagesDeleted(originalImages !== "" && urls === "");
+    }
+  };
+
+  // Model management handlers
+  const handleModelUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file extension
+      if (!file.name.toLowerCase().endsWith('.blend')) {
+        showToast("Error", "Only .blend files are allowed", "error");
+        event.target.value = "";
+        return;
+      }
+      
+      try {
+        // Upload the model file to the server
+        await modelsUploadModel({
+          formData: { file },
+          itemId: item?.id || "",
+          userId: currentUser?.id?.toString() || "0"
+        });
+        
+        setModelFile(file);
+        setCurrentModel(file.name);
+        setModelDeleted(false);
+        setValue("model", file.name, { shouldDirty: true });
+        showToast("Success", "Model file uploaded successfully", "success");
+      } catch (error) {
+        console.error("Error uploading model:", error);
+        showToast("Error", "Failed to upload model file", "error");
+        event.target.value = "";
+      }
+    }
+  };
+
+  const handleModelDelete = async () => {
+    if (!item?.id || !currentModel) return;
+    
+    try {
+      await modelsDeleteModel({
+        itemId: item.id,
+        userId: currentUser?.id?.toString() || "0",
+        fileName: currentModel
+      });
+      
+      setCurrentModel(null);
+      setModelFile(null);
+      setModelDeleted(true);
+      setValue("model", "", { shouldDirty: true });
+      showToast("Success", "Model file deleted successfully", "success");
+    } catch (error) {
+      console.error("Error deleting model:", error);
+      showToast("Error", "Failed to delete model file", "error");
+    }
   };
 
   const onSubmit: SubmitHandler<ItemUpdate> = (data) => {
@@ -132,8 +211,44 @@ const EditItem = ({
       </FormControl>
 
       <FormControl mt={4}>
-        <FormLabel htmlFor="model">Model</FormLabel>
-        <Input id="model" {...register("model")} placeholder="Model" />
+        <FormLabel>Model (.blend file)</FormLabel>
+        {currentModel && !modelDeleted ? (
+          <Box>
+            <HStack spacing={4} align="center">
+              <Text fontSize="sm" color="green.500">
+                ✓ {currentModel}
+              </Text>
+              <Button
+                size="sm"
+                variant="outline"
+                colorScheme="red"
+                onClick={handleModelDelete}
+              >
+                Delete
+              </Button>
+            </HStack>
+          </Box>
+        ) : (
+          <Box>
+            <Input
+              type="file"
+              accept=".blend"
+              onChange={handleModelUpload}
+              display="none"
+              id="model-upload"
+            />
+            <Button
+              variant="primary"
+              onClick={() => document.getElementById('model-upload')?.click()}
+              width="100%"
+              justifyContent="flex-start"
+              textAlign="left"
+              fontWeight="normal"
+            >
+              Select .blend file
+            </Button>
+          </Box>
+        )}
       </FormControl>
 
       <FormControl mt={4}>
@@ -141,7 +256,10 @@ const EditItem = ({
         <Input id="certificate" {...register("certificate")} placeholder="Certificate" />
       </FormControl>
 
-      <ImagesUploader onImagesChange={handleImagesChange} _item={item ?? {}} />
+      <FormControl mt={4}>
+        <FormLabel>Images</FormLabel>
+        <ImagesUploader onImagesChange={handleImagesChange} _item={item ?? {}} />
+      </FormControl>
 
       <HStack spacing={4} mt={4}>
         <Button
