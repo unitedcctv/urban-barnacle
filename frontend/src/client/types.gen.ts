@@ -119,7 +119,7 @@ export type UserCreate = {
   password: string
 }
 
-export type UserPermission = "superuser" | "user" | "investor"
+export type UserPermission = "superuser" | "user" | "investor" | "owner"
 
 export type UserPublic = {
   email: string

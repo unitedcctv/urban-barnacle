@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   Button,
-  Checkbox,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -17,7 +16,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { type UserCreate } from "../../client/types.gen";
+import { type UserCreate, type UserPermission } from "../../client/types.gen";
 import { usersCreateUser } from "../../client/sdk.gen";
 import type { ApiError } from "../../client/core/ApiError";
 import useCustomToast from "../../hooks/useCustomToast";
@@ -86,7 +85,10 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
   });
 
   const onSubmit: SubmitHandler<UserCreateForm> = (data) => {
-    data.permissions = permissions
+    // Convert string to UserPermission type - take the first permission if multiple
+    data.permissions = permissions.split(',')[0] as UserPermission;
+    // Set all users created by superuser admin to be active by default
+    data.is_active = true;
     mutation.mutate(data);
   };
 
@@ -162,17 +164,13 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
             </FormControl>
             <PermissionsCheckboxGroup
               initialPermissions={permissions}
-              onPermissionsChange={setPermissions}
+              onPermissionsChange={(perms: string) => setPermissions(perms.split(',')[0] as UserPermission)}
             />
-            <FormControl mt={4}>
-              <Checkbox {...register("is_active")} colorScheme="teal">
-                Is active?
-              </Checkbox>
-            </FormControl>
+
           </ModalBody>
           <ModalFooter gap={3}>
             <Button variant="primary" type="submit" isLoading={isSubmitting}>
-              Save
+              Create User
             </Button>
             <Button onClick={onClose}>Cancel</Button>
           </ModalFooter>

@@ -647,7 +647,7 @@ export const UserCreateSchema = {
 
 export const UserPermissionSchema = {
   type: "string",
-  enum: ["superuser", "user", "investor"],
+  enum: ["superuser", "user", "investor", "owner"],
   title: "UserPermission",
 } as const
 

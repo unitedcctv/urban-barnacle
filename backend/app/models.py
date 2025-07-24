@@ -12,6 +12,7 @@ class UserPermission(str, Enum):
     SUPERUSER = "superuser"
     USER = "user"
     INVESTOR = "investor"
+    OWNER = "owner"
 
 
 class UserBase(SQLModel):
