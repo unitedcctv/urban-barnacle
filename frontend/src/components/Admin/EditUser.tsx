@@ -29,7 +29,8 @@ interface EditUserProps {
   onClose: () => void
 }
 
-interface UserUpdateForm extends UserUpdate {
+interface UserUpdateForm {
+  is_active?: boolean
   permissions: string
 }
 
@@ -52,8 +53,13 @@ const EditUser = ({ user, isOpen, onClose }: EditUserProps) => {
   })
 
   const mutation = useMutation({
-    mutationFn: (data: UserUpdateForm) =>
-      usersUpdateUser({ userId: user.id, requestBody: data }),
+    mutationFn: (data: UserUpdateForm) => {
+      const updateData: UserUpdate = {
+        is_active: data.is_active,
+        permissions: data.permissions as any, // Convert string to UserPermission
+      }
+      return usersUpdateUser({ userId: user.id, requestBody: updateData })
+    },
     onSuccess: () => {
       showToast("Success!", "User updated successfully.", "success")
       onClose()

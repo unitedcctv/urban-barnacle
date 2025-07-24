@@ -13,7 +13,6 @@ import {
   Image,
   VStack,
   HStack,
-  Link,
   useDisclosure,
 } from "@chakra-ui/react";
 import { type ItemPublic } from "../../client/index.ts";
