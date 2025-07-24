@@ -1,7 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -12,14 +9,20 @@
             "module": "uvicorn",
             "args": [
                 "app.main:app",
-                "--reload"
+                "--reload",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8000"
             ],
             "cwd": "${workspaceFolder}/backend",
             "envFile": "${workspaceFolder}/.env",
-        
-            // key bits ↓↓↓
-            "subProcess": true,      // attach to re-loader worker
-            "justMyCode": false      // allow stepping into your code inside site-packages if needed
+            "console": "integratedTerminal",
+            "subProcess": true,
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/backend"
+            }
         },
         {
             "type": "chrome",
@@ -27,6 +30,6 @@
             "name": "Debug Frontend: Launch Chrome against http://localhost:5173",
             "url": "http://localhost:5173",
             "webRoot": "${workspaceFolder}/frontend"
-        },
+        }
     ]
 }

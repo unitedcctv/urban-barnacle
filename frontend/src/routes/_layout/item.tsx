@@ -72,21 +72,57 @@ function Item({ item: propItem }: { item: ItemPublic }) {
         showToast("Error!", `Failed to delete images for item ${itemId}.`, "error");
       } finally {
         // Always attempt to delete the item
-        try {
-          deleteMutation.mutate(itemId, {
-            onSuccess: () => {
-              // Invalidate the items query to refetch the items list
-              queryClient.invalidateQueries({ queryKey: ['items'] });
-              navigate({ to: "/gallery" });
-            }
-          });
-        } catch (error) {
-          console.error(`Error deleting item ${itemId}:`, error);
-          showToast("Error!", `Failed to delete item ${itemId}.`, "error");
-        }
+        deleteMutation.mutate(itemId, {
+          onSuccess: () => {
+            // Invalidate the items query to refetch the items list
+            queryClient.invalidateQueries({ queryKey: ['items'] });
+            navigate({ to: "/gallery" });
+          }
+        });
       }
     } else {
       showToast("Error!", "Failed to delete item.", "error");
+    }
+  };
+
+  // Handle purchase model functionality
+  const handlePurchaseModel = async () => {
+    if (!currentItem?.id) {
+      showToast("Error", "Item not found", "error");
+      return;
+    }
+
+    try {
+      // Call the backend to create a Stripe checkout session
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/payments/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: JSON.stringify({
+          item_id: currentItem.id,
+          success_url: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${window.location.origin}/payment/cancel`,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to create checkout session');
+      }
+
+      const data = await response.json();
+      
+      // Redirect to Stripe checkout
+      window.location.href = data.url;
+    } catch (error) {
+      console.error('Payment error:', error);
+      showToast(
+        "Payment Error",
+        error instanceof Error ? error.message : "Failed to initiate payment",
+        "error"
+      );
     }
   };
 
@@ -136,15 +172,6 @@ function Item({ item: propItem }: { item: ItemPublic }) {
         </Text>
         <Text textAlign="center">{currentItem?.description}</Text>
 
-        {/* Link from item.model with text "{currentItem.title} model" */}
-        {currentItem?.model && (
-          <Text textAlign="center" color="gray.500">
-            <Link href={currentItem.model} isExternal>
-              {`${currentItem?.title} model`}
-            </Link>
-          </Text>
-        )}
-
         {/* Main Image */}
         {imagesArray.length > 0 && (
           <Box w="full" maxW="400px">
@@ -176,6 +203,18 @@ function Item({ item: propItem }: { item: ItemPublic }) {
               ))}
             </HStack>
           </Box>
+        )}
+
+        {/* Purchase Model Button - Only show if item has a model */}
+        {currentItem?.model && !canEdit && (
+          <Button
+            colorScheme="green"
+            size="lg"
+            onClick={handlePurchaseModel}
+            isDisabled={buttonsDisabled}
+          >
+            Purchase 3D Model - $10.00
+          </Button>
         )}
 
         {/* Button for Edit - Only visible to superusers or item owners */}

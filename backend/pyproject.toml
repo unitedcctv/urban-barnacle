@@ -30,6 +30,8 @@ dependencies = [
     # Blockchain dependencies
     "web3>=6.15.1",
     "eth-account>=0.10.0",
+    # Payment processing
+    "stripe>=7.0.0",
 ]
 
 [tool.uv]

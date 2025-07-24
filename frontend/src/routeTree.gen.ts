@@ -22,6 +22,8 @@ import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutGalleryImport } from './routes/_layout/gallery'
 import { Route as LayoutCreateitemImport } from './routes/_layout/createitem'
 import { Route as LayoutBusinessplanImport } from './routes/_layout/businessplan'
+import { Route as LayoutPaymentSuccessImport } from './routes/_layout/payment/success'
+import { Route as LayoutPaymentCancelImport } from './routes/_layout/payment/cancel'
 
 // Create/Update Routes
 
@@ -80,6 +82,16 @@ const LayoutBusinessplanRoute = LayoutBusinessplanImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutPaymentSuccessRoute = LayoutPaymentSuccessImport.update({
+  path: '/payment/success',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutPaymentCancelRoute = LayoutPaymentCancelImport.update({
+  path: '/payment/cancel',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -128,6 +140,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/payment/cancel': {
+      preLoaderRoute: typeof LayoutPaymentCancelImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/payment/success': {
+      preLoaderRoute: typeof LayoutPaymentSuccessImport
+      parentRoute: typeof LayoutImport
+    }
   }
 }
 
@@ -142,6 +162,8 @@ export const routeTree = rootRoute.addChildren([
     LayoutSettingsRoute,
     LayoutSuadminRoute,
     LayoutIndexRoute,
+    LayoutPaymentCancelRoute,
+    LayoutPaymentSuccessRoute,
   ]),
   ConfirmEmailRoute,
   RecoverPasswordRoute,
