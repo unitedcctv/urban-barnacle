@@ -19,7 +19,7 @@ export const Body_login_login_access_tokenSchema = {
       anyOf: [
         {
           type: "string",
-          pattern: "password",
+          pattern: "^password$",
         },
         {
           type: "null",
@@ -66,6 +66,31 @@ export const Body_login_login_access_tokenSchema = {
   type: "object",
   required: ["username", "password"],
   title: "Body_login-login_access_token",
+} as const
+
+export const Body_models_upload_modelSchema = {
+  properties: {
+    file: {
+      type: "string",
+      format: "binary",
+      title: "File",
+    },
+  },
+  type: "object",
+  required: ["file"],
+  title: "Body_models-upload_model",
+} as const
+
+export const EmailConfirmationSchema = {
+  properties: {
+    token: {
+      type: "string",
+      title: "Token",
+    },
+  },
+  type: "object",
+  required: ["token"],
+  title: "EmailConfirmation",
 } as const
 
 export const HTTPValidationErrorSchema = {
@@ -135,6 +160,58 @@ export const ItemCreateSchema = {
       ],
       title: "Certificate",
     },
+    nft_token_id: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Token Id",
+    },
+    nft_contract_address: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Contract Address",
+    },
+    nft_transaction_hash: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Transaction Hash",
+    },
+    nft_metadata_uri: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 500,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Metadata Uri",
+    },
+    is_nft_enabled: {
+      type: "boolean",
+      title: "Is Nft Enabled",
+      default: true,
+    },
   },
   type: "object",
   required: ["title"],
@@ -193,6 +270,58 @@ export const ItemPublicSchema = {
         },
       ],
       title: "Certificate",
+    },
+    nft_token_id: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Token Id",
+    },
+    nft_contract_address: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Contract Address",
+    },
+    nft_transaction_hash: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Transaction Hash",
+    },
+    nft_metadata_uri: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 500,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Metadata Uri",
+    },
+    is_nft_enabled: {
+      type: "boolean",
+      title: "Is Nft Enabled",
+      default: true,
     },
     id: {
       type: "string",
@@ -270,9 +399,78 @@ export const ItemUpdateSchema = {
       ],
       title: "Certificate",
     },
+    nft_token_id: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Token Id",
+    },
+    nft_contract_address: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Contract Address",
+    },
+    nft_transaction_hash: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Transaction Hash",
+    },
+    nft_metadata_uri: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 500,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Nft Metadata Uri",
+    },
+    is_nft_enabled: {
+      type: "boolean",
+      title: "Is Nft Enabled",
+      default: true,
+    },
   },
   type: "object",
   title: "ItemUpdate",
+} as const
+
+export const ItemWithPermissionsSchema = {
+  properties: {
+    item: {
+      $ref: "#/components/schemas/ItemPublic",
+    },
+    can_edit: {
+      type: "boolean",
+      title: "Can Edit",
+      default: false,
+    },
+  },
+  type: "object",
+  required: ["item"],
+  title: "ItemWithPermissions",
+  description: "Item data with edit permissions",
 } as const
 
 export const ItemsPublicSchema = {
@@ -349,6 +547,26 @@ export const PrivateUserCreateSchema = {
   title: "PrivateUserCreate",
 } as const
 
+export const SidebarItemSchema = {
+  properties: {
+    title: {
+      type: "string",
+      title: "Title",
+    },
+    path: {
+      type: "string",
+      title: "Path",
+    },
+    icon: {
+      type: "string",
+      title: "Icon",
+    },
+  },
+  type: "object",
+  required: ["title", "path", "icon"],
+  title: "SidebarItem",
+} as const
+
 export const TokenSchema = {
   properties: {
     access_token: {
@@ -397,19 +615,11 @@ export const UserCreateSchema = {
     is_active: {
       type: "boolean",
       title: "Is Active",
-      default: true,
+      default: false,
     },
     permissions: {
-      anyOf: [
-        {
-          type: "string",
-          maxLength: 255,
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Permissions",
+      $ref: "#/components/schemas/UserPermission",
+      default: "user",
     },
     full_name: {
       anyOf: [
@@ -435,6 +645,12 @@ export const UserCreateSchema = {
   title: "UserCreate",
 } as const
 
+export const UserPermissionSchema = {
+  type: "string",
+  enum: ["superuser", "user", "investor"],
+  title: "UserPermission",
+} as const
+
 export const UserPublicSchema = {
   properties: {
     email: {
@@ -446,19 +662,11 @@ export const UserPublicSchema = {
     is_active: {
       type: "boolean",
       title: "Is Active",
-      default: true,
+      default: false,
     },
     permissions: {
-      anyOf: [
-        {
-          type: "string",
-          maxLength: 255,
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Permissions",
+      $ref: "#/components/schemas/UserPermission",
+      default: "user",
     },
     full_name: {
       anyOf: [
@@ -533,19 +741,11 @@ export const UserUpdateSchema = {
     is_active: {
       type: "boolean",
       title: "Is Active",
-      default: true,
+      default: false,
     },
     permissions: {
-      anyOf: [
-        {
-          type: "string",
-          maxLength: 255,
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Permissions",
+      $ref: "#/components/schemas/UserPermission",
+      default: "user",
     },
     full_name: {
       anyOf: [

@@ -1,7 +1,5 @@
 import React from "react"
 import {
-  FormControl,
-  FormLabel,
   Input,
   Box,
   Text,
@@ -41,10 +39,14 @@ interface ImagesUploaderProps {
   _item: ItemPublic
 }
 
-const ImagesUploader: React.FC<ImagesUploaderProps> = ({
-  onImagesChange,
-  _item,
-}) => {
+export interface ImagesUploaderRef {
+  reset: () => void
+}
+
+const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>((
+  { onImagesChange, _item },
+  ref
+) => {
   const toast = useToast()
 
   // Initialize from existing images (comma-separated)
@@ -63,6 +65,14 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({
       },
     })
   )
+
+  // Expose reset function to parent component
+  React.useImperativeHandle(ref, () => ({
+    reset: () => {
+      setFiles([])
+      onImagesChange("")
+    },
+  }))
 
   // Handle reordering via drag and drop
   const handleDragEnd = (event: DragEndEvent) => {
@@ -167,20 +177,33 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({
   }
 
   return (
-    <FormControl mt={4}>
-      <FormLabel htmlFor="images">Images</FormLabel>
+    <Box>
       <Input
         id="images"
         type="file"
         accept="image/*"
         multiple
         onChange={handleFileUpload}
+        display="none"
       />
+      <Button
+        variant="primary"
+        onClick={() => document.getElementById('images')?.click()}
+        width="100%"
+        justifyContent="flex-start"
+        textAlign="left"
+        fontWeight="normal"
+        color={files.length > 0 ? "white" : "gray.500"}
+        bg={files.length > 0 ? undefined : "gray.50"}
+        _hover={files.length > 0 ? undefined : { bg: "gray.100" }}
+      >
+        {files.length > 0 ? `${files.length} image${files.length > 1 ? 's' : ''} selected` : "Select images"}
+      </Button>
 
       {files.length > 0 && (
         <Box mt={4}>
-          <Text fontWeight="bold" mb={2}>
-            Uploaded Files (Drag to Reorder):
+          <Text fontSize="sm" color="green.500" mb={2}>
+            ✓ {files.length} image{files.length > 1 ? 's' : ''} uploaded (Drag to Reorder):
           </Text>
           <DndContext
             sensors={sensors}
@@ -204,9 +227,9 @@ const ImagesUploader: React.FC<ImagesUploaderProps> = ({
           </DndContext>
         </Box>
       )}
-    </FormControl>
+    </Box>
   )
-}
+})
 
 export default ImagesUploader
 

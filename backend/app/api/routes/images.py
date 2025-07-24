@@ -14,7 +14,7 @@ router = APIRouter(prefix="/images", tags=["images"])
 logging = getLogger(__name__)
 logging.setLevel("INFO")
 
-UPLOAD_DIR = "./uploads"
+UPLOAD_DIR = "./uploads/images"
 
 
 class FileRequest(BaseModel):

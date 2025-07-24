@@ -13,6 +13,14 @@ export type Body_login_login_access_token = {
   client_secret?: string | null
 }
 
+export type Body_models_upload_model = {
+  file: Blob | File
+}
+
+export type EmailConfirmation = {
+  token: string
+}
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>
 }
@@ -23,6 +31,11 @@ export type ItemCreate = {
   images?: string | null
   model?: string | null
   certificate?: string | null
+  nft_token_id?: number | null
+  nft_contract_address?: string | null
+  nft_transaction_hash?: string | null
+  nft_metadata_uri?: string | null
+  is_nft_enabled?: boolean
 }
 
 export type ItemPublic = {
@@ -31,6 +44,11 @@ export type ItemPublic = {
   images?: string | null
   model?: string | null
   certificate?: string | null
+  nft_token_id?: number | null
+  nft_contract_address?: string | null
+  nft_transaction_hash?: string | null
+  nft_metadata_uri?: string | null
+  is_nft_enabled?: boolean
   id: string
   owner_id: string
 }
@@ -46,6 +64,19 @@ export type ItemUpdate = {
   images?: string | null
   model?: string | null
   certificate?: string | null
+  nft_token_id?: number | null
+  nft_contract_address?: string | null
+  nft_transaction_hash?: string | null
+  nft_metadata_uri?: string | null
+  is_nft_enabled?: boolean
+}
+
+/**
+ * Item data with edit permissions
+ */
+export type ItemWithPermissions = {
+  item: ItemPublic
+  can_edit?: boolean
 }
 
 export type Message = {
@@ -64,6 +95,12 @@ export type PrivateUserCreate = {
   is_verified?: boolean
 }
 
+export type SidebarItem = {
+  title: string
+  path: string
+  icon: string
+}
+
 export type Token = {
   access_token: string
   token_type?: string
@@ -77,15 +114,17 @@ export type UpdatePassword = {
 export type UserCreate = {
   email: string
   is_active?: boolean
-  permissions?: string | null
+  permissions?: UserPermission
   full_name?: string | null
   password: string
 }
 
+export type UserPermission = "superuser" | "user" | "investor"
+
 export type UserPublic = {
   email: string
   is_active?: boolean
-  permissions?: string | null
+  permissions?: UserPermission
   full_name?: string | null
   id: string
 }
@@ -104,7 +143,7 @@ export type UsersPublic = {
 export type UserUpdate = {
   email?: string | null
   is_active?: boolean
-  permissions?: string | null
+  permissions?: UserPermission
   full_name?: string | null
   password?: string | null
 }
@@ -181,6 +220,12 @@ export type UsersRegisterUserData = {
 
 export type UsersRegisterUserResponse = UserPublic
 
+export type UsersConfirmEmailData = {
+  requestBody: EmailConfirmation
+}
+
+export type UsersConfirmEmailResponse = Message
+
 export type UsersReadUserByIdData = {
   userId: string
 }
@@ -206,7 +251,7 @@ export type UtilsTestEmailData = {
 
 export type UtilsTestEmailResponse = Message
 
-export type UtilsHealthCheckResponse = boolean
+export type UtilsListPermissionsResponse = Array<string>
 
 export type ItemsReadItemsData = {
   limit?: number
@@ -221,11 +266,18 @@ export type ItemsCreateItemData = {
 
 export type ItemsCreateItemResponse = ItemPublic
 
+export type ItemsReadMyItemsData = {
+  limit?: number
+  skip?: number
+}
+
+export type ItemsReadMyItemsResponse = ItemsPublic
+
 export type ItemsReadItemData = {
   id: string
 }
 
-export type ItemsReadItemResponse = ItemPublic
+export type ItemsReadItemResponse = ItemWithPermissions
 
 export type ItemsUpdateItemData = {
   id: string
@@ -246,14 +298,18 @@ export type ImagesUploadFileData = {
   userId: string
 }
 
-export type ImagesUploadFileResponse = unknown
+export type ImagesUploadFileResponse = {
+  [key: string]: string
+}
 
 export type ImagesGetFilesData = {
   itemId: string
   userId: string
 }
 
-export type ImagesGetFilesResponse = unknown
+export type ImagesGetFilesResponse = {
+  [key: string]: string | Array<string>
+}
 
 export type ImagesDeleteFileData = {
   fileName: string
@@ -261,7 +317,9 @@ export type ImagesDeleteFileData = {
   userId: string
 }
 
-export type ImagesDeleteFileResponse = unknown
+export type ImagesDeleteFileResponse = {
+  [key: string]: string
+}
 
 export type ImagesGetFileData = {
   fileName: string
@@ -275,10 +333,80 @@ export type ImagesDeleteItemImagesData = {
   itemId: string
 }
 
-export type ImagesDeleteItemImagesResponse = unknown
+export type ImagesDeleteItemImagesResponse = {
+  [key: string]: string
+}
+
+export type ModelsUploadModelData = {
+  formData: Body_models_upload_model
+  itemId: string
+  userId: string
+}
+
+export type ModelsUploadModelResponse = {
+  [key: string]: string
+}
+
+export type ModelsGetModelData = {
+  itemId: string
+  userId: string
+}
+
+export type ModelsGetModelResponse = {
+  [key: string]: string | null
+}
+
+export type ModelsDeleteModelData = {
+  fileName: string
+  itemId: string
+  userId: string
+}
+
+export type ModelsDeleteModelResponse = {
+  [key: string]: string
+}
+
+export type ModelsDownloadModelData = {
+  fileName: string
+  itemId: string
+  userId: string
+}
+
+export type ModelsDownloadModelResponse = unknown
+
+export type ModelsDeleteItemModelData = {
+  itemId: string
+}
+
+export type ModelsDeleteItemModelResponse = {
+  [key: string]: string
+}
+
+export type SidebarGetSidebarItemsData = {
+  authorization?: string | null
+}
+
+export type SidebarGetSidebarItemsResponse = Array<SidebarItem>
+
+export type AiChatResponse = unknown
+
+export type AiRegisterWatchEndpointResponse = unknown
+
+export type AiPopulateChunksEndpointResponse = unknown
+
+export type AiDriveChangeWebhookData = {
+  xGoogChannelToken?: string | null
+  xGoogResourceState?: string
+}
+
+export type AiDriveChangeWebhookResponse = void
+
+export type BusinessPlanDownloadBusinessPlanResponse = unknown
 
 export type PrivateCreateUserData = {
   requestBody: PrivateUserCreate
 }
 
 export type PrivateCreateUserResponse = UserPublic
+
+export type UsersApiCurrentUserResponse = UserPublic

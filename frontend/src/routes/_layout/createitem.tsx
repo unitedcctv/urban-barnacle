@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Button,
   FormControl,
@@ -6,18 +6,22 @@ import {
   FormLabel,
   Input,
   Box,
+  Checkbox,
+  Text,
+  HStack,
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "@tanstack/react-router";
-import { type ItemCreate, type ItemPublic } from "../../client/types.gen";
+import { type ItemCreate } from "../../client/types.gen";
 import { type ApiError } from "../../client/core/ApiError";
 import { itemsCreateItem, itemsUpdateItem } from "../../client/sdk.gen";
 import useCustomToast from "../../hooks/useCustomToast";
 import { handleError } from "../../utils";
-import ImagesUploader from "../../components/Items/ImagesUploader";
+import ImagesUploader, { ImagesUploaderRef } from "../../components/Items/ImagesUploader";
 import { createFileRoute } from "@tanstack/react-router";
 import { UserPublic } from "../../client";
+import { imagesDeleteItemImages, modelsUploadModel, modelsDeleteItemModel, itemsDeleteItem } from "../../client/sdk.gen";
 
 export const Route = createFileRoute("/_layout/createitem")({
   component: CreateItem,
@@ -26,12 +30,14 @@ export const Route = createFileRoute("/_layout/createitem")({
 function CreateItem() {
   const [isItemStarted, setIsItemStarted] = useState(false);
   const [createdItemId, setCreatedItemId] = useState<string>("");
+  const [modelFile, setModelFile] = useState<File | null>(null);
   const queryClient = useQueryClient();
   const showToast = useCustomToast();
   const navigate = useNavigate();
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
+  const imagesUploaderRef = useRef<ImagesUploaderRef>(null);
 
-  let item: ItemPublic = {
+  let item: any = {
     id: createdItemId || "",
     owner_id: currentUser?.id || "",
     title: "",
@@ -39,6 +45,12 @@ function CreateItem() {
     model: "",
     certificate: "",
     images: "",
+    // NFT fields
+    is_nft_enabled: true,
+    nft_token_id: null,
+    nft_contract_address: null,
+    nft_transaction_hash: null,
+    nft_metadata_uri: null,
   };
 
   const {
@@ -48,7 +60,7 @@ function CreateItem() {
     setValue,
     watch,
     formState: { errors, isSubmitting},
-  } = useForm<ItemPublic>({
+  } = useForm<any>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: item,
@@ -79,7 +91,76 @@ function CreateItem() {
     setValue("images", commaSeparatedUrls, { shouldDirty: true });
   };
 
-  const onSubmit: SubmitHandler<ItemPublic> = (formData) => {
+  const handleCancel = async () => {
+    // Delete the initialized item and its files if item was created
+    if (createdItemId) {
+      try {
+        // Delete uploaded files first
+        await imagesDeleteItemImages({ itemId: createdItemId });
+        await modelsDeleteItemModel({ itemId: createdItemId });
+        
+        // Delete the item record from database
+        await itemsDeleteItem({ id: createdItemId });
+        
+        showToast("Success", "Item and all associated files deleted", "success");
+      } catch (error) {
+        console.error("Error deleting item during cancel:", error);
+        showToast("Warning", "Some cleanup operations may have failed", "error");
+        // Continue with reset even if deletion fails
+      }
+    }
+    
+    // Reset all form data
+    reset();
+    // Reset local state
+    setModelFile(null);
+    setIsItemStarted(false);
+    setCreatedItemId("");
+    // Reset images uploader
+    imagesUploaderRef.current?.reset();
+    // Only show reset message if no item was created
+    if (!createdItemId) {
+      showToast("Info", "Form has been reset", "success");
+    }
+  };
+
+  const handleModelFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file extension
+      if (!file.name.toLowerCase().endsWith('.blend')) {
+        showToast("Error", "Only .blend files are allowed", "error");
+        event.target.value = ""; // Reset the input
+        return;
+      }
+      
+      // Check if item is created before uploading
+      if (!createdItemId) {
+        showToast("Error", "Please create the item first before uploading model", "error");
+        event.target.value = "";
+        return;
+      }
+      
+      try {
+        // Upload the model file to the server
+        await modelsUploadModel({
+          formData: { file },
+          itemId: createdItemId,
+          userId: currentUser?.id?.toString() || "0"
+        });
+        
+        setModelFile(file);
+        setValue("model", file.name, { shouldDirty: true });
+        showToast("Success", "Model file uploaded successfully", "success");
+      } catch (error) {
+        console.error("Error uploading model:", error);
+        showToast("Error", "Failed to upload model file", "error");
+        event.target.value = "";
+      }
+    }
+  };
+
+  const onSubmit: SubmitHandler<any> = (formData) => {
     if (!isItemStarted) {
       createMutation.mutate(formData, {
         onSuccess: (newItem) => {
@@ -123,7 +204,7 @@ function CreateItem() {
           placeholder="Title"
           type="text"
         />
-        {errors.title && <FormErrorMessage>{errors.title.message}</FormErrorMessage>}
+        {errors.title && <FormErrorMessage>{errors.title.message as string}</FormErrorMessage>}
       </FormControl>
 
       {/* Description Field */}
@@ -132,37 +213,109 @@ function CreateItem() {
         <Input id="description" {...register("description")} placeholder="Description" />
       </FormControl>
 
-      {/* Model Field */}
+      {/* Model File Upload */}
       <FormControl mt={4} isDisabled={!isItemStarted}>
-        <FormLabel htmlFor="model">Model</FormLabel>
-        <Input id="model" {...register("model")} placeholder="Model" />
+        <FormLabel htmlFor="model">3D Model File (.blend)</FormLabel>
+        <Box>
+          <Input
+            id="model"
+            type="file"
+            accept=".blend"
+            onChange={handleModelFileChange}
+            display="none"
+          />
+          <Button
+            variant="primary"
+            onClick={() => document.getElementById('model')?.click()}
+            isDisabled={!isItemStarted}
+            width="100%"
+            justifyContent="flex-start"
+            textAlign="left"
+            fontWeight="normal"
+            color={modelFile ? "white" : "gray.500"}
+            bg={modelFile ? undefined : "gray.50"}
+            _hover={modelFile ? undefined : { bg: "gray.100" }}
+          >
+            {modelFile ? modelFile.name : "Select Blender file (.blend)"}
+          </Button>
+        </Box>
+        {modelFile && (
+          <Text mt={2} fontSize="sm" color="green.500">
+            ✓ File selected: {modelFile.name}
+          </Text>
+        )}
       </FormControl>
 
-      {/* Certificate Field */}
+      {/* NFT Settings */}
       <FormControl mt={4} isDisabled={!isItemStarted}>
-        <FormLabel htmlFor="certificate">Certificate</FormLabel>
-        <Input id="certificate" {...register("certificate")} placeholder="Certificate" />
+        <Checkbox 
+          {...register("is_nft_enabled")} 
+          defaultChecked={true}
+          colorScheme="blue"
+        >
+          Enable NFT Creation
+        </Checkbox>
+      </FormControl>
+
+      {/* NFT Contract Address */}
+      <FormControl mt={4} isDisabled={!isItemStarted}>
+        <FormLabel htmlFor="nft_contract_address">NFT Contract Address (Optional)</FormLabel>
+        <Input 
+          id="nft_contract_address" 
+          {...register("nft_contract_address")} 
+          placeholder="0x..." 
+        />
+      </FormControl>
+
+      {/* NFT Metadata URI */}
+      <FormControl mt={4} isDisabled={!isItemStarted}>
+        <FormLabel htmlFor="nft_metadata_uri">Metadata URI (Optional)</FormLabel>
+        <Input 
+          id="nft_metadata_uri" 
+          {...register("nft_metadata_uri")} 
+          placeholder="https://..." 
+        />
       </FormControl>
 
       {/* Images Uploader */}
-      <Box
-        mt={4}
-        opacity={!isItemStarted ? 0.6 : 1}
-        pointerEvents={!isItemStarted ? "none" : "auto"}
-      >
-        <ImagesUploader onImagesChange={handleImagesChange} _item={item} />
-      </Box>
+      <FormControl mt={4} isDisabled={!isItemStarted}>
+        <FormLabel>Images</FormLabel>
+        <Box
+          opacity={!isItemStarted ? 0.6 : 1}
+          pointerEvents={!isItemStarted ? "none" : "auto"}
+        >
+          <ImagesUploader
+            ref={imagesUploaderRef}
+            onImagesChange={handleImagesChange}
+            _item={{
+              id: createdItemId,
+              images: "",
+              owner_id: currentUser?.id || 0,
+            } as any}
+          />
+        </Box>
+      </FormControl>
 
-      {/* Submit Button */}
-      <Button
-        variant="primary"
-        type="submit"
-        isLoading={isSubmitting}
-        mt={4}
-        isDisabled={!isItemStarted && !title}
-      >
-        {isItemStarted ? "Update Item" : "Initialise Item"}
-      </Button>
+      {/* Action Buttons */}
+      <HStack spacing={4} mt={6}>
+        <Button
+          variant="primary"
+          type="submit"
+          isLoading={isSubmitting}
+          isDisabled={!isItemStarted && !title}
+          flex={1}
+        >
+          {isItemStarted ? "Update Item" : "Initialise Item"}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleCancel}
+          isDisabled={isSubmitting}
+          flex={1}
+        >
+          Cancel
+        </Button>
+      </HStack>
     </Box>
   );
 }

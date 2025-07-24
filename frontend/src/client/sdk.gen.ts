@@ -25,6 +25,8 @@ import type {
   UsersUpdatePasswordMeResponse,
   UsersRegisterUserData,
   UsersRegisterUserResponse,
+  UsersConfirmEmailData,
+  UsersConfirmEmailResponse,
   UsersReadUserByIdData,
   UsersReadUserByIdResponse,
   UsersUpdateUserData,
@@ -33,11 +35,13 @@ import type {
   UsersDeleteUserResponse,
   UtilsTestEmailData,
   UtilsTestEmailResponse,
-  UtilsHealthCheckResponse,
+  UtilsListPermissionsResponse,
   ItemsReadItemsData,
   ItemsReadItemsResponse,
   ItemsCreateItemData,
   ItemsCreateItemResponse,
+  ItemsReadMyItemsData,
+  ItemsReadMyItemsResponse,
   ItemsReadItemData,
   ItemsReadItemResponse,
   ItemsUpdateItemData,
@@ -54,8 +58,27 @@ import type {
   ImagesGetFileResponse,
   ImagesDeleteItemImagesData,
   ImagesDeleteItemImagesResponse,
+  ModelsUploadModelData,
+  ModelsUploadModelResponse,
+  ModelsGetModelData,
+  ModelsGetModelResponse,
+  ModelsDeleteModelData,
+  ModelsDeleteModelResponse,
+  ModelsDownloadModelData,
+  ModelsDownloadModelResponse,
+  ModelsDeleteItemModelData,
+  ModelsDeleteItemModelResponse,
+  SidebarGetSidebarItemsData,
+  SidebarGetSidebarItemsResponse,
+  AiChatResponse,
+  AiRegisterWatchEndpointResponse,
+  AiPopulateChunksEndpointResponse,
+  AiDriveChangeWebhookData,
+  AiDriveChangeWebhookResponse,
+  BusinessPlanDownloadBusinessPlanResponse,
   PrivateCreateUserData,
   PrivateCreateUserResponse,
+  UsersApiCurrentUserResponse,
 } from "./types.gen"
 
 /**
@@ -303,6 +326,28 @@ export const usersRegisterUser = (
 }
 
 /**
+ * Confirm Email
+ * Confirm user email address and activate account.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns Message Successful Response
+ * @throws ApiError
+ */
+export const usersConfirmEmail = (
+  data: UsersConfirmEmailData,
+): CancelablePromise<UsersConfirmEmailResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/users/confirm-email",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
  * Read User By Id
  * Get a specific user by id.
  * @param data The data for the request.
@@ -398,15 +443,16 @@ export const utilsTestEmail = (
 }
 
 /**
- * Health Check
- * @returns boolean Successful Response
+ * List Permissions
+ * Return available user-permission strings.
+ * @returns string Successful Response
  * @throws ApiError
  */
-export const utilsHealthCheck =
-  (): CancelablePromise<UtilsHealthCheckResponse> => {
+export const utilsListPermissions =
+  (): CancelablePromise<UtilsListPermissionsResponse> => {
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/utils/health-check/",
+      url: "/api/v1/utils/permissions/",
     })
   }
 
@@ -437,7 +483,7 @@ export const itemsReadItems = (
 
 /**
  * Create Item
- * Create new item.
+ * Create new item and optionally mint NFT.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns ItemPublic Successful Response
@@ -458,11 +504,36 @@ export const itemsCreateItem = (
 }
 
 /**
+ * Read My Items
+ * Retrieve items for the current user.
+ * @param data The data for the request.
+ * @param data.skip
+ * @param data.limit
+ * @returns ItemsPublic Successful Response
+ * @throws ApiError
+ */
+export const itemsReadMyItems = (
+  data: ItemsReadMyItemsData = {},
+): CancelablePromise<ItemsReadMyItemsResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/items/my-items/",
+    query: {
+      skip: data.skip,
+      limit: data.limit,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
  * Read Item
- * Get item by ID.
+ * Get item by ID with edit permissions.
  * @param data The data for the request.
  * @param data.id
- * @returns ItemPublic Successful Response
+ * @returns ItemWithPermissions Successful Response
  * @throws ApiError
  */
 export const itemsReadItem = (
@@ -535,7 +606,7 @@ export const itemsDeleteItem = (
  * @param data.itemId
  * @param data.userId
  * @param data.formData
- * @returns unknown Successful Response
+ * @returns string Successful Response
  * @throws ApiError
  */
 export const imagesUploadFile = (
@@ -586,7 +657,7 @@ export const imagesGetFiles = (
  * @param data.itemId
  * @param data.userId
  * @param data.fileName
- * @returns unknown Successful Response
+ * @returns string Successful Response
  * @throws ApiError
  */
 export const imagesDeleteFile = (
@@ -636,7 +707,7 @@ export const imagesGetFile = (
  * Delete Item Images
  * @param data The data for the request.
  * @param data.itemId
- * @returns unknown Successful Response
+ * @returns string Successful Response
  * @throws ApiError
  */
 export const imagesDeleteItemImages = (
@@ -653,6 +724,236 @@ export const imagesDeleteItemImages = (
     },
   })
 }
+
+/**
+ * Upload Model
+ * @param data The data for the request.
+ * @param data.itemId
+ * @param data.userId
+ * @param data.formData
+ * @returns string Successful Response
+ * @throws ApiError
+ */
+export const modelsUploadModel = (
+  data: ModelsUploadModelData,
+): CancelablePromise<ModelsUploadModelResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/models/{item_id}/{user_id}",
+    path: {
+      item_id: data.itemId,
+      user_id: data.userId,
+    },
+    formData: data.formData,
+    mediaType: "multipart/form-data",
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Get Model
+ * @param data The data for the request.
+ * @param data.itemId
+ * @param data.userId
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const modelsGetModel = (
+  data: ModelsGetModelData,
+): CancelablePromise<ModelsGetModelResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/models/{item_id}/{user_id}",
+    path: {
+      item_id: data.itemId,
+      user_id: data.userId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Delete Model
+ * @param data The data for the request.
+ * @param data.itemId
+ * @param data.userId
+ * @param data.fileName
+ * @returns string Successful Response
+ * @throws ApiError
+ */
+export const modelsDeleteModel = (
+  data: ModelsDeleteModelData,
+): CancelablePromise<ModelsDeleteModelResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/api/v1/models/{item_id}/{user_id}/{file_name}",
+    path: {
+      item_id: data.itemId,
+      user_id: data.userId,
+      file_name: data.fileName,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Download Model
+ * @param data The data for the request.
+ * @param data.itemId
+ * @param data.userId
+ * @param data.fileName
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const modelsDownloadModel = (
+  data: ModelsDownloadModelData,
+): CancelablePromise<ModelsDownloadModelResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/models/{item_id}/{user_id}/{file_name}",
+    path: {
+      item_id: data.itemId,
+      user_id: data.userId,
+      file_name: data.fileName,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Delete Item Model
+ * @param data The data for the request.
+ * @param data.itemId
+ * @returns string Successful Response
+ * @throws ApiError
+ */
+export const modelsDeleteItemModel = (
+  data: ModelsDeleteItemModelData,
+): CancelablePromise<ModelsDeleteItemModelResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/api/v1/models/{item_id}",
+    path: {
+      item_id: data.itemId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Get Sidebar Items
+ * Return sidebar items appropriate for the current (optional) user.
+ * @param data The data for the request.
+ * @param data.authorization
+ * @returns SidebarItem Successful Response
+ * @throws ApiError
+ */
+export const sidebarGetSidebarItems = (
+  data: SidebarGetSidebarItemsData = {},
+): CancelablePromise<SidebarGetSidebarItemsResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/sidebar/",
+    headers: {
+      Authorization: data.authorization,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Chat
+ * AI chat endpoint with comprehensive error handling.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const aiChat = (): CancelablePromise<AiChatResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/ai/chat",
+  })
+}
+
+/**
+ * Register Watch Endpoint
+ * Manually trigger creation of a Drive watch channel.
+ * Requires SUPERUSER permission.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const aiRegisterWatchEndpoint =
+  (): CancelablePromise<AiRegisterWatchEndpointResponse> => {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/v1/drive/register-watch",
+    })
+  }
+
+/**
+ * Populate Chunks Endpoint
+ * Manually populate chunks table with business plan content.
+ * Requires SUPERUSER permission.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const aiPopulateChunksEndpoint =
+  (): CancelablePromise<AiPopulateChunksEndpointResponse> => {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/v1/drive/populate-chunks",
+    })
+  }
+
+/**
+ * Drive Change Webhook
+ * @param data The data for the request.
+ * @param data.xGoogResourceState
+ * @param data.xGoogChannelToken
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const aiDriveChangeWebhook = (
+  data: AiDriveChangeWebhookData = {},
+): CancelablePromise<AiDriveChangeWebhookResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/drive/webhook",
+    headers: {
+      "x-goog-resource-state": data.xGoogResourceState,
+      "x-goog-channel-token": data.xGoogChannelToken,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Download Business Plan
+ * Download the business plan PDF directly from Google Drive.
+ * Requires authentication.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const businessPlanDownloadBusinessPlan =
+  (): CancelablePromise<BusinessPlanDownloadBusinessPlanResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/business-plan/download",
+    })
+  }
 
 /**
  * Create User
@@ -675,3 +976,17 @@ export const privateCreateUser = (
     },
   })
 }
+
+/**
+ * Api Current User
+ * Return the authenticated user (used by React app).
+ * @returns UserPublic Successful Response
+ * @throws ApiError
+ */
+export const usersApiCurrentUser =
+  (): CancelablePromise<UsersApiCurrentUserResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/currentUser",
+    })
+  }
