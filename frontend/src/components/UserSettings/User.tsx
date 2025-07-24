@@ -24,7 +24,7 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
         {permissionArray.map((permission) => (
           <Box
             key={permission}
-            bg="orange.500"
+            bg="blue.500"
             color="white"
             px={3}
             py={1}

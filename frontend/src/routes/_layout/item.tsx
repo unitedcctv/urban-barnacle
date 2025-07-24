@@ -171,23 +171,14 @@ function Item({ item }: { item: ItemPublic }) {
           </Box>
         )}
 
-        {/* Buttons for Edit / Delete */}
-        <HStack spacing={4}>
-          <Button
-            colorScheme="blue"
-            onClick={onOpen}
-            isDisabled={buttonsDisabled}
-          >
-            Edit Item
-          </Button>
-          <Button
-            colorScheme="red"
-            onClick={handleDelete}
-            isDisabled={buttonsDisabled}
-          >
-            Delete Item
-          </Button>
-        </HStack>
+        {/* Button for Edit */}
+        <Button
+          variant="primary"
+          onClick={onOpen}
+          isDisabled={buttonsDisabled}
+        >
+          Edit Item
+        </Button>
       </VStack>
 
       {/* Edit Modal */}
@@ -197,7 +188,14 @@ function Item({ item }: { item: ItemPublic }) {
           <ModalHeader>Edit Item</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {itemData && <EditItem item={itemData} onSuccess={handleEditSuccess} />}
+            {itemData && (
+              <EditItem 
+                item={itemData} 
+                onSuccess={handleEditSuccess}
+                onDelete={handleDelete}
+                buttonsDisabled={buttonsDisabled}
+              />
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>

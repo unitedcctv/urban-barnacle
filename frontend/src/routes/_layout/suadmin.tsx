@@ -213,10 +213,10 @@ function SuAdmin() {
       </Flex>
       <UsersTable />
       <Flex gap={4}>
-        <Button colorScheme="teal" onClick={registerWatch}>
+        <Button variant="primary" onClick={registerWatch}>
           Register Drive Watch
         </Button>
-        <Button colorScheme="blue" onClick={populateChunks}>
+        <Button variant="primary" onClick={populateChunks}>
           Populate AI Chunks
         </Button>
       </Flex>
