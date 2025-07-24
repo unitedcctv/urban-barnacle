@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_layout/item")({
   component: Item,
 });
 
-function Item({ item }: { item: ItemPublic }) {
+function Item({ item: propItem }: { item: ItemPublic }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const search = useSearch({ from: Route.id });
   const itemId = (search as { id: string }).id;
@@ -38,7 +38,7 @@ function Item({ item }: { item: ItemPublic }) {
   const queryClient = useQueryClient();
 
   // Use the item directly if passed in, or fetch below
-  let itemData: ItemPublic | undefined = item;
+  let itemData: any = propItem;
 
   // Fetch item if itemId exists
   const { data, refetch } = useQuery({
@@ -46,7 +46,7 @@ function Item({ item }: { item: ItemPublic }) {
     queryFn: () => itemsReadItem({ id: itemId }),
     enabled: !!itemId,
   });
-  itemData = data as ItemPublic;
+  itemData = data;
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -99,10 +99,11 @@ function Item({ item }: { item: ItemPublic }) {
    * Convert the comma-separated `images` string into an array of full URLs.
    */
   const imagesArray = React.useMemo(() => {
-    if (itemData?.images && typeof itemData.images === "string") {
-      return itemData.images
+    const currentItem = itemData?.item || itemData;
+    if (currentItem?.images && typeof currentItem.images === "string") {
+      return currentItem.images
         .split(",")
-        .map((img) => images_url.concat(itemData.id, "/", itemData.owner_id, "/", img.trim()))
+        .map((img: string) => images_url.concat(currentItem.id, "/", currentItem.owner_id, "/", img.trim()))
         .filter(Boolean);
     }
     return [];
@@ -116,6 +117,12 @@ function Item({ item }: { item: ItemPublic }) {
     setCurrentIndex(index);
   };
 
+  // Get edit permission from server
+  const canEdit = itemData?.can_edit || false;
+
+  // Get the actual item data
+  const currentItem = itemData?.item || itemData;
+
   return (
     <Container
       maxW="container.md"
@@ -125,15 +132,15 @@ function Item({ item }: { item: ItemPublic }) {
       <VStack spacing={6} w="full">
         {/* Title, Description */}
         <Text fontSize="2xl" fontWeight="bold" textAlign="center">
-          {itemData?.title}
+          {currentItem?.title}
         </Text>
-        <Text textAlign="center">{itemData?.description}</Text>
+        <Text textAlign="center">{currentItem?.description}</Text>
 
-        {/* Link from item.model with text "{itemData.title} model" */}
-        {itemData?.model && (
+        {/* Link from item.model with text "{currentItem.title} model" */}
+        {currentItem?.model && (
           <Text textAlign="center" color="gray.500">
-            <Link href={itemData.model} isExternal>
-              {`${itemData?.title} model`}
+            <Link href={currentItem.model} isExternal>
+              {`${currentItem?.title} model`}
             </Link>
           </Text>
         )}
@@ -153,7 +160,7 @@ function Item({ item }: { item: ItemPublic }) {
 
             {/* Thumbnails */}
             <HStack justify="center" spacing={2}>
-              {imagesArray.map((image, index) => (
+              {imagesArray.map((image: string, index: number) => (
                 <Image
                   key={index}
                   src={image}
@@ -171,14 +178,16 @@ function Item({ item }: { item: ItemPublic }) {
           </Box>
         )}
 
-        {/* Button for Edit */}
-        <Button
-          variant="primary"
-          onClick={onOpen}
-          isDisabled={buttonsDisabled}
-        >
-          Edit Item
-        </Button>
+        {/* Button for Edit - Only visible to superusers or item owners */}
+        {canEdit && (
+          <Button
+            variant="primary"
+            onClick={onOpen}
+            isDisabled={buttonsDisabled}
+          >
+            Edit Item
+          </Button>
+        )}
       </VStack>
 
       {/* Edit Modal */}
@@ -188,9 +197,9 @@ function Item({ item }: { item: ItemPublic }) {
           <ModalHeader>Edit Item</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {itemData && (
+            {currentItem && (
               <EditItem 
-                item={itemData} 
+                item={currentItem} 
                 onSuccess={handleEditSuccess}
                 onDelete={handleDelete}
                 buttonsDisabled={buttonsDisabled}

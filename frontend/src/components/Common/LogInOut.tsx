@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react"
 import { FiLogOut, FiLogIn } from "react-icons/fi"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import type { UserPublic } from "../../client"
 import Login from "./login"
 import SignUpModal from "../UserSettings/SignUpModal.tsx"
@@ -29,6 +30,7 @@ const LogInOut = () => {
   const signUp = useDisclosure()
   const queryClient = useQueryClient()
   const { logout } = useAuth()
+  const navigate = useNavigate()
 
   const authenticated = isLoggedIn()
 
@@ -50,6 +52,8 @@ const LogInOut = () => {
     logout()
     // Invalidate or reset the currentUser query so it reflects logged-out state
     queryClient.setQueryData(["currentUser"], null)
+    // Redirect to home page
+    navigate({ to: "/" })
   }
 
   return (

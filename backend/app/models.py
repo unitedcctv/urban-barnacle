@@ -115,6 +115,12 @@ class ItemPublic(ItemBase):
     owner_id: uuid.UUID
 
 
+class ItemWithPermissions(SQLModel):
+    """Item data with edit permissions"""
+    item: ItemPublic
+    can_edit: bool = False
+
+
 class ItemsPublic(SQLModel):
     data: list[ItemPublic]
     count: int
