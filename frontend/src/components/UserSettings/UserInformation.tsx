@@ -5,13 +5,20 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Heading,
   Input,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
   Text,
+  VStack,
   useColorModeValue,
+  useDisclosure,
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { type ApiError } from "../../client/core/ApiError"
 import { UserPublic, UserUpdateMe } from "../../client/types.gen"
@@ -24,7 +31,7 @@ function UserInformation(){
   const queryClient = useQueryClient()
   const color = useColorModeValue("inherit", "ui.light")
   const showToast = useCustomToast()
-  const [editMode, setEditMode] = useState(false)
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const { user: currentUser } = useAuth()
   const {
     register,
@@ -41,15 +48,12 @@ function UserInformation(){
     },
   })
 
-  const toggleEditMode = () => {
-    setEditMode(!editMode)
-  }
-
   const mutation = useMutation({
     mutationFn: (data: UserUpdateMe) =>
       usersUpdateUserMe({ requestBody: data }),
     onSuccess: () => {
       showToast("Success!", "User updated successfully.", "success")
+      onClose()
     },
     onError: (err: ApiError) => {
       handleError(err, showToast)
@@ -65,93 +69,118 @@ function UserInformation(){
 
   const onCancel = () => {
     reset()
-    toggleEditMode()
+    onClose()
   }
 
   const permissions = currentUser?.permissions?.split(",")
 
   return (
-        <Box
-          w={{ sm: "full", md: "50%" }}
-          as="form"
-          onSubmit={handleSubmit(onSubmit)}
+    <Box w="full">
+      {/* Display Mode */}
+      <VStack spacing={0} align="flex-start" w="full" padding={0}>
+        <Box w="full">
+          <Text fontSize="sm" color={color} fontWeight="medium" mb={1}>
+            Name
+          </Text>
+          <Text
+            size="md"
+            py={2}
+            color={!currentUser?.full_name ? "ui.dim" : "inherit"}
+            w="full"
+          >
+            {currentUser?.full_name || "N/A"}
+          </Text>
+        </Box>
+        
+        <Box w="full">
+          <Text fontSize="sm" color={color} fontWeight="medium" mb={1}>
+            Email
+          </Text>
+          <Text size="md" py={2} w="full">
+            {currentUser?.email}
+          </Text>
+        </Box>
+        
+        {permissions && permissions.length > 0 && (
+          <Box w="full" fontSize="sm" color="ui.dim" mt={4}>
+            <Text>
+              <Text as="span" fontWeight="medium">Permissions: </Text>
+              {permissions.join(", ")}
+            </Text>
+          </Box>
+        )}
+        
+        <Button
+          variant="primary"
+          onClick={onOpen}
+          mt={4}
         >
-          <Heading size="sm" py={4}>
-            User Settings
-          </Heading>
-          <Box mb={4}>
-          <FormControl>
-            <FormLabel color={color} htmlFor="name">
-              Name
-            </FormLabel>
-            {editMode ? (
-              <Input
-                id="name"
-                {...register("full_name", { maxLength: 30 })}
-                type="text"
-                size="md"
-                w="auto"
-              />
-            ) : (
-              <Text
-                size="md"
-                py={2}
-                color={!currentUser?.full_name ? "ui.dim" : "inherit"}
-                isTruncated
-                maxWidth="250px"
-              >
-                {currentUser?.full_name || "N/A"}
-              </Text>
-            )}
-          </FormControl>
-          <FormControl mt={4} isInvalid={!!errors.email}>
-            <FormLabel color={color} htmlFor="email">
-              Email
-            </FormLabel>
-            {editMode ? (
-              <Input
-                id="email"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: emailPattern,
-                })}
-                type="email"
-                size="md"
-                w="auto"
-                value={getValues("email")}
-              />
-            ) : (
-              <Text size="md" py={2} isTruncated maxWidth="250px">
-                {currentUser?.email}
-              </Text>
-            )}
-            {errors.email && (
-              <FormErrorMessage>{errors.email.message}</FormErrorMessage>
-            )}
-          </FormControl>
-          </Box>
-          <Box mt={2} fontSize="sm" color="ui.dim">
-            {permissions?.map((perm) => (
-              <Text key={perm}>{perm}</Text>
-            ))}
-          </Box>
-          <Flex mt={4} gap={3}>
-            <Button
-              variant="primary"
-              onClick={toggleEditMode}
-              type={editMode ? "button" : "submit"}
-              isLoading={editMode ? isSubmitting : false}
-              isDisabled={editMode ? !isDirty || !getValues("email") : false}
-            >
-              {editMode ? "Save" : "Edit"}
-            </Button>
-            {editMode && (
+          Edit
+        </Button>
+      </VStack>
+
+      {/* Edit Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size="md">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Personal Information</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box as="form" onSubmit={handleSubmit(onSubmit)}>
+              <VStack spacing={4} align="flex-start" w="full">
+                <FormControl w="full">
+                  <FormLabel color={color} htmlFor="name">
+                    Name
+                  </FormLabel>
+                  <Input
+                    id="name"
+                    {...register("full_name", { maxLength: 30 })}
+                    type="text"
+                    size="md"
+                    w="full"
+                  />
+                </FormControl>
+                
+                <FormControl w="full" isInvalid={!!errors.email}>
+                  <FormLabel color={color} htmlFor="email">
+                    Email
+                  </FormLabel>
+                  <Input
+                    id="email"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: emailPattern,
+                    })}
+                    type="email"
+                    size="md"
+                    w="full"
+                    value={getValues("email")}
+                  />
+                  {errors.email && (
+                    <FormErrorMessage>{errors.email.message}</FormErrorMessage>
+                  )}
+                </FormControl>
+              </VStack>
+            </Box>
+          </ModalBody>
+          <ModalFooter>
+            <Flex gap={3}>
               <Button onClick={onCancel} isDisabled={isSubmitting}>
                 Cancel
               </Button>
-            )}
-          </Flex>
-        </Box>
+              <Button
+                variant="primary"
+                onClick={handleSubmit(onSubmit)}
+                isLoading={isSubmitting}
+                isDisabled={!isDirty || !getValues("email")}
+              >
+                Save
+              </Button>
+            </Flex>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Box>
   )
 }
 

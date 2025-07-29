@@ -1,12 +1,11 @@
 import {
   Box,
   Button,
-  Container,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Heading,
   Input,
+  VStack,
   useColorModeValue,
 } from "@chakra-ui/react"
 import { useMutation } from "@tanstack/react-query"
@@ -53,25 +52,24 @@ const ChangePassword = () => {
   }
 
   return (
-    <Container>
-        <Heading size="sm" py={4}>
-          Change Password
-        </Heading>
-        <Box
-          w={{ sm: "full", md: "50%" }}
-          as="form"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <FormControl isRequired isInvalid={!!errors.current_password}>
+    <Box w="full">
+      <Box
+        as="form"
+        onSubmit={handleSubmit(onSubmit)}
+        w="full"
+      >
+        <VStack spacing={4} align="flex-start" w="full">
+          <FormControl w="full" isRequired isInvalid={!!errors.current_password}>
             <FormLabel color={color} htmlFor="current_password">
               Current Password
             </FormLabel>
             <Input
               id="current_password"
               {...register("current_password")}
-              placeholder="Password"
+              placeholder="Current Password"
               type="password"
-              w="auto"
+              w="full"
+              maxW="400px"
             />
             {errors.current_password && (
               <FormErrorMessage>
@@ -79,27 +77,35 @@ const ChangePassword = () => {
               </FormErrorMessage>
             )}
           </FormControl>
-          <FormControl mt={4} isRequired isInvalid={!!errors.new_password}>
-            <FormLabel htmlFor="password">Set Password</FormLabel>
+          
+          <FormControl w="full" isRequired isInvalid={!!errors.new_password}>
+            <FormLabel color={color} htmlFor="password">
+              New Password
+            </FormLabel>
             <Input
               id="password"
               {...register("new_password", passwordRules())}
-              placeholder="Password"
+              placeholder="New Password"
               type="password"
-              w="auto"
+              w="full"
+              maxW="400px"
             />
             {errors.new_password && (
               <FormErrorMessage>{errors.new_password.message}</FormErrorMessage>
             )}
           </FormControl>
-          <FormControl mt={4} isRequired isInvalid={!!errors.confirm_password}>
-            <FormLabel htmlFor="confirm_password">Confirm Password</FormLabel>
+          
+          <FormControl w="full" isRequired isInvalid={!!errors.confirm_password}>
+            <FormLabel color={color} htmlFor="confirm_password">
+              Confirm Password
+            </FormLabel>
             <Input
               id="confirm_password"
               {...register("confirm_password", confirmPasswordRules(getValues))}
-              placeholder="Password"
+              placeholder="Confirm New Password"
               type="password"
-              w="auto"
+              w="full"
+              maxW="400px"
             />
             {errors.confirm_password && (
               <FormErrorMessage>
@@ -107,16 +113,19 @@ const ChangePassword = () => {
               </FormErrorMessage>
             )}
           </FormControl>
+          
           <Button
             variant="primary"
-            mt={4}
             type="submit"
             isLoading={isSubmitting}
+            w="full"
+            maxW="400px"
           >
-            Save
+            Update Password
           </Button>
-        </Box>
-    </Container>
+        </VStack>
+      </Box>
+    </Box>
   )
 }
 export default ChangePassword
