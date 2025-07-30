@@ -7,7 +7,7 @@ from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message
-from app.blockchain_service import blockchain_service
+from app.blockchain.blockchain_service import blockchain_service
 
 router = APIRouter(prefix="/items", tags=["items"])
 

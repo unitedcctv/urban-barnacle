@@ -12,6 +12,7 @@ jobs:
     runs-on:
       - self-hosted
       - production
+    environment: production
     env:
       ENVIRONMENT: production
       PROJECT_NAME: Urban Barnacle
@@ -28,9 +29,9 @@ jobs:
       SMTP_HOST: ${{ vars.SMTP_HOST }}
       SMTP_USER: ${{ vars.SMTP_USER }}
       EMAILS_FROM_EMAIL: ${{ vars.EMAILS_FROM_EMAIL }}
-      DOMAIN: ${{ vars.DOMAIN_PRODUCTION }}
+      DOMAIN: ${{ vars.DOMAIN }}
       FRONTEND_HOST: ${{ vars.FRONTEND_HOST }}
-      STACK_NAME: ${{ vars.STACK_NAME_PRODUCTION }}
+      STACK_NAME: ${{ vars.STACK_NAME }}
       DOCKER_IMAGE_BACKEND: ${{ vars.DOCKER_IMAGE_BACKEND }}
       DOCKER_IMAGE_FRONTEND: ${{ vars.DOCKER_IMAGE_FRONTEND }}
       BUSINESS_PLAN_DOC_ID: ${{ secrets.BUSINESS_PLAN_DOC_ID }}

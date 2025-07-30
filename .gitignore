@@ -9,3 +9,4 @@ barnacle_ssh.pem
 *.pem
 **/.venv
 **/.doc.json
+accounts

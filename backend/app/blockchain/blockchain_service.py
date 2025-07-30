@@ -194,6 +194,69 @@ class BlockchainService:
         except Exception as e:
             logger.error(f"Failed to get NFT metadata: {e}")
             return None
+    def _get_network_config(self):
+        """Get network-specific configuration"""
+        network = os.getenv("ETHEREUM_NETWORK", "localhost")
+        
+        configs = {
+            "localhost": {
+                "rpc_url": "http://localhost:8545",
+                "chain_id": 31337,
+                "gas_limit": 3000000,
+                "gas_price": 20000000000
+            },
+            "sepolia": {
+                "rpc_url": os.getenv("ETHEREUM_RPC_URL", "https://sepolia.infura.io/v3/YOUR_KEY"),
+                "chain_id": 11155111,
+                "gas_limit": 3000000,
+                "gas_price": 20000000000
+            },
+            "goerli": {
+                "rpc_url": os.getenv("ETHEREUM_RPC_URL", "https://goerli.infura.io/v3/YOUR_KEY"),
+                "chain_id": 5,
+                "gas_limit": 3000000,
+                "gas_price": 20000000000
+            }
+        }
+        
+        return configs.get(network, configs["localhost"])
+    
+    def get_account_balance(self) -> float:
+        """Get account balance in ETH"""
+        if not self.is_available():
+            return 0.0
+        
+        try:
+            balance_wei = self.web3.eth.get_balance(self.account.address)
+            balance_eth = self.web3.from_wei(balance_wei, 'ether')
+            return float(balance_eth)
+        except Exception as e:
+            logger.error(f"Failed to get account balance: {e}")
+            return 0.0
+    
+    def fund_account_from_faucet_info(self) -> dict:
+        """Get information about funding the account"""
+        network = os.getenv("ETHEREUM_NETWORK", "localhost")
+        
+        faucets = {
+            "sepolia": [
+                "https://sepoliafaucet.com/",
+                "https://faucet.sepolia.dev/"
+            ],
+            "goerli": [
+                "https://goerlifaucet.com/",
+                "https://faucet.goerli.mudit.blog/"
+            ],
+            "localhost": ["No faucet needed - Hardhat provides 10,000 ETH automatically"]
+        }
+        
+        return {
+            "network": network,
+            "address": self.account.address if self.account else None,
+            "balance": self.get_account_balance(),
+            "faucets": faucets.get(network, [])
+        }
+
 
 # Global instance
 blockchain_service = BlockchainService()
