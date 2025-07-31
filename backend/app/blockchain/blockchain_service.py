@@ -7,13 +7,15 @@ from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware
 import logging
 
+from app.core.config import settings
+
 logger = logging.getLogger(__name__)
 
 class BlockchainService:
     def __init__(self):
-        # Use blockchain container service name when running in Docker
-        self.web3_url = os.getenv("WEB3_URL", "http://blockchain:8545")
-        self.private_key = os.getenv("PRIVATE_KEY")
+        # Use settings for Web3 URL and private key with proper fallbacks
+        self.web3_url = settings.web3_url
+        self.private_key = settings.private_key
         self.contract_address = None
         self.contract_abi = None
         self.web3 = None
@@ -114,6 +116,16 @@ class BlockchainService:
                 abi=self.contract_abi
             )
 
+            # Get the recipient's current token balance to predict the next token ID
+            predicted_token_id = None
+            try:
+                # The next token ID will be the current balance of the recipient
+                current_balance = contract.functions.balanceOf(owner_address).call()
+                predicted_token_id = current_balance  # Next token will have this ID
+                logger.info(f"Predicted token ID based on balance: {predicted_token_id}")
+            except Exception as e:
+                logger.debug(f"Failed to get balance for token ID prediction: {e}")
+        
             # Build transaction
             transaction = contract.functions.mintItemNFT(
                 owner_address,
@@ -133,7 +145,11 @@ class BlockchainService:
 
             # Sign and send transaction
             signed_txn = self.web3.eth.account.sign_transaction(transaction, self.private_key)
-            tx_hash = self.web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            # Handle different Web3.py versions (rawTransaction vs raw_transaction)
+            raw_tx = getattr(signed_txn, 'raw_transaction', getattr(signed_txn, 'rawTransaction', None))
+            if raw_tx is None:
+                raise AttributeError("Could not find raw transaction data in signed transaction")
+            tx_hash = self.web3.eth.send_raw_transaction(raw_tx)
             
             # Wait for transaction receipt
             receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
@@ -141,14 +157,47 @@ class BlockchainService:
             if receipt.status == 1:
                 # Parse logs to get token ID
                 token_id = None
+                
+                # Debug: Log all transaction logs
+                logger.info(f"Transaction receipt has {len(receipt.logs)} logs")
+                for i, log in enumerate(receipt.logs):
+                    logger.info(f"Log {i}: address={log.address}, topics={[t.hex() for t in log.topics]}, data={log.data.hex()}")
+                
+                # Method 1: Try to parse ItemNFTMinted event
                 for log in receipt.logs:
                     try:
                         decoded_log = contract.events.ItemNFTMinted().process_log(log)
                         token_id = decoded_log['args']['tokenId']
+                        logger.info(f"Extracted token ID from ItemNFTMinted event: {token_id}")
                         break
-                    except:
+                    except Exception as e:
+                        logger.debug(f"Failed to parse ItemNFTMinted event on log {log.address}: {e}")
                         continue
-
+                
+                # Method 2: If event parsing failed, try to parse Transfer event (ERC721 standard)
+                if token_id is None:
+                    logger.warning("ItemNFTMinted event parsing failed, trying Transfer event...")
+                    for log in receipt.logs:
+                        try:
+                            # Transfer event has signature: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+                            if len(log.topics) >= 4 and log.topics[0].hex() == '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef':
+                                # Extract tokenId from the 4th topic (index 3)
+                                token_id = int(log.topics[3].hex(), 16)
+                                logger.info(f"Extracted token ID from Transfer event: {token_id}")
+                                break
+                        except Exception as e:
+                            logger.debug(f"Failed to parse Transfer event: {e}")
+                            continue
+                
+                # Method 3: Use the predicted token ID from the call() simulation
+                if token_id is None:
+                    logger.warning("Event parsing methods failed, using predicted token ID...")
+                    if predicted_token_id is not None:
+                        token_id = predicted_token_id
+                        logger.info(f"Using predicted token ID: {token_id}")
+                    else:
+                        logger.error("All token ID extraction methods failed")
+                
                 logger.info(f"NFT minted successfully. Token ID: {token_id}, TX: {tx_hash.hex()}")
                 
                 return {

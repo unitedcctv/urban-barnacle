@@ -6,9 +6,24 @@ import {
   FormLabel,
   Input,
   Box,
-  Checkbox,
   Text,
   HStack,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+
+  ModalBody,
+
+  useDisclosure,
+  VStack,
+  Badge,
+  CloseButton,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -21,7 +36,7 @@ import { handleError } from "../../utils";
 import ImagesUploader, { ImagesUploaderRef } from "../../components/Items/ImagesUploader";
 import { createFileRoute } from "@tanstack/react-router";
 import { UserPublic } from "../../client";
-import { imagesDeleteItemImages, modelsUploadModel, modelsDeleteItemModel, itemsDeleteItem } from "../../client/sdk.gen";
+import { imagesDeleteItemImages, modelsUploadModel, modelsDeleteItemModel, itemsDeleteItem, itemsMintNft } from "../../client/sdk.gen";
 
 export const Route = createFileRoute("/_layout/createitem")({
   component: CreateItem,
@@ -31,6 +46,13 @@ function CreateItem() {
   const [isItemStarted, setIsItemStarted] = useState(false);
   const [createdItemId, setCreatedItemId] = useState<string>("");
   const [modelFile, setModelFile] = useState<File | null>(null);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+  const [balanceMessage, setBalanceMessage] = useState<string>("");
+  const [balanceStatus, setBalanceStatus] = useState<"info" | "warning" | "error" | "success">("info");
+  const [isMintingNft, setIsMintingNft] = useState(false);
+  const [isNftAlertDismissed, setIsNftAlertDismissed] = useState(false);
+  const [isBalanceAlertDismissed, setIsBalanceAlertDismissed] = useState(false);
+  const { isOpen: isTokenModalOpen, onOpen: onTokenModalOpen, onClose: onTokenModalClose } = useDisclosure();
   const queryClient = useQueryClient();
   const showToast = useCustomToast();
   const navigate = useNavigate();
@@ -83,6 +105,35 @@ function CreateItem() {
       handleError(err, showToast);
     },
     onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+    },
+  });
+
+  const mintNftMutation = useMutation({
+    mutationFn: (itemId: string) => itemsMintNft({ id: itemId }),
+    onError: (err: ApiError) => {
+      handleError(err, showToast);
+      setIsMintingNft(false);
+    },
+    onSuccess: (updatedItem) => {
+      console.log("NFT minted successfully, updatedItem:", updatedItem);
+      showToast("Success!", "NFT minted successfully!", "success");
+      setIsMintingNft(false);
+      
+      // Update the form with the new NFT data
+      console.log("Updating form values with NFT data...");
+      setValue("nft_token_id", updatedItem.nft_token_id, { shouldDirty: true, shouldTouch: true });
+      setValue("nft_contract_address", updatedItem.nft_contract_address, { shouldDirty: true, shouldTouch: true });
+      setValue("nft_transaction_hash", updatedItem.nft_transaction_hash, { shouldDirty: true, shouldTouch: true });
+      setValue("nft_metadata_uri", updatedItem.nft_metadata_uri, { shouldDirty: true, shouldTouch: true });
+      
+      console.log("Form values after update:", {
+        nft_token_id: watch("nft_token_id"),
+        nft_contract_address: watch("nft_contract_address"),
+        nft_transaction_hash: watch("nft_transaction_hash"),
+        nft_metadata_uri: watch("nft_metadata_uri")
+      });
+      
       queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });
@@ -160,12 +211,180 @@ function CreateItem() {
     }
   };
 
-  const onSubmit: SubmitHandler<any> = (formData) => {
+  // Environment detection
+  const isProduction = import.meta.env.PROD || import.meta.env.VITE_ENVIRONMENT === 'production';
+  const isDevelopment = import.meta.env.DEV || import.meta.env.VITE_ENVIRONMENT === 'development';
+  const isStaging = import.meta.env.VITE_ENVIRONMENT === 'staging';
+
+  // Check ETH balance and handle funding
+  const checkBalanceAndFund = async (): Promise<boolean> => {
+    setIsCheckingBalance(true);
+    setBalanceMessage("");
+    
+    try {
+      // Call backend API to check balance
+      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const response = await fetch(`${apiBase}/api/v1/blockchain/balance`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+        cache: 'no-store',
+      });
+      
+      if (!response.ok) {
+        // Try to get error details from response
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+        } else {
+          // Non-JSON response (likely HTML error page)
+          throw new Error(`Blockchain service unavailable (HTTP ${response.status}). Please ensure the blockchain service is running.`);
+        }
+      }
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Blockchain service returned invalid response. Service may be unavailable.');
+      }
+      
+      const balanceData = await response.json();
+      const hasEnoughFunds = balanceData.has_enough_funds;
+      const currentBalance = balanceData.balance_eth;
+      
+      if (hasEnoughFunds) {
+        setBalanceMessage(`✅ Sufficient funds available (${currentBalance} ETH)`);
+        setBalanceStatus("success");
+        return true;
+      }
+      
+      // Insufficient funds - handle based on environment
+      if (isProduction) {
+        setBalanceMessage(
+          `❌ Insufficient ETH balance (${currentBalance} ETH). NFT creation requires funding. Please contact support or add funds to your account.`
+        );
+        setBalanceStatus("error");
+        showToast(
+          "Insufficient Funds", 
+          "Cannot create NFT in production without sufficient ETH balance. Please contact support.", 
+          "error"
+        );
+        return false;
+      } else if (isDevelopment || isStaging) {
+        // Auto-fund in development/staging
+        setBalanceMessage(`⏳ Insufficient funds (${currentBalance} ETH). Auto-funding account...`);
+        setBalanceStatus("warning");
+        
+        try {
+          const fundResponse = await fetch(`${apiBase}/api/v1/blockchain/fund-account`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache',
+            },
+            cache: 'no-store',
+          });
+          
+          if (!fundResponse.ok) {
+            const contentType = fundResponse.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await fundResponse.json();
+              throw new Error(errorData.detail || `HTTP ${fundResponse.status}: ${fundResponse.statusText}`);
+            } else {
+              throw new Error(`Blockchain service unavailable for funding (HTTP ${fundResponse.status})`);
+            }
+          }
+          
+          const fundData = await fundResponse.json();
+          setBalanceMessage(
+            `✅ Account funded successfully! New balance: ${fundData.new_balance_eth} ETH`
+          );
+          setBalanceStatus("success");
+          showToast(
+            "Account Funded", 
+            `Development account funded with ${fundData.funded_amount_eth} ETH`, 
+            "success"
+          );
+          return true;
+        } catch (fundError) {
+          setBalanceMessage(
+            `❌ Failed to auto-fund account: ${fundError instanceof Error ? fundError.message : 'Unknown error'}`
+          );
+          setBalanceStatus("error");
+          showToast("Funding Failed", "Could not auto-fund development account", "error");
+          return false;
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Provide specific guidance based on error type
+      let userMessage = errorMessage;
+      if (errorMessage.includes('Unexpected token') || errorMessage.includes('DOCTYPE')) {
+        userMessage = 'Blockchain service is not responding properly. Please check if the blockchain container is running.';
+      } else if (errorMessage.includes('unavailable') || errorMessage.includes('503')) {
+        userMessage = 'Blockchain service is currently unavailable. Please try again in a moment.';
+      } else if (errorMessage.includes('Not authenticated')) {
+        userMessage = 'Authentication required. Please log in again.';
+      }
+      
+      setBalanceMessage(`❌ Error checking balance: ${userMessage}`);
+      setBalanceStatus("error");
+      showToast("Balance Check Failed", userMessage, "error");
+      return false;
+    } finally {
+      setIsCheckingBalance(false);
+    }
+  };
+
+  const handleMintNft = async () => {
+    console.log("handleMintNft called");
+    
+    if (!createdItemId) {
+      showToast("Error", "No item available to mint NFT for", "error");
+      return;
+    }
+
+    console.log("createdItemId:", createdItemId);
+    const formData = watch();
+
+    // Check if NFT is already minted
+    if (formData.nft_token_id) {
+      showToast("Info", "NFT is already minted for this item", "success");
+      return;
+    }
+
+    // Check balance before minting
+    console.log("Starting balance check...");
+    setIsMintingNft(true);
+    const balanceOk = await checkBalanceAndFund();
+    console.log("Balance check result:", balanceOk);
+    
+    if (!balanceOk) {
+      console.log("Balance check failed, stopping mint process");
+      setIsMintingNft(false);
+      return;
+    }
+
+    console.log("Calling mintNftMutation.mutate with itemId:", createdItemId);
+    mintNftMutation.mutate(createdItemId);
+  };
+
+  const onSubmit: SubmitHandler<any> = async (formData) => {
     if (!isItemStarted) {
       createMutation.mutate(formData, {
         onSuccess: (newItem) => {
           setCreatedItemId(newItem.id);
-          showToast("Success!", "Item created successfully (step 1).", "success");
+          showToast("Success!", "Item created successfully.", "success");
           setIsItemStarted(true);
         },
       });
@@ -179,7 +398,7 @@ function CreateItem() {
         { itemId: createdItemId, body: formData },
         {
           onSuccess: () => {
-            showToast("Success!", "Item updated successfully (step 2).", "success");
+            showToast("Success!", "Item updated successfully.", "success");
             reset();
             setIsItemStarted(false);
             setCreatedItemId("");
@@ -246,36 +465,13 @@ function CreateItem() {
         )}
       </FormControl>
 
-      {/* NFT Settings */}
-      <FormControl mt={4} isDisabled={!isItemStarted}>
-        <Checkbox 
-          {...register("is_nft_enabled")} 
-          defaultChecked={true}
-          colorScheme="blue"
-        >
-          Enable NFT Creation
-        </Checkbox>
-      </FormControl>
 
-      {/* NFT Contract Address */}
-      <FormControl mt={4} isDisabled={!isItemStarted}>
-        <FormLabel htmlFor="nft_contract_address">NFT Contract Address (Optional)</FormLabel>
-        <Input 
-          id="nft_contract_address" 
-          {...register("nft_contract_address")} 
-          placeholder="0x..." 
-        />
-      </FormControl>
 
-      {/* NFT Metadata URI */}
-      <FormControl mt={4} isDisabled={!isItemStarted}>
-        <FormLabel htmlFor="nft_metadata_uri">Metadata URI (Optional)</FormLabel>
-        <Input 
-          id="nft_metadata_uri" 
-          {...register("nft_metadata_uri")} 
-          placeholder="https://..." 
-        />
-      </FormControl>
+
+
+
+
+
 
       {/* Images Uploader */}
       <FormControl mt={4} isDisabled={!isItemStarted}>
@@ -296,26 +492,137 @@ function CreateItem() {
         </Box>
       </FormControl>
 
+
+
       {/* Action Buttons */}
       <HStack spacing={4} mt={6}>
         <Button
           variant="primary"
           type="submit"
-          isLoading={isSubmitting}
-          isDisabled={!isItemStarted && !title}
+          isLoading={isSubmitting || isCheckingBalance}
+          isDisabled={(!isItemStarted && !title) || isCheckingBalance}
           flex={1}
+          px={6}
+          py={3}
         >
-          {isItemStarted ? "Update Item" : "Initialise Item"}
+          {isCheckingBalance ? "Checking Balance..." : (isItemStarted ? "Update Item" : "Initialise Item")}
         </Button>
+        {(() => {
+          const tokenId = watch("nft_token_id");
+          console.log("Current nft_token_id value:", tokenId, "Type:", typeof tokenId);
+          return tokenId === null || tokenId === undefined;
+        })() ? (
+          <Button
+            variant="primary"
+            onClick={handleMintNft}
+            isLoading={isMintingNft || isCheckingBalance}
+            loadingText={isCheckingBalance ? "Checking Balance..." : "Minting NFT..."}
+            isDisabled={!isItemStarted}
+            flex={1}
+            px={6}
+            py={3}
+          >
+            Mint NFT
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            onClick={onTokenModalOpen}
+            flex={1}
+            px={8}
+            py={3}
+          >
+            View NFT Details
+          </Button>
+        )}
         <Button
           variant="outline"
           onClick={handleCancel}
           isDisabled={isSubmitting}
           flex={1}
+          px={6}
+          py={3}
         >
           Cancel
         </Button>
       </HStack>
+
+      {/* NFT Details Modal */}
+      <Modal isOpen={isTokenModalOpen} onClose={onTokenModalClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>NFT Token Details</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <VStack spacing={4} align="stretch">
+              <Box>
+                <Text fontWeight="bold" mb={2}>Token ID</Text>
+                <Badge colorScheme="blue" fontSize="md" p={2}>
+                  {watch("nft_token_id") || "Not available"}
+                </Badge>
+              </Box>
+              
+              <Box>
+                <Text fontWeight="bold" mb={2}>Contract Address</Text>
+                <Text fontFamily="mono" fontSize="sm" bg="gray.100" p={2} borderRadius="md">
+                  {watch("nft_contract_address") || "Not available"}
+                </Text>
+              </Box>
+              
+              <Box>
+                <Text fontWeight="bold" mb={2}>Transaction Hash</Text>
+                <Text fontFamily="mono" fontSize="sm" bg="gray.100" p={2} borderRadius="md" wordBreak="break-all">
+                  {watch("nft_transaction_hash") || "Not available"}
+                </Text>
+              </Box>
+              
+              <Box>
+                <Text fontWeight="bold" mb={2}>Metadata URI</Text>
+                <Text fontFamily="mono" fontSize="sm" bg="gray.100" p={2} borderRadius="md" wordBreak="break-all">
+                  {watch("nft_metadata_uri") || "Not available"}
+                </Text>
+              </Box>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      {/* Success Alerts at Bottom */}
+      {/* NFT Success Alert */}
+      {(watch("nft_token_id") !== null && watch("nft_token_id") !== undefined && !isNftAlertDismissed) && (
+        <Alert status="success" mt={4} position="relative">
+          <AlertIcon />
+          <Box flex="1">
+            <AlertTitle>NFT Minted Successfully!</AlertTitle>
+            <AlertDescription>
+              Token ID: {watch("nft_token_id")}
+            </AlertDescription>
+          </Box>
+          <CloseButton
+            position="absolute"
+            right="8px"
+            top="8px"
+            onClick={() => setIsNftAlertDismissed(true)}
+          />
+        </Alert>
+      )}
+
+      {/* Balance Status Alert (only show success status) */}
+      {balanceMessage && balanceStatus === "success" && !isBalanceAlertDismissed && (
+        <Alert status={balanceStatus} mt={4} position="relative">
+          <AlertIcon />
+          <Box flex="1">
+            <AlertTitle>ETH Balance Status</AlertTitle>
+            <AlertDescription>{balanceMessage}</AlertDescription>
+          </Box>
+          <CloseButton
+            position="absolute"
+            right="8px"
+            top="8px"
+            onClick={() => setIsBalanceAlertDismissed(true)}
+          />
+        </Alert>
+      )}
     </Box>
   );
 }

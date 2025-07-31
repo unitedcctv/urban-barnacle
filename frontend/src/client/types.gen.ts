@@ -292,6 +292,12 @@ export type ItemsDeleteItemData = {
 
 export type ItemsDeleteItemResponse = Message
 
+export type ItemsMintNftData = {
+  id: string
+}
+
+export type ItemsMintNftResponse = ItemPublic
+
 export type ImagesUploadFileData = {
   formData: Body_images_upload_file
   itemId: string

@@ -7,6 +7,17 @@ import {
   Box,
   HStack,
   Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  VStack,
+  Badge,
+  Link,
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -35,13 +46,13 @@ const EditItem = ({
   const queryClient = useQueryClient();
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const showToast = useCustomToast();
+  const { isOpen: isNFTModalOpen, onOpen: onNFTModalOpen, onClose: onNFTModalClose } = useDisclosure();
 
   // Store original values for comparison
   const originalValues = {
     title: item?.title || "",
     description: item?.description || "",
     model: item?.model || "",
-    certificate: item?.certificate || "",
     images: item?.images || "",
   };
 
@@ -69,7 +80,6 @@ const EditItem = ({
       title: item?.title,
       description: item?.description || "",
       model: item?.model || "",
-      certificate: item?.certificate || "",
       images: item?.images || "",
     },
   });
@@ -96,7 +106,6 @@ const EditItem = ({
       (watchedValues.title || "") !== originalValues.title ||
       (watchedValues.description || "") !== originalValues.description ||
       (watchedValues.model || "") !== originalValues.model ||
-      (watchedValues.certificate || "") !== originalValues.certificate ||
       currentImages !== originalImages ||
       imagesDeleted ||
       modelDeleted ||
@@ -251,9 +260,25 @@ const EditItem = ({
         )}
       </FormControl>
 
+      {/* NFT Information */}
       <FormControl mt={4}>
-        <FormLabel htmlFor="certificate">Certificate</FormLabel>
-        <Input id="certificate" {...register("certificate")} placeholder="Certificate" />
+        <FormLabel>NFT Information</FormLabel>
+        {item?.nft_token_id ? (
+          <Button
+            variant="primary"
+            onClick={onNFTModalOpen}
+            width="100%"
+            justifyContent="flex-start"
+            textAlign="left"
+            fontWeight="normal"
+          >
+            Show NFT Details (Token #{item.nft_token_id})
+          </Button>
+        ) : (
+          <Text fontSize="sm" color="gray.500">
+            No NFT associated with this item
+          </Text>
+        )}
       </FormControl>
 
       <FormControl mt={4}>
@@ -280,6 +305,87 @@ const EditItem = ({
           </Button>
         )}
       </HStack>
+
+      {/* NFT Details Modal */}
+      <Modal isOpen={isNFTModalOpen} onClose={onNFTModalClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>NFT Details</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4} align="stretch">
+              {item?.nft_token_id && (
+                <Box>
+                  <Text fontWeight="bold" mb={2}>Token Information</Text>
+                  <VStack spacing={2} align="stretch">
+                    <HStack justify="space-between">
+                      <Text>Token ID:</Text>
+                      <Badge colorScheme="blue">#{item.nft_token_id}</Badge>
+                    </HStack>
+                    {item.nft_contract_address && (
+                      <HStack justify="space-between">
+                        <Text>Contract Address:</Text>
+                        <Link 
+                          href={`https://etherscan.io/address/${item.nft_contract_address}`} 
+                          isExternal 
+                          color="blue.500"
+                          fontSize="sm"
+                        >
+                          {item.nft_contract_address.slice(0, 10)}...{item.nft_contract_address.slice(-8)}
+                        </Link>
+                      </HStack>
+                    )}
+                    {item.nft_transaction_hash && (
+                      <HStack justify="space-between">
+                        <Text>Transaction Hash:</Text>
+                        <Link 
+                          href={`https://etherscan.io/tx/${item.nft_transaction_hash}`} 
+                          isExternal 
+                          color="blue.500"
+                          fontSize="sm"
+                        >
+                          {item.nft_transaction_hash.slice(0, 10)}...{item.nft_transaction_hash.slice(-8)}
+                        </Link>
+                      </HStack>
+                    )}
+                    {item.nft_metadata_uri && (
+                      <HStack justify="space-between">
+                        <Text>Metadata URI:</Text>
+                        <Link 
+                          href={item.nft_metadata_uri} 
+                          isExternal 
+                          color="blue.500"
+                          fontSize="sm"
+                        >
+                          View Metadata
+                        </Link>
+                      </HStack>
+                    )}
+                  </VStack>
+                </Box>
+              )}
+              
+              <Box>
+                <Text fontWeight="bold" mb={2}>Item Information</Text>
+                <VStack spacing={2} align="stretch">
+                  <HStack justify="space-between">
+                    <Text>Title:</Text>
+                    <Text>{item?.title}</Text>
+                  </HStack>
+                  {item?.description && (
+                    <HStack justify="space-between">
+                      <Text>Description:</Text>
+                      <Text>{item.description}</Text>
+                    </HStack>
+                  )}
+                </VStack>
+              </Box>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

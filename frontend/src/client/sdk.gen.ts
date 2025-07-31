@@ -48,6 +48,8 @@ import type {
   ItemsUpdateItemResponse,
   ItemsDeleteItemData,
   ItemsDeleteItemResponse,
+  ItemsMintNftData,
+  ItemsMintNftResponse,
   ImagesUploadFileData,
   ImagesUploadFileResponse,
   ImagesGetFilesData,
@@ -591,6 +593,29 @@ export const itemsDeleteItem = (
   return __request(OpenAPI, {
     method: "DELETE",
     url: "/api/v1/items/{id}",
+    path: {
+      id: data.id,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Mint NFT
+ * Mint NFT for an existing item.
+ * @param data The data for the request.
+ * @param data.id
+ * @returns ItemPublic Successful Response
+ * @throws ApiError
+ */
+export const itemsMintNft = (
+  data: ItemsMintNftData,
+): CancelablePromise<ItemsMintNftResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/items/{id}/mint-nft",
     path: {
       id: data.id,
     },

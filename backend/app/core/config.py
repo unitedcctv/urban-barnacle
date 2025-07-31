@@ -93,6 +93,39 @@ class Settings(BaseSettings):
     def stripe_enabled(self) -> bool:
         return bool(self.STRIPE_SECRET_KEY and self.STRIPE_PUBLISHABLE_KEY)
 
+    # Blockchain/Web3 settings
+    ETHEREUM_NETWORK: str = "localhost"
+    ETHEREUM_RPC_URL: str = "http://localhost:8545"
+    ETHEREUM_CHAIN_ID: int = 31337
+    ETHEREUM_PRIVATE_KEY: str | None = None
+    ETHEREUM_ADDRESS: str | None = None
+    
+    # Legacy blockchain environment variable names (for backward compatibility)
+    WEB3_URL: str | None = None
+    PRIVATE_KEY: str | None = None
+    
+    # Contract deployment settings
+    CONTRACT_DEPLOY_GAS_LIMIT: int = 3000000
+    CONTRACT_DEPLOY_GAS_PRICE: int = 20000000000
+    
+    # Blockchain service settings
+    BLOCKCHAIN_ENABLED: bool = True
+    BLOCKCHAIN_AUTO_DEPLOY: bool = True
+
+    @computed_field
+    def blockchain_enabled(self) -> bool:
+        return bool(self.BLOCKCHAIN_ENABLED and (self.ETHEREUM_PRIVATE_KEY or self.PRIVATE_KEY))
+    
+    @computed_field
+    def web3_url(self) -> str:
+        """Get Web3 URL with fallback priority: WEB3_URL -> ETHEREUM_RPC_URL -> default"""
+        return self.WEB3_URL or self.ETHEREUM_RPC_URL or "http://blockchain:8545"
+    
+    @computed_field
+    def private_key(self) -> str | None:
+        """Get private key with fallback: PRIVATE_KEY -> ETHEREUM_PRIVATE_KEY"""
+        return self.PRIVATE_KEY or self.ETHEREUM_PRIVATE_KEY
+
     # TODO: update type to EmailStr when sqlmodel supports it
     EMAIL_TEST_USER: str = "test@example.com"
     # TODO: update type to EmailStr when sqlmodel supports it

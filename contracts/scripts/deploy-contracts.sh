@@ -1,77 +1,65 @@
 #!/bin/bash
 
-# Contract Deployment Script for Local Development
-set -e
+echo "🔧 Urban Barnacle - Contract Fix Script"
+echo "======================================="
 
-echo "📋 Deploying Smart Contracts for Local Development"
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-print_status() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-# Check if blockchain service is running
-echo "🔍 Checking blockchain service..."
-if ! curl -s http://localhost:8545 > /dev/null; then
-    print_error "Blockchain service not accessible at localhost:8545"
-    echo "Please run: docker-compose up -d blockchain"
+# Check if blockchain is running
+echo "📡 Checking blockchain connection..."
+if ! curl -s -X POST "http://localhost:8545" -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' > /dev/null; then
+    echo "❌ Blockchain not running on localhost:8545"
+    echo "   Please start containers first: docker-compose up"
     exit 1
 fi
 
-print_status "Blockchain service is running"
-
-# Wait a bit for the service to be fully ready
-sleep 2
+echo "✅ Blockchain is running"
 
 # Deploy contracts
-echo "🚀 Deploying contracts..."
-cd contracts
+echo "📄 Deploying contracts..."
 
-# Compile contracts first
-echo "🔨 Compiling contracts..."
-npm run compile
-print_status "Contracts compiled"
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONTRACTS_DIR="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$(dirname "$CONTRACTS_DIR")"
 
-# Deploy to local network
-echo "📤 Deploying to local network..."
+# Change to contracts directory
+cd "$CONTRACTS_DIR"
 npm run deploy:local
 
 if [ $? -eq 0 ]; then
-    print_status "Contracts deployed successfully!"
+    echo "✅ Contracts deployed successfully"
     
-    # Show deployment info
-    if [ -f "deployments/ItemNFT-localhost.json" ]; then
-        echo ""
-        echo "📄 Deployment Information:"
-        cat deployments/ItemNFT-localhost.json | jq '.'
-    fi
-    
-    # Check if backend contracts directory exists
-    if [ -d "../backend/contracts" ]; then
-        print_status "Contract ABI copied to backend"
+    # Check if contract file was created
+    if [ -f "$PROJECT_ROOT/backend/app/blockchain/contracts/ItemNFT.json" ]; then
+        echo "✅ Contract file saved to backend"
+        
+        # Extract contract address for verification
+        CONTRACT_ADDRESS=$(grep -o '"address": "[^"]*"' "$PROJECT_ROOT/backend/app/blockchain/contracts/ItemNFT.json" | cut -d'"' -f4)
+        echo "📍 Contract deployed at: $CONTRACT_ADDRESS"
+        
+        # Verify contract exists on blockchain
+        echo "🔍 Verifying contract deployment..."
+        RESULT=$(curl -s -X POST "http://localhost:8545" -H "Content-Type: application/json" --data "{\"jsonrpc\":\"2.0\",\"method\":\"eth_getCode\",\"params\":[\"$CONTRACT_ADDRESS\",\"latest\"],\"id\":1}" | grep -o '"result":"[^"]*"' | cut -d'"' -f4)
+        
+        if [ "$RESULT" != "0x" ] && [ ${#RESULT} -gt 10 ]; then
+            echo "✅ Contract verified on blockchain"
+            echo ""
+            echo "🎉 SUCCESS! Contract deployment complete"
+            echo "   Contract Address: $CONTRACT_ADDRESS"
+            echo "   Backend will automatically load this contract"
+            echo ""
+            echo "🔄 Please restart your backend service to load the new contract:"
+            echo "   1. Stop backend (Ctrl+C)"
+            echo "   2. Start backend again"
+            echo "   3. Test NFT minting"
+        else
+            echo "❌ Contract not found on blockchain"
+            exit 1
+        fi
     else
-        print_warning "Backend contracts directory not found"
+        echo "❌ Contract file not created in backend directory"
+        exit 1
     fi
-    
 else
-    print_error "Contract deployment failed"
+    echo "❌ Contract deployment failed"
     exit 1
 fi
-
-cd ..
-
-echo ""
-print_status "Contract deployment complete! Ready for testing."

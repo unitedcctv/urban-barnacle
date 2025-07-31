@@ -8,18 +8,19 @@ async function main() {
   // Get the ContractFactory and Signers here.
   const [deployer] = await ethers.getSigners();
   console.log("Deploying contracts with the account:", deployer.address);
-  console.log("Account balance:", (await deployer.getBalance()).toString());
+  console.log("Account balance:", (await ethers.provider.getBalance(deployer.address)).toString());
 
   // Deploy the contract
   const ItemNFT = await ethers.getContractFactory("ItemNFT");
   const itemNFT = await ItemNFT.deploy();
-  await itemNFT.deployed();
+  await itemNFT.waitForDeployment();
 
-  console.log("ItemNFT deployed to:", itemNFT.address);
+  const contractAddress = await itemNFT.getAddress();
+  console.log("ItemNFT deployed to:", contractAddress);
 
   // Save the contract address and ABI for the backend to use
   const contractInfo = {
-    address: itemNFT.address,
+    address: contractAddress,
     network: hre.network.name,
     deployer: deployer.address,
     deployedAt: new Date().toISOString()
@@ -39,7 +40,7 @@ async function main() {
 
   // Copy ABI to backend
   const artifactPath = path.join(__dirname, "..", "artifacts", "contracts", "ItemNFT.sol", "ItemNFT.json");
-  const backendContractsDir = path.join(__dirname, "..", "..", "backend", "contracts");
+  const backendContractsDir = path.join(__dirname, "..", "..", "backend", "app", "blockchain", "contracts");
   
   if (!fs.existsSync(backendContractsDir)) {
     fs.mkdirSync(backendContractsDir, { recursive: true });

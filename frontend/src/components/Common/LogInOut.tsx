@@ -20,7 +20,8 @@ import SignUpModal from "../UserSettings/SignUpModal.tsx"
 import useAuth, { isLoggedIn } from "../../hooks/useAuth"
 
 async function fetchCurrentUser(): Promise<UserPublic | null> {
-  const response = await fetch("/api/currentUser")
+  const apiBase = import.meta.env.VITE_API_URL ?? "";
+  const response = await fetch(`${apiBase}/api/currentUser`)
   if (!response.ok) return null
   return response.json()
 }

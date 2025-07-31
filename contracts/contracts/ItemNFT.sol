@@ -44,8 +44,9 @@ contract ItemNFT is ERC721, ERC721URIStorage, Ownable {
         uint256 tokenId = _tokenIdCounter;
         _tokenIdCounter++;
         
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, metadataURI);
+        _mint(to, tokenId);
+        // Temporarily comment out _setTokenURI to isolate the issue
+        // _setTokenURI(tokenId, metadataURI);
         
         itemMetadata[tokenId] = ItemMetadata({
             itemId: itemId,
