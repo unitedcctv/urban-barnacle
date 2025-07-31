@@ -56,12 +56,12 @@ jobs:
         run: docker system prune -af
       - name: Reset stack (remove existing containers, keep volumes)
         run: |
-          docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} down || true
+          docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME }} down || true
       - name: Build and Push Docker Images
-        run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} build
+        run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME }} build
       - name: Deploy
-        run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} up -d
+        run: docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME }} up -d
       - name: Show prestart logs if it fails
         if: failure()
         run: |
-          docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME_STAGING }} logs prestart
+          docker compose -f docker-compose.yml --project-name ${{ vars.STACK_NAME }} logs prestart
