@@ -24,11 +24,17 @@ jobs:
       POSTGRES_USER: ${{ vars.POSTGRES_USER }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
-      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      # Mailcatcher SMTP Configuration for staging
       SMTP_HOST: ${{ vars.SMTP_HOST }}
-      SMTP_USER: ${{ vars.SMTP_USER }}
-      EMAILS_FROM_EMAIL: ${{ vars.EMAILS_FROM_EMAIL }}
+      SMTP_PORT: ${{ vars.SMTP_PORT }}
+      SMTP_TLS: ${{ vars.SMTP_TLS }}
+      SMTP_USER: 
+      SMTP_PASSWORD: 
+      EMAILS_FROM_EMAIL: noreply@${{ vars.DOMAIN }}
+      # Mailcatcher Security Configuration
+      MAILCATCHER_ENABLED: ${{ vars.MAILCATCHER_ENABLED }}
+      MAILCATCHER_AUTH_USERS: ${{ secrets.MAILCATCHER_AUTH_USERS }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       DOMAIN: ${{ vars.DOMAIN }}
       FRONTEND_HOST: ${{ vars.FRONTEND_HOST }}
       STACK_NAME: ${{ vars.STACK_NAME }}
@@ -42,7 +48,7 @@ jobs:
       # Stripe Payment Configuration
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       STRIPE_PUBLISHABLE_KEY: ${{ vars.STRIPE_PUBLISHABLE_KEY }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET || '' }}
       # Blockchain/Ethereum Configuration
       ETHEREUM_NETWORK: ${{ vars.ETHEREUM_NETWORK }}
       ETHEREUM_RPC_URL: ${{ vars.ETHEREUM_RPC_URL }}

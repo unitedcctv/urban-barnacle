@@ -196,6 +196,34 @@ services:
 
       # Enable redirection for HTTP and HTTPS
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.middlewares=https-redirect
+
+  mailcatcher:
+    image: schickling/mailcatcher
+    restart: always
+    networks:
+      - traefik-public
+      - default
+    environment:
+      - MAILCATCHER_SMTP_IP=0.0.0.0
+      - MAILCATCHER_SMTP_PORT=1025
+      - MAILCATCHER_HTTP_IP=0.0.0.0
+      - MAILCATCHER_HTTP_PORT=1080
+    labels:
+      - traefik.enable=${MAILCATCHER_ENABLED:-false}
+      - traefik.docker.network=traefik-public
+      - traefik.constraint-label=traefik-public
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mailcatcher-http.rule=Host(`mailcatcher.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mailcatcher-http.entrypoints=http
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mailcatcher-http.middlewares=https-redirect
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mailcatcher-https.rule=Host(`mailcatcher.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mailcatcher-https.entrypoints=https
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mailcatcher-https.middlewares=${STACK_NAME?Variable not set}-mailcatcher-auth
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mailcatcher-https.tls=true
+      - traefik.http.routers.${STACK_NAME?Variable not set}-mailcatcher-https.tls.certresolver=le
+      - traefik.http.services.${STACK_NAME?Variable not set}-mailcatcher.loadbalancer.server.port=1080
+      # Basic Auth middleware
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-mailcatcher-auth.basicauth.users=${MAILCATCHER_AUTH_USERS:-admin:$$2y$$10$$2b2cu/b9O/B1pxq2fxeWuOdrs3KM6QOdUbrr4FQjHWxcpsZH4aOOy}
+
 volumes:
   app-db-data:
   blockchain-data:
@@ -203,5 +231,4 @@ volumes:
 
 networks:
   traefik-public:
-    # Allow setting it to false for testing
     external: true
