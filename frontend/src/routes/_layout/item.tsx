@@ -207,8 +207,7 @@ function Item({ item: propItem }: { item: ItemPublic }) {
         {/* Purchase Model Button - Only show if item has a model */}
         {currentItem?.model && !canEdit && (
           <Button
-            colorScheme="green"
-            size="lg"
+            variant="primary"
             onClick={handlePurchaseModel}
             isDisabled={buttonsDisabled}
           >

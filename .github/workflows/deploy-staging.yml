@@ -39,6 +39,10 @@ jobs:
       GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
       DRIVE_WEBHOOK_TOKEN: ${{ secrets.DRIVE_WEBHOOK_TOKEN }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # Stripe Payment Configuration
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_PUBLISHABLE_KEY: ${{ vars.STRIPE_PUBLISHABLE_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
       # Blockchain/Ethereum Configuration
       ETHEREUM_NETWORK: ${{ vars.ETHEREUM_NETWORK }}
       ETHEREUM_RPC_URL: ${{ vars.ETHEREUM_RPC_URL }}
