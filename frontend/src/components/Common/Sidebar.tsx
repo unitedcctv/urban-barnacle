@@ -24,7 +24,7 @@ import { useState } from "react";
 import colors from "../../theme/colors";
 import { Link } from "@tanstack/react-router";
 import type { ElementType } from "react";
-import UBLogoSvg from "../../theme/assets/UB.svg";
+import UBLogoSvg from "../../theme/assets/logo.svg";
 
 const Sidebar = () => {
   const logoColor = useColorModeValue(colors.ui.dark, colors.ui.light);
@@ -32,7 +32,7 @@ const Sidebar = () => {
     typeof UBLogoSvg === "string" ? (
       <img src={UBLogoSvg} alt="Urban Barnacle" style={{ width: "52px", height: "52px", padding: "4px" }} />
     ) : (
-      <Icon as={UBLogoSvg as unknown as ElementType} boxSize={10} color={logoColor} />
+      <Icon as={UBLogoSvg as unknown as ElementType} boxSize={16} color={logoColor} />
     );
   const queryClient = useQueryClient()
   const textColor = useColorModeValue(colors.ui.dark, colors.ui.light);
@@ -117,7 +117,7 @@ const Sidebar = () => {
       >
         <ChakraFlex as={Link} to="/" align="center" _hover={{ textDecoration: "none" }}>
           <UBLogo />
-          <Text ml={3} fontWeight="200" color={textColor} whiteSpace="nowrap" noOfLines={1}>Urban Barnacle</Text>
+          <Text ml={3} fontWeight="200" noOfLines={1}>UBDM</Text>
         </ChakraFlex>
         <Flex flex={itemCount <= 1 ? "1" : "unset"} justify={itemCount <= 1 ? "center" :"flex-start"} gap={4} ml={itemCount <= 1 ? 8 : 0}>
           <SidebarItems onCount={setItemCount} />
