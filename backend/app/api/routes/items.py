@@ -193,6 +193,12 @@ def update_item(
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
     update_dict = item_in.model_dump(exclude_unset=True)
+    # Compute final state to validate constraints
+    new_is_original = update_dict.get("is_original", item.is_original)
+    new_variant_of = update_dict.get("variant_of", item.variant_of)
+    if new_is_original is False and new_variant_of is None:
+        raise HTTPException(status_code=400, detail="variant_of must be provided when is_original is false")
+
     item.sqlmodel_update(update_dict)
     session.add(item)
     session.commit()

@@ -76,6 +76,9 @@ class ItemBase(SQLModel):
     images: str | None = Field(default=None)  # Store as comma-separated string
     model: str | None = Field(default=None)
     certificate: str | None = Field(default=None)
+    # Original/Variant linkage
+    is_original: bool = Field(default=True)
+    variant_of: uuid.UUID | None = Field(default=None, foreign_key="item.id")
     # NFT-related fields
     nft_token_id: int | None = Field(default=None)
     nft_contract_address: str | None = Field(default=None, max_length=255)
@@ -92,7 +95,13 @@ class ItemBase(SQLModel):
 
 # Properties to receive on item creation
 class ItemCreate(ItemBase):
-    pass
+    @classmethod
+    def model_validate(cls, obj=None, *, from_attributes=False, context=None):  # type: ignore[override]
+        model = super().model_validate(obj, from_attributes=from_attributes, context=context)
+        # Enforce: if not original, must point to an original item id
+        if model.is_original is False and model.variant_of is None:
+            raise ValueError("variant_of must be provided when is_original is false")
+        return model
 
 
 # Properties to receive on item update

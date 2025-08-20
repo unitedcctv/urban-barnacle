@@ -6,6 +6,7 @@ services:
   # Traefik proxy for local development
   proxy:
     image: traefik:3.0
+    profiles: ["deps"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
@@ -45,18 +46,21 @@ services:
 
   # Database with development overrides
   db:
+    profiles: ["deps"]
     restart: "no"
     ports:
       - "5432:5432"
 
   # Adminer with development overrides
   adminer:
+    profiles: ["deps"]
     restart: "no"
     ports:
       - "8080:8080"
 
   # Backend with development overrides
   backend:
+    profiles: ["app"]
     restart: "no"
     ports:
       - "8000:8000"
@@ -102,15 +106,22 @@ services:
       - blockchain
       - db
 
+  # Prestart (migrations/initial data) gated for manual runs only
+  prestart:
+    profiles: ["init"]
+    restart: "no"
+
   # Mailcatcher for email testing
   mailcatcher:
     image: schickling/mailcatcher
+    profiles: ["deps"]
     ports:
       - "1080:1080"
       - "1025:1025"
 
   # Frontend with development overrides
   frontend:
+    profiles: ["app"]
     restart: "no"
     ports:
       - "5173:80"
@@ -134,6 +145,7 @@ services:
   blockchain:
     build:
       context: ./contracts
+    profiles: ["deps"]
     restart: "no"  # Development override
     ports:
       - "8545:8545"   # Hardhat node
