@@ -65,4 +65,7 @@ def get_navigation_items(
         if user.permissions in [UserPermission.INVESTOR, UserPermission.SUPERUSER]:
             items.append({"title": "Business Plan", "path": "/businessplan", "icon": "FiDollarSign"})
 
+        if user.permissions == UserPermission.PRODUCER:
+            items.append({"title": "Admin", "path": "/admin", "icon": "FiSettings"})
+
     return items

@@ -77,6 +77,16 @@ import type {
   PaymentsPaymentCancelResponse,
   PaymentsStripeWebhookResponse,
   PaymentsGetStripeConfigResponse,
+  ProducersReadProducersData,
+  ProducersReadProducersResponse,
+  ProducersCreateProducerData,
+  ProducersCreateProducerResponse,
+  ProducersReadProducerData,
+  ProducersReadProducerResponse,
+  ProducersUpdateProducerData,
+  ProducersUpdateProducerResponse,
+  ProducersDeleteProducerData,
+  ProducersDeleteProducerResponse,
   BlockchainCheckEthBalanceResponse,
   BlockchainFundAccountResponse,
   BlockchainGetBlockchainStatusResponse,
@@ -971,6 +981,128 @@ export const paymentsGetStripeConfig =
       url: "/api/v1/payments/config",
     })
   }
+
+/**
+ * Read Producers
+ * Retrieve producers.
+ * @param data The data for the request.
+ * @param data.skip
+ * @param data.limit
+ * @returns ProducersPublic Successful Response
+ * @throws ApiError
+ */
+export const producersReadProducers = (
+  data: ProducersReadProducersData = {},
+): CancelablePromise<ProducersReadProducersResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/producers/",
+    query: {
+      skip: data.skip,
+      limit: data.limit,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Create Producer
+ * Create new producer.
+ * Only users with producer permissions can create producers.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns ProducerPublic Successful Response
+ * @throws ApiError
+ */
+export const producersCreateProducer = (
+  data: ProducersCreateProducerData,
+): CancelablePromise<ProducersCreateProducerResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/producers/",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Read Producer
+ * Get producer by ID.
+ * @param data The data for the request.
+ * @param data.id
+ * @returns ProducerPublic Successful Response
+ * @throws ApiError
+ */
+export const producersReadProducer = (
+  data: ProducersReadProducerData,
+): CancelablePromise<ProducersReadProducerResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/producers/{id}",
+    path: {
+      id: data.id,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Update Producer
+ * Update a producer.
+ * Only users with producer permissions can update producers.
+ * @param data The data for the request.
+ * @param data.id
+ * @param data.requestBody
+ * @returns ProducerPublic Successful Response
+ * @throws ApiError
+ */
+export const producersUpdateProducer = (
+  data: ProducersUpdateProducerData,
+): CancelablePromise<ProducersUpdateProducerResponse> => {
+  return __request(OpenAPI, {
+    method: "PUT",
+    url: "/api/v1/producers/{id}",
+    path: {
+      id: data.id,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Delete Producer
+ * Delete a producer.
+ * Only users with producer permissions can delete producers.
+ * @param data The data for the request.
+ * @param data.id
+ * @returns Message Successful Response
+ * @throws ApiError
+ */
+export const producersDeleteProducer = (
+  data: ProducersDeleteProducerData,
+): CancelablePromise<ProducersDeleteProducerResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/api/v1/producers/{id}",
+    path: {
+      id: data.id,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
 
 /**
  * Check Eth Balance

@@ -8,6 +8,7 @@ from app.api.routes import (
     models,
     payments,
     private,
+    producers,
     users,
     utils,
     navigation,
@@ -25,6 +26,7 @@ api_router.include_router(items.router)
 api_router.include_router(images.router)
 api_router.include_router(models.router)
 api_router.include_router(payments.router)
+api_router.include_router(producers.router)
 api_router.include_router(blockchain.router, prefix="/blockchain", tags=["blockchain"])
 api_router.include_router(navigation.router)
 api_router.include_router(ai_chat.router)

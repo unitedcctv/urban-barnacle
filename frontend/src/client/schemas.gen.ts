@@ -68,6 +68,7 @@ export const Body_login_login_access_tokenSchema = {
     },
     password: {
       type: "string",
+      format: "password",
       title: "Password",
     },
     scope: {
@@ -95,6 +96,7 @@ export const Body_login_login_access_tokenSchema = {
           type: "null",
         },
       ],
+      format: "password",
       title: "Client Secret",
     },
   },
@@ -483,6 +485,18 @@ export const ItemPublicSchema = {
       format: "uuid",
       title: "Owner Id",
     },
+    producer_id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Producer Id",
+    },
   },
   type: "object",
   required: ["title", "id", "owner_id"],
@@ -671,6 +685,26 @@ export const MessageSchema = {
   title: "Message",
 } as const
 
+export const NavigationItemSchema = {
+  properties: {
+    title: {
+      type: "string",
+      title: "Title",
+    },
+    path: {
+      type: "string",
+      title: "Path",
+    },
+    icon: {
+      type: "string",
+      title: "Icon",
+    },
+  },
+  type: "object",
+  required: ["title", "path", "icon"],
+  title: "NavigationItem",
+} as const
+
 export const NewPasswordSchema = {
   properties: {
     token: {
@@ -714,24 +748,117 @@ export const PrivateUserCreateSchema = {
   title: "PrivateUserCreate",
 } as const
 
-export const SidebarItemSchema = {
+export const ProducerCreateSchema = {
   properties: {
-    title: {
+    name: {
       type: "string",
-      title: "Title",
+      maxLength: 255,
+      minLength: 1,
+      title: "Name",
     },
-    path: {
-      type: "string",
-      title: "Path",
-    },
-    icon: {
-      type: "string",
-      title: "Icon",
+    location: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Location",
     },
   },
   type: "object",
-  required: ["title", "path", "icon"],
-  title: "SidebarItem",
+  required: ["name"],
+  title: "ProducerCreate",
+} as const
+
+export const ProducerPublicSchema = {
+  properties: {
+    name: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      title: "Name",
+    },
+    location: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Location",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+  },
+  type: "object",
+  required: ["name", "id", "created_at"],
+  title: "ProducerPublic",
+} as const
+
+export const ProducerUpdateSchema = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+          minLength: 1,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Name",
+    },
+    location: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Location",
+    },
+  },
+  type: "object",
+  title: "ProducerUpdate",
+} as const
+
+export const ProducersPublicSchema = {
+  properties: {
+    data: {
+      items: {
+        $ref: "#/components/schemas/ProducerPublic",
+      },
+      type: "array",
+      title: "Data",
+    },
+    count: {
+      type: "integer",
+      title: "Count",
+    },
+  },
+  type: "object",
+  required: ["data", "count"],
+  title: "ProducersPublic",
 } as const
 
 export const TokenSchema = {

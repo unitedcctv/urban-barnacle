@@ -17,7 +17,7 @@ import { type SubmitHandler, useForm } from "react-hook-form"
 import { useState } from "react"
 
 import { type ApiError } from "../../client/core/ApiError"
-import { type UserPublic, type UserUpdate } from "../../client/types.gen"
+import { type UserPublic, type UserUpdate, type UserPermission } from "../../client/types.gen"
 import { usersUpdateUser } from "../../client/sdk.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
@@ -97,8 +97,8 @@ const EditUser = ({ user, isOpen, onClose }: EditUserProps) => {
               <Text>{user.full_name || "No name"}</Text>
             </Box>
             <PermissionsCheckboxGroup
-              initialPermissions={permissions}
-              onPermissionsChange={setPermissions}
+              initialPermission={permissions as UserPermission}
+              onPermissionChange={setPermissions}
             />
             <FormControl mt={4}>
               <Checkbox {...register("is_active")} colorScheme="teal">

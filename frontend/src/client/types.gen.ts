@@ -87,6 +87,7 @@ export type ItemPublic = {
   is_nft_enabled?: boolean
   id: string
   owner_id: string
+  producer_id?: string | null
 }
 
 export type ItemsPublic = {
@@ -121,6 +122,12 @@ export type Message = {
   message: string
 }
 
+export type NavigationItem = {
+  title: string
+  path: string
+  icon: string
+}
+
 export type NewPassword = {
   token: string
   new_password: string
@@ -133,10 +140,26 @@ export type PrivateUserCreate = {
   is_verified?: boolean
 }
 
-export type NavigationItem = {
-  title: string
-  path: string
-  icon: string
+export type ProducerCreate = {
+  name: string
+  location?: string | null
+}
+
+export type ProducerPublic = {
+  name: string
+  location?: string | null
+  id: string
+  created_at: string
+}
+
+export type ProducersPublic = {
+  data: Array<ProducerPublic>
+  count: number
+}
+
+export type ProducerUpdate = {
+  name?: string | null
+  location?: string | null
 }
 
 export type Token = {
@@ -443,6 +466,38 @@ export type PaymentsPaymentCancelResponse = unknown
 export type PaymentsStripeWebhookResponse = unknown
 
 export type PaymentsGetStripeConfigResponse = unknown
+
+export type ProducersReadProducersData = {
+  limit?: number
+  skip?: number
+}
+
+export type ProducersReadProducersResponse = ProducersPublic
+
+export type ProducersCreateProducerData = {
+  requestBody: ProducerCreate
+}
+
+export type ProducersCreateProducerResponse = ProducerPublic
+
+export type ProducersReadProducerData = {
+  id: string
+}
+
+export type ProducersReadProducerResponse = ProducerPublic
+
+export type ProducersUpdateProducerData = {
+  id: string
+  requestBody: ProducerUpdate
+}
+
+export type ProducersUpdateProducerResponse = ProducerPublic
+
+export type ProducersDeleteProducerData = {
+  id: string
+}
+
+export type ProducersDeleteProducerResponse = Message
 
 export type BlockchainCheckEthBalanceResponse = BalanceResponse
 
