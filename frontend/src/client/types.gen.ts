@@ -133,7 +133,7 @@ export type PrivateUserCreate = {
   is_verified?: boolean
 }
 
-export type SidebarItem = {
+export type NavigationItem = {
   title: string
   path: string
   icon: string
@@ -450,11 +450,11 @@ export type BlockchainFundAccountResponse = FundAccountResponse
 
 export type BlockchainGetBlockchainStatusResponse = unknown
 
-export type SidebarGetSidebarItemsData = {
+export type NavigationGetNavigationItemsData = {
   authorization?: string | null
 }
 
-export type SidebarGetSidebarItemsResponse = Array<SidebarItem>
+export type NavigationGetNavigationItemsResponse = Array<NavigationItem>
 
 export type AiChatResponse = unknown
 

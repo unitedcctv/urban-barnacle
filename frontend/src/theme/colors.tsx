@@ -25,7 +25,7 @@ const colors = {
     // Dim gray for placeholders or muted text
     dim: "#718096",
 
-    // Additional colors for sidebar and login-out
+    // Additional colors for navigation and login-out
     hoverLight: "#EDF2F7",
     hoverDark: "#4A5568",
     altLight: "#F9FAFB",  // e.g., used for lighter backgrounds

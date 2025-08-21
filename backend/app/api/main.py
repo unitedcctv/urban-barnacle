@@ -10,7 +10,7 @@ from app.api.routes import (
     private,
     users,
     utils,
-    sidebar,
+    navigation,
     ai_chat,
     drive_webhook,
     business_plan,
@@ -26,7 +26,7 @@ api_router.include_router(images.router)
 api_router.include_router(models.router)
 api_router.include_router(payments.router)
 api_router.include_router(blockchain.router, prefix="/blockchain", tags=["blockchain"])
-api_router.include_router(sidebar.router)
+api_router.include_router(navigation.router)
 api_router.include_router(ai_chat.router)
 api_router.include_router(drive_webhook.router)
 api_router.include_router(business_plan.router)

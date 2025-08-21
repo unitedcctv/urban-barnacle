@@ -18,7 +18,7 @@ import { FiLogOut, FiMenu } from "react-icons/fi"
 
 import type { UserPublic } from "../../client"
 import useAuth from "../../hooks/useAuth"
-import SidebarItems from "./SidebarItems"
+import NavigationItems from "./NavigationItems"
 import LogInOut from "./LogInOut"
 import { useState } from "react";
 import colors from "../../theme/colors";
@@ -26,7 +26,7 @@ import { Link } from "@tanstack/react-router";
 import type { ElementType } from "react";
 import UBLogoSvg from "../../theme/assets/logo.svg";
 
-const Sidebar = () => {
+const Navigation = () => {
   const logoColor = useColorModeValue(colors.ui.dark, colors.ui.light);
   const UBLogo = () =>
     typeof UBLogoSvg === "string" ? (
@@ -42,7 +42,7 @@ const Sidebar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { logout } = useAuth()
 
-  // Track number of sidebar items to decide alignment
+  // Track number of navigation items to decide alignment
   const [itemCount, setItemCount] = useState(0);
 
   const handleLogout = async () => {
@@ -72,7 +72,7 @@ const Sidebar = () => {
                   <UBLogo />
                   <Text ml={2} fontWeight="200" color={textColor} whiteSpace="nowrap" noOfLines={1}>Urban Barnacle</Text>
                 </ChakraFlex> 
-                <SidebarItems onClose={onClose} onCount={setItemCount} />
+                <NavigationItems onClose={onClose} onCount={setItemCount} />
                 <Flex
                   as="button"
                   onClick={handleLogout}
@@ -120,7 +120,7 @@ const Sidebar = () => {
           <Text ml={3} fontWeight="200" noOfLines={1}>UBDM</Text>
         </ChakraFlex>
         <Flex flex={itemCount <= 1 ? "1" : "unset"} justify={itemCount <= 1 ? "center" :"flex-start"} gap={4} ml={itemCount <= 1 ? 8 : 0}>
-          <SidebarItems onCount={setItemCount} />
+          <NavigationItems onCount={setItemCount} />
         </Flex>
 
         <Flex align="center" gap={2}>
@@ -141,4 +141,4 @@ const Sidebar = () => {
   )
 }
 
-export default Sidebar
+export default Navigation

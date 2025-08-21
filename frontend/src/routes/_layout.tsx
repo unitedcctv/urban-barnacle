@@ -1,7 +1,7 @@
 import { Flex, Box } from "@chakra-ui/react"
 import { Outlet, createFileRoute} from "@tanstack/react-router"
 
-import Sidebar from "../components/Common/Sidebar"
+import Navigation from "../components/Common/Navigation"
 
 export const Route = createFileRoute("/_layout")({
   component: Layout,
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_layout")({
 function Layout() {
   return (
     <Flex direction="column" h="100vh" w="100%">
-      <Sidebar />
+      <Navigation />
       <Box as="main" flex="1" w="100%" pt="4rem">
         <Outlet />
       </Box>

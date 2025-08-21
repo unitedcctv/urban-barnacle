@@ -5,14 +5,14 @@ import { Link } from "@tanstack/react-router";
 import { FiTool, FiSettings, FiEye, FiDollarSign, FiFilePlus } from "react-icons/fi";
 import { useEffect } from "react";
 
-interface SidebarItemsProps {
+interface NavigationItemsProps {
   onClose?: () => void;
   onCount?: (n: number) => void;
 }
 
-const SidebarItems = ({ onClose, onCount }: SidebarItemsProps) => {
+const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
 
-  interface SidebarItem {
+  interface NavigationItem {
     title: string;
     path: string;
     icon: string; // e.g., 'logo', 'FiEye'
@@ -20,23 +20,23 @@ const SidebarItems = ({ onClose, onCount }: SidebarItemsProps) => {
 
   const apiBase = import.meta.env.VITE_API_URL ?? "";
 
-  async function fetchSidebar(): Promise<SidebarItem[]> {
+  async function fetchNavigation(): Promise<NavigationItem[]> {
         const token = localStorage.getItem("access_token")
     const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
 
-    const res = await fetch(`${apiBase}/api/v1/sidebar/`, {
+    const res = await fetch(`${apiBase}/api/v1/navigation/`, {
       credentials: "include",
       cache: "no-store",
       headers,
     });
-    if (!res.ok) throw new Error("Failed to load sidebar");
+    if (!res.ok) throw new Error("Failed to load navigation");
     return res.json();
   }
 
   const token = localStorage.getItem("access_token");
-  const { data: items = [], isLoading } = useQuery<SidebarItem[]>({
-    queryKey: ["sidebar", token],
-    queryFn: fetchSidebar,
+  const { data: items = [], isLoading } = useQuery<NavigationItem[]>({
+    queryKey: ["navigation", token],
+    queryFn: fetchNavigation,
   });
   
   // notify parent when item count changes
@@ -67,7 +67,7 @@ const SidebarItems = ({ onClose, onCount }: SidebarItemsProps) => {
     return null;
   }
 
-  const listItems = items.map(({ icon: iconName, title, path }: SidebarItem) => {
+  const listItems = items.map(({ icon: iconName, title, path }: NavigationItem) => {
     const IconComp = iconMap[iconName] ?? FiEye;
     return (
       <Flex
@@ -106,4 +106,4 @@ const SidebarItems = ({ onClose, onCount }: SidebarItemsProps) => {
   );
 };
 
-export default SidebarItems;
+export default NavigationItems;

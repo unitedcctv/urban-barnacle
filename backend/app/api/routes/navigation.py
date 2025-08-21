@@ -12,10 +12,10 @@ from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
 from app.models import UserPermission
 
-router = APIRouter(prefix="/sidebar", tags=["sidebar"])
+router = APIRouter(prefix="/navigation", tags=["navigation"])
 
 
-class SidebarItem(TypedDict):
+class NavigationItem(TypedDict):
     title: str
     path: str
     icon: str
@@ -38,17 +38,17 @@ def _get_user_optional(session: Session, authorization: str | None) -> User | No
     return session.get(User, token_data.sub)
 
 
-@router.get("/", response_model=List[SidebarItem])
-def get_sidebar_items(
+@router.get("/", response_model=List[NavigationItem])
+def get_navigation_items(
     *,
     session: SessionDep,
     authorization: str | None = Header(default=None, alias="Authorization"),
-) -> list[SidebarItem]:
-    """Return sidebar items appropriate for the current (optional) user."""
+) -> list[NavigationItem]:
+    """Return navigation items appropriate for the current (optional) user."""
 
     user = _get_user_optional(session, authorization)
 
-    items: list[SidebarItem] = [
+    items: list[NavigationItem] = [
         {"title": "Gallery", "path": "/gallery", "icon": "FiEye"},
     ]
 

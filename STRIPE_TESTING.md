@@ -7,7 +7,7 @@ This guide explains how to test the Stripe payment integration for 3D model purc
 ### 1. Get Stripe Test API Keys
 
 1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
-2. Switch to **Test mode** (toggle in the left sidebar)
+2. Switch to **Test mode** (toggle in the left navigation)
 3. Navigate to **Developers** → **API keys**
 4. Copy the following keys:
    - **Publishable key** (starts with `pk_test_`)

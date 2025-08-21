@@ -80,8 +80,8 @@ import type {
   BlockchainCheckEthBalanceResponse,
   BlockchainFundAccountResponse,
   BlockchainGetBlockchainStatusResponse,
-  SidebarGetSidebarItemsData,
-  SidebarGetSidebarItemsResponse,
+  NavigationGetNavigationItemsData,
+  NavigationGetNavigationItemsResponse,
   AiChatResponse,
   AiRegisterWatchEndpointResponse,
   AiPopulateChunksEndpointResponse,
@@ -1016,19 +1016,19 @@ export const blockchainGetBlockchainStatus =
   }
 
 /**
- * Get Sidebar Items
- * Return sidebar items appropriate for the current (optional) user.
+ * Get Navigation Items
+ * Return navigation items appropriate for the current (optional) user.
  * @param data The data for the request.
  * @param data.authorization
- * @returns SidebarItem Successful Response
+ * @returns NavigationItem Successful Response
  * @throws ApiError
  */
-export const sidebarGetSidebarItems = (
-  data: SidebarGetSidebarItemsData = {},
-): CancelablePromise<SidebarGetSidebarItemsResponse> => {
+export const navigationGetNavigationItems = (
+  data: NavigationGetNavigationItemsData = {},
+): CancelablePromise<NavigationGetNavigationItemsResponse> => {
   return __request(OpenAPI, {
     method: "GET",
-    url: "/api/v1/sidebar/",
+    url: "/api/v1/navigation/",
     headers: {
       Authorization: data.authorization,
     },
