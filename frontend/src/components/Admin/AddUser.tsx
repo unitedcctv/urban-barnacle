@@ -21,7 +21,7 @@ import { usersCreateUser } from "../../client/sdk.gen";
 import type { ApiError } from "../../client/core/ApiError";
 import useCustomToast from "../../hooks/useCustomToast";
 import { emailPattern, handleError } from "../../utils";
-import PermissionsCheckboxGroup from "./Permissions";
+import PermissionsSelector from "./Permissions";
 
 interface AddUserProps {
   isOpen: boolean;
@@ -35,7 +35,7 @@ interface UserCreateForm extends UserCreate {
 const AddUser = ({ isOpen, onClose }: AddUserProps) => {
   const queryClient = useQueryClient();
   const showToast = useCustomToast();
-  const [permissions, setPermissions] = useState<string>("user");
+  const [permissions, setPermissions] = useState<UserPermission>("guest");
   const {
     register,
     handleSubmit,
@@ -50,7 +50,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
       full_name: "",
       password: "",
       confirm_password: "",
-      permissions: "user",
+      permissions: "guest",
       is_active: false,
     },
   });
@@ -62,10 +62,10 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
         full_name: "",
         password: "",
         confirm_password: "",
-        permissions: "user",
+        permissions: "guest" as UserPermission,
         is_active: false,
       });
-      setPermissions("user"); // Reset permissions state
+      setPermissions("guest"); // Reset permissions state
     }
   }, [isOpen, reset]);
 
@@ -85,8 +85,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
   });
 
   const onSubmit: SubmitHandler<UserCreateForm> = (data) => {
-    // Convert string to UserPermission type - take the first permission if multiple
-    data.permissions = permissions.split(',')[0] as UserPermission;
+    data.permissions = permissions;
     // Set all users created by superuser admin to be active by default
     data.is_active = true;
     mutation.mutate(data);
@@ -162,9 +161,9 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 <FormErrorMessage>{errors.confirm_password.message}</FormErrorMessage>
               )}
             </FormControl>
-            <PermissionsCheckboxGroup
-              initialPermissions={permissions}
-              onPermissionsChange={(perms: string) => setPermissions(perms.split(',')[0] as UserPermission)}
+            <PermissionsSelector
+              initialPermission={permissions}
+              onPermissionChange={(p) => setPermissions(p)}
             />
 
           </ModalBody>

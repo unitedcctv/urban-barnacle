@@ -10,16 +10,16 @@ from sqlmodel import Field, Relationship, SQLModel
 # Shared properties
 class UserPermission(str, Enum):
     SUPERUSER = "superuser"
-    USER = "user"
+    GUEST = "guest"
     INVESTOR = "investor"
-    OWNER = "owner"
+    PRODUCER = "producer"
 
 
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     is_active: bool = False  # Changed to False by default - users must confirm email
     permissions: UserPermission = Field(
-        default=UserPermission.USER,
+        default=UserPermission.GUEST,
         sa_column=Column(String(length=255), nullable=False),
     )
     full_name: str | None = Field(default=None, max_length=255)

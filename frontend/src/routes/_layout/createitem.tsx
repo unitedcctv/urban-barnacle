@@ -36,7 +36,7 @@ import { handleError } from "../../utils";
 import ImagesUploader, { ImagesUploaderRef } from "../../components/Items/ImagesUploader";
 import { createFileRoute } from "@tanstack/react-router";
 import { UserPublic } from "../../client";
-import { imagesDeleteItemImages, modelsUploadModel, modelsDeleteItemModel, itemsDeleteItem, itemsMintNft } from "../../client/sdk.gen";
+import { imagesDeleteItemImages, modelsUploadModel, modelsDeleteItemModel, itemsDeleteItem, itemsMintItemNft } from "../../client/sdk.gen";
 
 export const Route = createFileRoute("/_layout/createitem")({
   component: CreateItem,
@@ -110,7 +110,7 @@ function CreateItem() {
   });
 
   const mintNftMutation = useMutation({
-    mutationFn: (itemId: string) => itemsMintNft({ id: itemId }),
+    mutationFn: (itemId: string) => itemsMintItemNft({ id: itemId }),
     onError: (err: ApiError) => {
       handleError(err, showToast);
       setIsMintingNft(false);

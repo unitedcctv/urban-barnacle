@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
 from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message
 from app.blockchain.blockchain_service import blockchain_service
 
@@ -52,7 +52,7 @@ def read_my_items(
 
 
 @router.get("/{id}", response_model=ItemWithPermissions)
-def read_item(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+def read_item(session: SessionDep, current_user: OptionalCurrentUser, id: uuid.UUID) -> Any:
     """
     Get item by ID with edit permissions.
     """
@@ -64,10 +64,12 @@ def read_item(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> 
     item_public = ItemPublic.model_validate(item)
     
     # Check if user can edit (superuser OR item owner)
-    can_edit = (
-        "superuser" in current_user.permissions or 
-        item.owner_id == current_user.id
-    )
+    can_edit = False
+    if current_user:
+        can_edit = (
+            "superuser" in current_user.permissions or 
+            item.owner_id == current_user.id
+        )
     
     # Return item with edit permissions
     return ItemWithPermissions(

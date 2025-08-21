@@ -48,8 +48,8 @@ import type {
   ItemsUpdateItemResponse,
   ItemsDeleteItemData,
   ItemsDeleteItemResponse,
-  ItemsMintNftData,
-  ItemsMintNftResponse,
+  ItemsMintItemNftData,
+  ItemsMintItemNftResponse,
   ImagesUploadFileData,
   ImagesUploadFileResponse,
   ImagesGetFilesData,
@@ -70,6 +70,16 @@ import type {
   ModelsDownloadModelResponse,
   ModelsDeleteItemModelData,
   ModelsDeleteItemModelResponse,
+  PaymentsCreateCheckoutSessionData,
+  PaymentsCreateCheckoutSessionResponse,
+  PaymentsPaymentSuccessData,
+  PaymentsPaymentSuccessResponse,
+  PaymentsPaymentCancelResponse,
+  PaymentsStripeWebhookResponse,
+  PaymentsGetStripeConfigResponse,
+  BlockchainCheckEthBalanceResponse,
+  BlockchainFundAccountResponse,
+  BlockchainGetBlockchainStatusResponse,
   SidebarGetSidebarItemsData,
   SidebarGetSidebarItemsResponse,
   AiChatResponse,
@@ -485,7 +495,7 @@ export const itemsReadItems = (
 
 /**
  * Create Item
- * Create new item and optionally mint NFT.
+ * Create new item.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns ItemPublic Successful Response
@@ -603,16 +613,16 @@ export const itemsDeleteItem = (
 }
 
 /**
- * Mint NFT
+ * Mint Item Nft
  * Mint NFT for an existing item.
  * @param data The data for the request.
  * @param data.id
  * @returns ItemPublic Successful Response
  * @throws ApiError
  */
-export const itemsMintNft = (
-  data: ItemsMintNftData,
-): CancelablePromise<ItemsMintNftResponse> => {
+export const itemsMintItemNft = (
+  data: ItemsMintItemNftData,
+): CancelablePromise<ItemsMintItemNftResponse> => {
   return __request(OpenAPI, {
     method: "POST",
     url: "/api/v1/items/{id}/mint-nft",
@@ -874,6 +884,136 @@ export const modelsDeleteItemModel = (
     },
   })
 }
+
+/**
+ * Create Checkout Session
+ * Create a Stripe checkout session for purchasing a model.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns CheckoutResponse Successful Response
+ * @throws ApiError
+ */
+export const paymentsCreateCheckoutSession = (
+  data: PaymentsCreateCheckoutSessionData,
+): CancelablePromise<PaymentsCreateCheckoutSessionResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/payments/create-checkout-session",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Payment Success
+ * Handle successful payment and provide secure download link.
+ * @param data The data for the request.
+ * @param data.sessionId
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const paymentsPaymentSuccess = (
+  data: PaymentsPaymentSuccessData,
+): CancelablePromise<PaymentsPaymentSuccessResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/payments/success",
+    query: {
+      session_id: data.sessionId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Payment Cancel
+ * Handle payment cancellation.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const paymentsPaymentCancel =
+  (): CancelablePromise<PaymentsPaymentCancelResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/payments/cancel",
+    })
+  }
+
+/**
+ * Stripe Webhook
+ * Handle Stripe webhook events (optional - for additional security and logging).
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const paymentsStripeWebhook =
+  (): CancelablePromise<PaymentsStripeWebhookResponse> => {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/v1/payments/webhook",
+    })
+  }
+
+/**
+ * Get Stripe Config
+ * Get Stripe publishable key for frontend.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const paymentsGetStripeConfig =
+  (): CancelablePromise<PaymentsGetStripeConfigResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/payments/config",
+    })
+  }
+
+/**
+ * Check Eth Balance
+ * Check ETH balance and determine if sufficient funds are available for NFT minting.
+ * @returns BalanceResponse Successful Response
+ * @throws ApiError
+ */
+export const blockchainCheckEthBalance =
+  (): CancelablePromise<BlockchainCheckEthBalanceResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/blockchain/balance",
+    })
+  }
+
+/**
+ * Fund Account
+ * Fund the blockchain account with ETH from Hardhat's default accounts.
+ * Only works in development/staging environments.
+ * @returns FundAccountResponse Successful Response
+ * @throws ApiError
+ */
+export const blockchainFundAccount =
+  (): CancelablePromise<BlockchainFundAccountResponse> => {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/v1/blockchain/fund-account",
+    })
+  }
+
+/**
+ * Get Blockchain Status
+ * Get blockchain service status and configuration.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const blockchainGetBlockchainStatus =
+  (): CancelablePromise<BlockchainGetBlockchainStatusResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/blockchain/status",
+    })
+  }
 
 /**
  * Get Sidebar Items
