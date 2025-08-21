@@ -1,6 +1,7 @@
 import { Radio, RadioGroup, Stack, Text } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { type UserPermission } from "../../client/types.gen";
-import { userPermissions } from "../../client/permissions";
+import { utilsListPermissions } from "../../client/sdk.gen";
 
 interface PermissionsSelectorProps {
   initialPermission: UserPermission;
@@ -11,6 +12,23 @@ const PermissionsSelector = ({
   initialPermission,
   onPermissionChange,
 }: PermissionsSelectorProps) => {
+  const [permissions, setPermissions] = useState<UserPermission[]>([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const data = await utilsListPermissions();
+        setPermissions(data as UserPermission[]);
+      } catch (error) {
+        console.error("Failed to fetch permissions:", error);
+        // Fallback to hardcoded permissions if API fails
+        setPermissions(["guest", "investor", "producer", "superuser"]);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
   return (
     <>
       <Text mt={4} fontWeight="bold">
@@ -18,7 +36,7 @@ const PermissionsSelector = ({
       </Text>
       <RadioGroup onChange={onPermissionChange} value={initialPermission}>
         <Stack direction="column">
-          {userPermissions.map((perm) => (
+          {permissions.map((perm) => (
             <Radio key={perm} value={perm}>
               {perm.charAt(0).toUpperCase() + perm.slice(1).replace(/_/g, " ")}
             </Radio>
