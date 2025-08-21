@@ -18,11 +18,12 @@ import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutSuadminImport } from './routes/_layout/suadmin'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
+import { Route as LayoutProducersImport } from './routes/_layout/producers'
+import { Route as LayoutProducerImport } from './routes/_layout/producer'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutGalleryImport } from './routes/_layout/gallery'
 import { Route as LayoutCreateitemImport } from './routes/_layout/createitem'
 import { Route as LayoutBusinessplanImport } from './routes/_layout/businessplan'
-import { Route as LayoutAdminImport } from './routes/_layout/admin'
 import { Route as LayoutPaymentSuccessImport } from './routes/_layout/payment/success'
 import { Route as LayoutPaymentCancelImport } from './routes/_layout/payment/cancel'
 
@@ -63,6 +64,16 @@ const LayoutSettingsRoute = LayoutSettingsImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutProducersRoute = LayoutProducersImport.update({
+  path: '/producers',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutProducerRoute = LayoutProducerImport.update({
+  path: '/producer',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutItemRoute = LayoutItemImport.update({
   path: '/item',
   getParentRoute: () => LayoutRoute,
@@ -80,11 +91,6 @@ const LayoutCreateitemRoute = LayoutCreateitemImport.update({
 
 const LayoutBusinessplanRoute = LayoutBusinessplanImport.update({
   path: '/businessplan',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutAdminRoute = LayoutAdminImport.update({
-  path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -118,10 +124,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordImport
       parentRoute: typeof rootRoute
     }
-    '/_layout/admin': {
-      preLoaderRoute: typeof LayoutAdminImport
-      parentRoute: typeof LayoutImport
-    }
     '/_layout/businessplan': {
       preLoaderRoute: typeof LayoutBusinessplanImport
       parentRoute: typeof LayoutImport
@@ -136,6 +138,14 @@ declare module '@tanstack/react-router' {
     }
     '/_layout/item': {
       preLoaderRoute: typeof LayoutItemImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/producer': {
+      preLoaderRoute: typeof LayoutProducerImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/producers': {
+      preLoaderRoute: typeof LayoutProducersImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/settings': {
@@ -165,11 +175,12 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
-    LayoutAdminRoute,
     LayoutBusinessplanRoute,
     LayoutCreateitemRoute,
     LayoutGalleryRoute,
     LayoutItemRoute,
+    LayoutProducerRoute,
+    LayoutProducersRoute,
     LayoutSettingsRoute,
     LayoutSuadminRoute,
     LayoutIndexRoute,

@@ -50,11 +50,12 @@ def get_navigation_items(
 
     items: list[NavigationItem] = [
         {"title": "Gallery", "path": "/gallery", "icon": "FiEye"},
+        {"title": "Producers", "path": "/producers", "icon": "FaCubes"},
     ]
 
     if user:
         # Logged-in users can create items.
-        items.append({"title": "My Settings", "path": "/settings", "icon": "FiSettings"})
+        items.append({"title": "Settings", "path": "/settings", "icon": "FiTool"})
 
         if user.is_active:
             items.append({"title": "Create Item", "path": "/createitem", "icon": "FiFilePlus"})
@@ -66,6 +67,6 @@ def get_navigation_items(
             items.append({"title": "Business Plan", "path": "/businessplan", "icon": "FiDollarSign"})
 
         if user.permissions == UserPermission.PRODUCER:
-            items.append({"title": "Admin", "path": "/admin", "icon": "FiSettings"})
+            items.append({"title": "Home", "path": "/producer", "icon": "FiHome"})
 
     return items

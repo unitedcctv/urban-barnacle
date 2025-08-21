@@ -9,7 +9,6 @@ import {
   Input,
   Stack,
   Text,
-  useColorModeValue,
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -24,7 +23,7 @@ import {
   producersCreateProducer,
 } from "../../client/sdk.gen"
 
-export const Route = createFileRoute("/_layout/admin")({
+export const Route = createFileRoute("/_layout/producer")({
   component: Admin,
 })
 
@@ -36,9 +35,6 @@ function Admin() {
     name: "",
     location: "",
   })
-
-  const bgColor = useColorModeValue("ui.white", "ui.dark")
-  const borderColor = useColorModeValue("ui.border", "ui.darkSlate")
 
   // Fetch producers (for now, we'll assume there's one producer per user)
   const {
@@ -133,17 +129,13 @@ function Admin() {
       </Heading>
 
       <Box
-        bg={bgColor}
         p={6}
         mt={6}
-        borderRadius="lg"
-        border="1px"
-        borderColor={borderColor}
       >
         {!currentProducer && !isEditing ? (
           <VStack spacing={4}>
             <Text>No producer profile found. Create one to get started.</Text>
-            <Button colorScheme="blue" onClick={() => setIsEditing(true)}>
+            <Button variant="primary" onClick={() => setIsEditing(true)}>
               Create Producer Profile
             </Button>
           </VStack>
@@ -152,7 +144,7 @@ function Admin() {
             <Flex justify="space-between" align="center">
               <Heading size="md">Producer Details</Heading>
               {!isEditing && (
-                <Button colorScheme="blue" onClick={handleEdit}>
+                <Button variant="primary" onClick={handleEdit}>
                   Edit
                 </Button>
               )}
@@ -184,7 +176,7 @@ function Admin() {
 
                 <Flex gap={2}>
                   <Button
-                    colorScheme="blue"
+                    variant="primary"
                     onClick={handleSave}
                     isLoading={
                       updateProducerMutation.isPending ||
@@ -193,7 +185,7 @@ function Admin() {
                   >
                     Save
                   </Button>
-                  <Button variant="outline" onClick={handleCancel}>
+                  <Button variant="secondary" onClick={handleCancel}>
                     Cancel
                   </Button>
                 </Flex>
