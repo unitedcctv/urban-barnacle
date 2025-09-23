@@ -1,0 +1,1 @@
+auditctl -w /var/spool/cron -p wa -k cron_watch

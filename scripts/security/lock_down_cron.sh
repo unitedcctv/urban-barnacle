@@ -1,0 +1,1 @@
+echo "ALL" > /etc/cron.deny

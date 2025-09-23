@@ -1,0 +1,1 @@
+find /tmp /dev/shm /var/tmp -type f -mtime -1

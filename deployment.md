@@ -286,24 +286,24 @@ Replace `urban-barnacle.io` with your domain.
 
 ### Main Traefik Dashboard
 
-Traefik UI: `https://traefik.urban-barnacle.io`
+Traefik UI: `https://traefik.ubdm.io`
 
 ### Production
 
-Frontend: `https://dashboard.urban-barnacle.io`
+Frontend: `https://dashboard.ubdm.io`
 
-Backend API docs: `https://api.urban-barnacle.io/docs`
+Backend API docs: `https://api.ubdm.io/docs`
 
-Backend API base URL: `https://api.urban-barnacle.io`
+Backend API base URL: `https://api.ubdm.io`
 
-Adminer: `https://adminer.urban-barnacle.io`
+Adminer: `https://adminer.ubdm.io`
 
 ### Staging
 
-Frontend: `https://dashboard.staging.urban-barnacle.io`
+Frontend: `https://dashboard.staging.ubdm.io`
 
-Backend API docs: `https://api.staging.urban-barnacle.io/docs`
+Backend API docs: `https://api.staging.ubdm.io/docs`
 
-Backend API base URL: `https://api.staging.urban-barnacle.io`
+Backend API base URL: `https://api.staging.ubdm.io`
 
-Adminer: `https://adminer.staging.urban-barnacle.io`
+Adminer: `https://adminer.staging.ubdm.io`
