@@ -93,6 +93,15 @@ class Settings(BaseSettings):
     def stripe_enabled(self) -> bool:
         return bool(self.STRIPE_SECRET_KEY and self.STRIPE_PUBLISHABLE_KEY)
 
+    # BunnyCDN storage settings
+    BUNNYCDN_STORAGE_ZONE: str | None = None
+    BUNNYCDN_API_KEY: str | None = None
+    BUNNYCDN_FOLDER_NAME: str = "uploads"
+
+    @computed_field
+    def bunnycdn_enabled(self) -> bool:
+        return bool(self.BUNNYCDN_STORAGE_ZONE and self.BUNNYCDN_API_KEY)
+
     # Blockchain/Web3 settings
     ETHEREUM_NETWORK: str = "localhost"
     ETHEREUM_RPC_URL: str = "http://localhost:8545"

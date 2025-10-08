@@ -104,10 +104,17 @@ async def get_file(item_id: str, user_id: str, file_name: str) -> FileResponse:
 async def save_to_bunnycdn(file: UploadFile) -> str:
     """Save the file to BunnyCDN storage and return the accessible URL."""
     logging.info("Uploading file to BunnyCDN")
-    # Adjust these to match your BunnyCDN config:
-    storage_zone = "your-storage-zone"
-    bunny_api_key = "your-api-key"
-    folder_name = "YourFolderName"
+    
+    # Check if BunnyCDN is configured
+    if not settings.bunnycdn_enabled:
+        raise HTTPException(
+            status_code=500, 
+            detail="BunnyCDN is not configured. Set BUNNYCDN_STORAGE_ZONE and BUNNYCDN_API_KEY environment variables."
+        )
+    
+    storage_zone = settings.BUNNYCDN_STORAGE_ZONE
+    bunny_api_key = settings.BUNNYCDN_API_KEY
+    folder_name = settings.BUNNYCDN_FOLDER_NAME
 
     try:
         # Read file content

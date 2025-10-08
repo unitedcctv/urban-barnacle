@@ -116,42 +116,41 @@ docker compose watch
 
 You can run Alembic inside the containers so migrations use the same environment as the app.
 
-• **Start database (deps profile):**
+• **Start database:**
 ```bash
-docker compose --profile deps up -d db
+docker compose up -d db
 ```
 
 • **Apply latest migrations:**
 ```bash
-docker compose --profile deps run --rm backend alembic upgrade head
+docker compose run --rm backend alembic upgrade head
 ```
 
 • **Create a new revision (autogenerate):**
 ```bash
-docker compose --profile deps run --rm backend \
+docker compose run --rm backend \
   alembic revision --autogenerate -m "your message"
 ```
 
 • **Downgrade one step (or to a specific revision):**
 ```bash
-docker compose --profile deps run --rm backend alembic downgrade -1
+docker compose run --rm backend alembic downgrade -1
 # or
-docker compose --profile deps run --rm backend alembic downgrade <revision_id>
+docker compose run --rm backend alembic downgrade <revision_id>
 ```
 
 • **One-shot init (migrations + initial data):**
 ```bash
-docker compose --profile deps --profile init run --rm prestart
+docker compose run --rm prestart
 ```
 
 • **Verify schema with psql:**
 ```bash
-docker compose --profile deps exec db \
+docker compose exec db \
   psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\d+ item'
 ```
 
 Notes:
-- The compose profiles separate dependencies (`deps`) from app services (`app`). Running commands with `--profile deps` ensures the DB service is available.
 - If you run the backend outside Docker, ensure its `POSTGRES_*` envs point to the same DB to avoid schema mismatches.
 
 ## The .env file
