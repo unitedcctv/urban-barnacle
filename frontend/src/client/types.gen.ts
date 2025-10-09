@@ -429,6 +429,23 @@ export type ImagesDownloadImageData = {
 
 export type ImagesDownloadImageResponse = unknown
 
+export type LogsGetRecentLogsData = {
+  level?: string | null
+  limit?: number
+}
+
+export type LogsGetRecentLogsResponse = {
+  [key: string]: unknown
+}
+
+export type LogsClearLogsResponse = {
+  [key: string]: string
+}
+
+export type LogsGetLogStatsResponse = {
+  [key: string]: unknown
+}
+
 export type ModelsUploadModelData = {
   formData: Body_models_upload_model
   itemId: string

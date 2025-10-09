@@ -62,6 +62,10 @@ import type {
   ImagesGetItemImagesResponse,
   ImagesDownloadImageData,
   ImagesDownloadImageResponse,
+  LogsGetRecentLogsData,
+  LogsGetRecentLogsResponse,
+  LogsClearLogsResponse,
+  LogsGetLogStatsResponse,
   ModelsUploadModelData,
   ModelsUploadModelResponse,
   ModelsGetModelData,
@@ -791,6 +795,62 @@ export const imagesDownloadImage = (
     },
   })
 }
+
+/**
+ * Get Recent Logs
+ * Get recent application logs (superuser only).
+ *
+ * Args:
+ * limit: Maximum number of log entries to return (default 100, max 1000)
+ * level: Filter by log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+ * @param data The data for the request.
+ * @param data.limit
+ * @param data.level
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const logsGetRecentLogs = (
+  data: LogsGetRecentLogsData = {},
+): CancelablePromise<LogsGetRecentLogsResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/logs/recent",
+    query: {
+      limit: data.limit,
+      level: data.level,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Clear Logs
+ * Clear the log buffer (superuser only).
+ * @returns string Successful Response
+ * @throws ApiError
+ */
+export const logsClearLogs = (): CancelablePromise<LogsClearLogsResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/api/v1/logs/clear",
+  })
+}
+
+/**
+ * Get Log Stats
+ * Get log statistics (superuser only).
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const logsGetLogStats =
+  (): CancelablePromise<LogsGetLogStatsResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/logs/stats",
+    })
+  }
 
 /**
  * Upload Model

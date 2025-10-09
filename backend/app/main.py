@@ -20,6 +20,15 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
 )
 
+
+@app.on_event("startup")
+async def startup_event() -> None:
+    """Initialize application on startup."""
+    # Setup log buffer for viewing logs via HTTP
+    from app.api.routes.logs import setup_log_buffer
+    setup_log_buffer()
+
+
 # Set all CORS enabled origins
 if settings.all_cors_origins:
     app.add_middleware(

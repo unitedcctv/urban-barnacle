@@ -5,6 +5,7 @@ from app.api.routes import (
     images,
     items,
     login,
+    logs,
     models,
     payments,
     private,
@@ -24,6 +25,7 @@ api_router.include_router(users.router)
 api_router.include_router(utils.router)
 api_router.include_router(items.router)
 api_router.include_router(images.router)
+api_router.include_router(logs.router)
 api_router.include_router(models.router)
 api_router.include_router(payments.router)
 api_router.include_router(producers.router)
