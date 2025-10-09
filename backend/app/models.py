@@ -120,6 +120,7 @@ class Item(ItemBase, table=True):  # type: ignore[call-arg]
     producer_id: Optional[uuid.UUID] = Field(default=None, foreign_key="producer.id")
     owner: Optional[User] = Relationship(back_populates="items")
     producer: Optional["Producer"] = Relationship(back_populates="produced_items")
+    item_images: list["Image"] = Relationship(back_populates="item")
 
 
 # Properties to return via API, id is always required
@@ -127,6 +128,50 @@ class ItemPublic(ItemBase):
     id: uuid.UUID
     owner_id: uuid.UUID
     producer_id: Optional[uuid.UUID] = None
+    image_urls: list[str] = []  # URLs/paths to images from Image table
+    
+    @classmethod
+    def from_item(cls, item: "Item", base_url: str = "") -> "ItemPublic":
+        """Create ItemPublic from Item with image URLs."""
+        from app.core.config import settings
+        import logging
+        
+        logger = logging.getLogger(__name__)
+        
+        image_urls = []
+        if hasattr(item, 'item_images') and item.item_images:
+            logger.info(f"Processing {len(item.item_images)} images for item {item.id}, environment: {settings.ENVIRONMENT}")
+            for img in item.item_images:
+                # In development (local), always construct local download URL
+                # In staging/production, use the path as-is (CDN URL)
+                if settings.ENVIRONMENT == "local":
+                    # For local development, construct download URL
+                    url = f"{base_url}/api/v1/images/download/{img.id}"
+                    logger.info(f"Image {img.id}: local path={img.path}, constructed URL={url}")
+                    image_urls.append(url)
+                else:
+                    # For staging/production, use CDN URL directly
+                    logger.info(f"Image {img.id}: using CDN path={img.path}")
+                    image_urls.append(img.path)
+        
+        return cls(
+            id=item.id,
+            owner_id=item.owner_id,
+            producer_id=item.producer_id,
+            title=item.title,
+            description=item.description,
+            images=item.images,
+            model=item.model,
+            certificate=item.certificate,
+            is_original=item.is_original,
+            variant_of=item.variant_of,
+            nft_token_id=item.nft_token_id,
+            nft_contract_address=item.nft_contract_address,
+            nft_transaction_hash=item.nft_transaction_hash,
+            nft_metadata_uri=item.nft_metadata_uri,
+            is_nft_enabled=item.is_nft_enabled,
+            image_urls=image_urls
+        )
 
 
 class ItemWithPermissions(SQLModel):
@@ -165,11 +210,43 @@ class EmailConfirmation(SQLModel):
     token: str
 
 
-class ImageUpload:
-    image: str
-    item_id: uuid.UUID
-    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    image_id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+# Shared properties for Image
+class ImageBase(SQLModel):
+    path: str = Field(max_length=500)  # Full path or URL to the image
+    name: str = Field(max_length=255)  # Filename without extension
+    item_id: uuid.UUID = Field(foreign_key="item.id", nullable=False, ondelete="CASCADE")
+
+
+# Properties to receive on image creation
+class ImageCreate(ImageBase):
+    pass
+
+
+# Properties to receive on image update
+class ImageUpdate(SQLModel):
+    path: Optional[str] = Field(default=None, max_length=500)
+    name: Optional[str] = Field(default=None, max_length=255)
+
+
+# Database model, database table inferred from class name
+class Image(ImageBase, table=True):  # type: ignore[call-arg]
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column=Column(DateTime, nullable=False)
+    )
+    item: Optional["Item"] = Relationship(back_populates="item_images")
+
+
+# Properties to return via API, id is always required
+class ImagePublic(ImageBase):
+    id: uuid.UUID
+    created_at: datetime
+
+
+class ImagesPublic(SQLModel):
+    data: list[ImagePublic]
+    count: int
 
 
 # Shared properties for Producer

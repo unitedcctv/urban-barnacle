@@ -49,11 +49,13 @@ const EditItem = ({
   const { isOpen: isNFTModalOpen, onOpen: onNFTModalOpen, onClose: onNFTModalClose } = useDisclosure();
 
   // Store original values for comparison
+  // Convert image_urls array to comma-separated string for backward compatibility
+  const imagesString = item?.image_urls?.join(",") || "";
   const originalValues = {
     title: item?.title || "",
     description: item?.description || "",
     model: item?.model || "",
-    images: item?.images || "",
+    images: imagesString,
   };
 
   const [originalImages, setOriginalImages] = useState<string>("");
@@ -80,7 +82,7 @@ const EditItem = ({
       title: item?.title,
       description: item?.description || "",
       model: item?.model || "",
-      images: item?.images || "",
+      images: imagesString,
     },
   });
 
@@ -89,16 +91,15 @@ const EditItem = ({
 
   // Initialize images state
   useEffect(() => {
-    const images = item.images || "";
-    setOriginalImages(images);
-    setCurrentImages(images);
+    setOriginalImages(imagesString);
+    setCurrentImages(imagesString);
     setImagesDeleted(false);
     
     // Initialize model state
     setCurrentModel(item.model || null);
     setModelFile(null);
     setModelDeleted(false);
-  }, [item.images, item.model]);
+  }, [imagesString, item.model]);
 
   // Check for changes whenever form values, images, or model change
   useEffect(() => {

@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
-import { images_url } from "../../utils";
 import { Box, Text, Heading, Flex } from "@chakra-ui/react"
 import ErrorPage from "../../components/Common/ErrorPage"
 import HoldingPage from "../../components/Common/HoldingPage"
@@ -27,16 +26,6 @@ export default function Home() {
       localStorage.getItem("access_token") !== null,
   })
 
-// const imagesArray = React.useMemo(() => {
-//     if (itemData?.images && typeof itemData.images === "string") {
-//     return itemData.images
-//         .split(",")
-//         .map((img) => images_url.concat(img.trim()))
-//         .filter(Boolean);
-//     }
-//     return [];
-// }, [itemData]);
-
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -53,11 +42,8 @@ export default function Home() {
     <Box>
       {items.data.map((item: any) => {
 
-        if (!item?.images) return null
-        const [firstImage] = item.images.split(",")
-
-        if (!firstImage?.trim()) return null
-        const image_url = images_url.concat(item.id, "/", item.owner_id, "/", firstImage.trim())
+        if (!item?.image_urls || item.image_urls.length === 0) return null
+        const image_url = item.image_urls[0]
 
           return (
             <Flex

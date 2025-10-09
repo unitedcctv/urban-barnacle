@@ -51,5 +51,3 @@ export const handleError = (err: ApiError, showToast: any) => {
   }
   showToast("Error", errorMessage, "error")
 }
-
-export const images_url = "http://localhost:8000/api/v1/images/"

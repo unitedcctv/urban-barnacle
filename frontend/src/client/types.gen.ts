@@ -28,6 +28,11 @@ export type Body_models_upload_model = {
   file: Blob | File
 }
 
+/**
+ * Enum for CDN folder types.
+ */
+export type CDNFolder = "images" | "uploads" | "models"
+
 export type CheckoutRequest = {
   item_id: string
   success_url?: string | null
@@ -55,6 +60,19 @@ export type FundAccountResponse = {
 
 export type HTTPValidationError = {
   detail?: Array<ValidationError>
+}
+
+export type ImagePublic = {
+  path: string
+  name: string
+  item_id: string
+  id: string
+  created_at: string
+}
+
+export type ImagesPublic = {
+  data: Array<ImagePublic>
+  count: number
 }
 
 export type ItemCreate = {
@@ -88,6 +106,7 @@ export type ItemPublic = {
   id: string
   owner_id: string
   producer_id?: string | null
+  image_urls?: Array<string>
 }
 
 export type ItemsPublic = {
@@ -180,7 +199,13 @@ export type UserCreate = {
   password: string
 }
 
-export type UserPermission = "superuser" | "guest" | "investor" | "producer"
+export type UserPermission =
+  | "superuser"
+  | "guest"
+  | "collector"
+  | "customer"
+  | "investor"
+  | "producer"
 
 export type UserPublic = {
   email: string
@@ -360,41 +385,29 @@ export type ItemsMintItemNftData = {
 export type ItemsMintItemNftResponse = ItemPublic
 
 export type ImagesUploadFileData = {
+  /**
+   * CDN folder to upload to
+   */
+  folder?: CDNFolder
   formData: Body_images_upload_file
   itemId: string
-  userId: string
 }
 
-export type ImagesUploadFileResponse = {
-  [key: string]: string
-}
-
-export type ImagesGetFilesData = {
-  itemId: string
-  userId: string
-}
-
-export type ImagesGetFilesResponse = {
-  [key: string]: string | Array<string>
-}
+export type ImagesUploadFileResponse = ImagePublic
 
 export type ImagesDeleteFileData = {
-  fileName: string
-  itemId: string
-  userId: string
+  imageId: string
 }
 
 export type ImagesDeleteFileResponse = {
   [key: string]: string
 }
 
-export type ImagesGetFileData = {
-  fileName: string
-  itemId: string
-  userId: string
+export type ImagesGetImageData = {
+  imageId: string
 }
 
-export type ImagesGetFileResponse = unknown
+export type ImagesGetImageResponse = ImagePublic
 
 export type ImagesDeleteItemImagesData = {
   itemId: string
@@ -403,6 +416,18 @@ export type ImagesDeleteItemImagesData = {
 export type ImagesDeleteItemImagesResponse = {
   [key: string]: string
 }
+
+export type ImagesGetItemImagesData = {
+  itemId: string
+}
+
+export type ImagesGetItemImagesResponse = ImagesPublic
+
+export type ImagesDownloadImageData = {
+  imageId: string
+}
+
+export type ImagesDownloadImageResponse = unknown
 
 export type ModelsUploadModelData = {
   formData: Body_models_upload_model

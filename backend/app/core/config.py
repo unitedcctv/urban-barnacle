@@ -1,6 +1,7 @@
 import secrets
 import warnings
 from enum import Enum
+from pathlib import Path
 from typing import Annotated, Any, Literal
 
 from pydantic import (
@@ -108,6 +109,15 @@ class Settings(BaseSettings):
     @computed_field
     def bunnycdn_enabled(self) -> bool:
         return bool(self.BUNNYCDN_STORAGE_ZONE and self.BUNNYCDN_API_KEY)
+    
+    @computed_field
+    def UPLOAD_DIR(self) -> Path:
+        """Get absolute path to uploads directory in backend folder."""
+        # Get the directory where this config file is located (backend/app/core)
+        config_dir = Path(__file__).parent
+        # Go up to backend/app, then backend, then add uploads
+        backend_dir = config_dir.parent.parent
+        return backend_dir / "uploads"
 
     # Blockchain/Web3 settings
     ETHEREUM_NETWORK: str = "localhost"

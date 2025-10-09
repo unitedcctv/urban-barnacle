@@ -21,7 +21,6 @@ import EditItem from "../../components/Items/EditItem.tsx";
 import { itemsReadItem, itemsDeleteItem, imagesDeleteItemImages } from "../../client/sdk.gen.ts";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useCustomToast from "../../hooks/useCustomToast";
-import { images_url } from "../../utils";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_layout/item")({
@@ -131,15 +130,12 @@ function Item({ item: propItem }: { item: ItemPublic }) {
   };
 
   /**
-   * Convert the comma-separated `images` string into an array of full URLs.
+   * Get image URLs from the image_urls array.
    */
   const imagesArray = React.useMemo(() => {
     const currentItem = itemData?.item || itemData;
-    if (currentItem?.images && typeof currentItem.images === "string") {
-      return currentItem.images
-        .split(",")
-        .map((img: string) => images_url.concat(currentItem.id, "/", currentItem.owner_id, "/", img.trim()))
-        .filter(Boolean);
+    if (currentItem?.image_urls && Array.isArray(currentItem.image_urls)) {
+      return currentItem.image_urls;
     }
     return [];
   }, [itemData]);

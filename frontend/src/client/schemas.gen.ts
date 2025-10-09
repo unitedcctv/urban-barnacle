@@ -118,6 +118,13 @@ export const Body_models_upload_modelSchema = {
   title: "Body_models-upload_model",
 } as const
 
+export const CDNFolderSchema = {
+  type: "string",
+  enum: ["images", "uploads", "models"],
+  title: "CDNFolder",
+  description: "Enum for CDN folder types.",
+} as const
+
 export const CheckoutRequestSchema = {
   properties: {
     item_id: {
@@ -223,6 +230,58 @@ export const HTTPValidationErrorSchema = {
   },
   type: "object",
   title: "HTTPValidationError",
+} as const
+
+export const ImagePublicSchema = {
+  properties: {
+    path: {
+      type: "string",
+      maxLength: 500,
+      title: "Path",
+    },
+    name: {
+      type: "string",
+      maxLength: 255,
+      title: "Name",
+    },
+    item_id: {
+      type: "string",
+      format: "uuid",
+      title: "Item Id",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+  },
+  type: "object",
+  required: ["path", "name", "item_id", "id", "created_at"],
+  title: "ImagePublic",
+} as const
+
+export const ImagesPublicSchema = {
+  properties: {
+    data: {
+      items: {
+        $ref: "#/components/schemas/ImagePublic",
+      },
+      type: "array",
+      title: "Data",
+    },
+    count: {
+      type: "integer",
+      title: "Count",
+    },
+  },
+  type: "object",
+  required: ["data", "count"],
+  title: "ImagesPublic",
 } as const
 
 export const ItemCreateSchema = {
@@ -496,6 +555,14 @@ export const ItemPublicSchema = {
         },
       ],
       title: "Producer Id",
+    },
+    image_urls: {
+      items: {
+        type: "string",
+      },
+      type: "array",
+      title: "Image Urls",
+      default: [],
     },
   },
   type: "object",
@@ -941,7 +1008,7 @@ export const UserCreateSchema = {
 
 export const UserPermissionSchema = {
   type: "string",
-  enum: ["superuser", "guest", "investor", "producer"],
+  enum: ["superuser", "guest", "collector", "customer", "investor", "producer"],
   title: "UserPermission",
 } as const
 

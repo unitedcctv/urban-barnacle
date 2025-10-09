@@ -192,3 +192,9 @@ services:
 volumes:
   blockchain-dev-data:
   blockchain-dev-artifacts:
+
+networks:
+  traefik-public:
+    # Override external network for local development
+    external: false
+    driver: bridge

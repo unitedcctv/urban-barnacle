@@ -24,12 +24,13 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { ItemPublic } from "../../client"
+import { ItemPublic, ImagePublic } from "../../client"
 
 // Import your SDK methods here
 import { imagesUploadFile, imagesDeleteFile } from "../../client/sdk.gen"
 
 type UploadedFile = {
+  id: string
   name: string
   url: string
 }
@@ -49,10 +50,11 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
 ) => {
   const toast = useToast()
 
-  // Initialize from existing images (comma-separated)
-  const images = _item.images ? _item.images.split(",") : []
+  // Initialize from image_urls array (new API)
+  const imageUrls = _item.image_urls || []
   const [files, setFiles] = React.useState<UploadedFile[]>(
-    images.map((url) => ({
+    imageUrls.map((url, index) => ({
+      id: `existing-${index}`, // Placeholder ID for existing images
       name: url.split("/").pop()?.split(".")[0] ?? "",
       url,
     }))
@@ -79,8 +81,8 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    const oldIndex = files.findIndex((file) => file.url === active.id)
-    const newIndex = files.findIndex((file) => file.url === over.id)
+    const oldIndex = files.findIndex((file) => file.id === active.id)
+    const newIndex = files.findIndex((file) => file.id === over.id)
 
     setFiles((prevFiles) => {
       const newArray = arrayMove(prevFiles, oldIndex, newIndex)
@@ -121,14 +123,21 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
 
     for (const file of e.target.files) {
       try {
-        const response = await imagesUploadFile({ formData: { file }, itemId: _item.id, userId: _item.owner_id }) as { url: string }
-        const uploadedUrl = response.url
-        const fileNameWithSuffix = uploadedUrl.split("/").pop()
-        const fileNameWithoutSuffix = fileNameWithSuffix?.split(".")[0] ?? ""
+        // New API returns ImagePublic object
+        const response = await imagesUploadFile({ 
+          formData: { file }, 
+          itemId: _item.id 
+        }) as ImagePublic
+        
+        // Extract URL from response path (for local) or use CDN URL directly
+        const imageUrl = response.path.startsWith("http") 
+          ? response.path 
+          : `${window.location.origin}/api/v1/images/download/${response.id}`
 
         updatedFiles.push({
-          name: fileNameWithoutSuffix,
-          url: fileNameWithSuffix ?? "",
+          id: response.id,
+          name: response.name,
+          url: imageUrl,
         })
       } catch (error) {
         console.error("Error uploading image:", error)
@@ -155,12 +164,15 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
   // Handle deleting a file
   const handleDeleteFile = async (fileToDelete: UploadedFile) => {
     try {
-      // Call the SDK function to delete the file on the server
-      await imagesDeleteFile({ fileName: fileToDelete.url, itemId: _item.id, userId: _item.owner_id })
+      // Skip deletion if this is a placeholder ID for existing images
+      if (!fileToDelete.id.startsWith("existing-")) {
+        // New API: Delete by image ID
+        await imagesDeleteFile({ imageId: fileToDelete.id })
+      }
 
       // Update local state after successful deletion
       setFiles((prev) => {
-        const filtered = prev.filter((f) => f.url !== fileToDelete.url)
+        const filtered = prev.filter((f) => f.id !== fileToDelete.id)
         onImagesChange(filtered.map((f) => f.url).join(","))
         return filtered
       })
@@ -211,13 +223,13 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={files.map((file) => file.url)}
+              items={files.map((file) => file.id)}
               strategy={verticalListSortingStrategy}
             >
               <UnorderedList styleType="disc">
                 {files.map((file) => (
                   <SortableItem
-                    key={file.url}
+                    key={file.id}
                     file={file}
                     onDelete={handleDeleteFile}
                   />
@@ -240,7 +252,7 @@ interface SortableItemProps {
 
 const SortableItem: React.FC<SortableItemProps> = ({ file, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: file.url })
+    useSortable({ id: file.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),

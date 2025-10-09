@@ -2,21 +2,17 @@ import React from "react";
 import { Box } from "@chakra-ui/react";
 import { useNavigate } from "@tanstack/react-router";
 import { ItemPublic } from "../../client";
-import { images_url } from "../../utils";
 
 const ItemShow = ({ item }: { item: ItemPublic }) => {
   const navigate = useNavigate();
   const [imageSrc, setImageSrc] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (item.images) {
-      const firstFileName = item.images.split(",")[0]?.trim();
-      if (firstFileName) {
-        const src = images_url.concat(item.id, "/", item.owner_id, "/", firstFileName)
-        setImageSrc(src);
-      }
+    if (item.image_urls && item.image_urls.length > 0) {
+      const firstImageUrl = item.image_urls[0];
+      setImageSrc(firstImageUrl);
     }
-  }, [item.images]);
+  }, [item.image_urls]);
 
   const handleEditItem = (item: ItemPublic) => {
     navigate({

@@ -2,8 +2,9 @@ import uuid
 from typing import Any
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from sqlmodel import func, select
+from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
 from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message
@@ -14,22 +15,26 @@ router = APIRouter(prefix="/items", tags=["items"])
 
 @router.get("/", response_model=ItemsPublic)
 def read_items(
-    session: SessionDep, skip: int = 0, limit: int = 100
+    request: Request, session: SessionDep, skip: int = 0, limit: int = 100
 ) -> Any:
     """
     Retrieve items.
     """
     count_statement = select(func.count()).select_from(Item)
     count = session.exec(count_statement).one()
-    statement = select(Item).offset(skip).limit(limit)
+    statement = select(Item).options(selectinload(Item.item_images)).offset(skip).limit(limit)
     items = session.exec(statement).all()
+    
+    # Get base URL from request
+    base_url = str(request.base_url).rstrip('/')
+    items_public = [ItemPublic.from_item(item, base_url) for item in items]
 
-    return ItemsPublic(data=items, count=count)
+    return ItemsPublic(data=items_public, count=count)
 
 
 @router.get("/my-items/", response_model=ItemsPublic)
 def read_my_items(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    request: Request, session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     """
     Retrieve items for the current user.
@@ -42,26 +47,35 @@ def read_my_items(
     count = session.exec(count_statement).one()
     statement = (
         select(Item)
+        .options(selectinload(Item.item_images))
         .where(Item.owner_id == current_user.id)
         .offset(skip)
         .limit(limit)
     )
     items = session.exec(statement).all()
+    
+    # Get base URL from request
+    base_url = str(request.base_url).rstrip('/')
+    items_public = [ItemPublic.from_item(item, base_url) for item in items]
 
-    return ItemsPublic(data=items, count=count)
+    return ItemsPublic(data=items_public, count=count)
 
 
 @router.get("/{id}", response_model=ItemWithPermissions)
-def read_item(session: SessionDep, current_user: OptionalCurrentUser, id: uuid.UUID) -> Any:
+def read_item(request: Request, session: SessionDep, current_user: OptionalCurrentUser, id: uuid.UUID) -> Any:
     """
     Get item by ID with edit permissions.
     """
-    item = session.get(Item, id)
+    statement = select(Item).options(selectinload(Item.item_images)).where(Item.id == id)
+    item = session.exec(statement).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     
-    # Create ItemPublic instance from the item
-    item_public = ItemPublic.model_validate(item)
+    # Get base URL from request
+    base_url = str(request.base_url).rstrip('/')
+    
+    # Create ItemPublic instance from the item with image URLs
+    item_public = ItemPublic.from_item(item, base_url)
     
     # Check if user can edit (superuser OR item owner)
     can_edit = False
@@ -80,7 +94,7 @@ def read_item(session: SessionDep, current_user: OptionalCurrentUser, id: uuid.U
 
 @router.post("/", response_model=ItemPublic)
 def create_item(
-    *, session: SessionDep, current_user: CurrentUser, item_in: ItemCreate
+    *, request: Request, session: SessionDep, current_user: CurrentUser, item_in: ItemCreate
 ) -> Any:
     """
     Create new item.
@@ -91,20 +105,23 @@ def create_item(
     session.commit()
     session.refresh(item)
     
-    return item
+    # Get base URL and return with image URLs
+    base_url = str(request.base_url).rstrip('/')
+    return ItemPublic.from_item(item, base_url)
 
 
 @router.post("/{id}/mint-nft", response_model=ItemPublic)
 def mint_item_nft(
-    *, session: SessionDep, current_user: CurrentUser, id: uuid.UUID
+    *, request: Request, session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Any:
     """
     Mint NFT for an existing item.
     """
     logger = logging.getLogger(__name__)
     
-    # Get the item
-    item = session.get(Item, id)
+    # Get the item with images
+    statement = select(Item).options(selectinload(Item.item_images)).where(Item.id == id)
+    item = session.exec(statement).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     
@@ -166,7 +183,9 @@ def mint_item_nft(
             logger.info(f"After commit - Token ID in DB: {item.nft_token_id}")
             logger.info(f"NFT minted for item {item.id}: Token ID {nft_result['token_id']}")
             
-            return item
+            # Get base URL and return with image URLs
+            base_url = str(request.base_url).rstrip('/')
+            return ItemPublic.from_item(item, base_url)
         else:
             logger.warning(f"Failed to mint NFT for item {item.id}")
             raise HTTPException(status_code=500, detail="Failed to mint NFT")
@@ -179,6 +198,7 @@ def mint_item_nft(
 @router.put("/{id}", response_model=ItemPublic)
 def update_item(
     *,
+    request: Request,
     session: SessionDep,
     current_user: CurrentUser,
     id: uuid.UUID,
@@ -187,7 +207,8 @@ def update_item(
     """
     Update an item.
     """
-    item = session.get(Item, id)
+    statement = select(Item).options(selectinload(Item.item_images)).where(Item.id == id)
+    item = session.exec(statement).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     if "superuser" not in current_user.permissions and (
@@ -205,7 +226,10 @@ def update_item(
     session.add(item)
     session.commit()
     session.refresh(item)
-    return item
+    
+    # Get base URL and return with image URLs
+    base_url = str(request.base_url).rstrip('/')
+    return ItemPublic.from_item(item, base_url)
 
 
 @router.delete("/{id}")
