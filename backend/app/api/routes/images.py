@@ -28,7 +28,7 @@ async def upload_file(
 ) -> ImagePublic:
     """Upload an image and create a database entry."""
     logging.info(f"Upload request: item_id={item_id}, file={file.filename}, folder={folder.value}")
-    logging.info(f"BunnyCDN enabled: {settings.bunnycdn_enabled}, Upload dir: {settings.UPLOAD_DIR}")
+    logging.info(f"Environment: {settings.ENVIRONMENT}, BunnyCDN enabled: {settings.bunnycdn_enabled}")
     
     # Parse item_id as UUID
     try:
@@ -39,12 +39,22 @@ async def upload_file(
     # Generate unique image ID
     image_id = uuid.uuid4()
     
-    if settings.bunnycdn_enabled:
-        # Save to BunnyCDN if configured
-        image_path = await save_to_bunnycdn(file, folder, image_id)
-    else:
-        # Save to local folder if BunnyCDN not configured
-        image_path = await save_to_local(file, folder, image_id)
+    try:
+        if settings.bunnycdn_enabled:
+            # Save to BunnyCDN if configured
+            logging.info(f"Uploading to BunnyCDN with zone: {settings.BUNNYCDN_STORAGE_ZONE}")
+            image_path = await save_to_bunnycdn(file, folder, image_id)
+        else:
+            # Save to local folder if BunnyCDN not configured
+            logging.info(f"Uploading to local storage: {settings.UPLOAD_DIR}")
+            image_path = await save_to_local(file, folder, image_id)
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        error_msg = f"Unexpected error during file upload: {str(e)}"
+        logging.error(error_msg, exc_info=True)
+        raise HTTPException(status_code=500, detail=error_msg)
     
     # Extract filename without extension
     filename = file.filename or "image"
@@ -224,17 +234,24 @@ async def save_to_bunnycdn(file: UploadFile, folder: CDNFolder, image_id: uuid.U
         # Upload via PUT
         response = requests.put(url, data=content, headers=headers)
         if response.status_code not in (200, 201):
+            error_detail = f"BunnyCDN upload failed with status {response.status_code}: {response.text}"
+            logging.error(error_detail)
             raise HTTPException(
-                status_code=500, detail="Failed to upload file to BunnyCDN"
+                status_code=500, detail=error_detail
             )
 
+        logging.info(f"Successfully uploaded to BunnyCDN: {bunny_path}")
         # Construct a public CDN URL for the uploaded file
         bunny_url = f"https://{storage_zone}.b-cdn.net/{bunny_path}"
         return bunny_url
 
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
-        logging.error(f"Failed to upload file to BunnyCDN: {e}")
-        raise HTTPException(status_code=500, detail="Failed to upload file")
+        error_detail = f"Failed to upload file to BunnyCDN: {str(e)}"
+        logging.error(error_detail)
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 async def save_to_local(file: UploadFile, folder: CDNFolder, image_id: uuid.UUID) -> str:
