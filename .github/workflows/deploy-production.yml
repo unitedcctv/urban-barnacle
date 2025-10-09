@@ -39,6 +39,9 @@ jobs:
       GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
       DRIVE_WEBHOOK_TOKEN: ${{ secrets.DRIVE_WEBHOOK_TOKEN }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # BunnyCDN Configuration
+      BUNNYCDN_STORAGE_ZONE: ${{ vars.BUNNYCDN_STORAGE_ZONE }}
+      BUNNYCDN_API_KEY: ${{ secrets.BUNNYCDN_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

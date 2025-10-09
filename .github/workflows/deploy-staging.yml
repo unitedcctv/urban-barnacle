@@ -49,6 +49,9 @@ jobs:
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       STRIPE_PUBLISHABLE_KEY: ${{ vars.STRIPE_PUBLISHABLE_KEY }}
       STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET || '' }}
+      # BunnyCDN Configuration
+      BUNNYCDN_STORAGE_ZONE: ${{ vars.BUNNYCDN_STORAGE_ZONE }}
+      BUNNYCDN_API_KEY: ${{ secrets.BUNNYCDN_API_KEY }}
       # Blockchain/Ethereum Configuration
       ETHEREUM_NETWORK: ${{ vars.ETHEREUM_NETWORK }}
       ETHEREUM_RPC_URL: ${{ vars.ETHEREUM_RPC_URL }}

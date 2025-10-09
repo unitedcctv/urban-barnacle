@@ -1,5 +1,6 @@
 import secrets
 import warnings
+from enum import Enum
 from typing import Annotated, Any, Literal
 
 from pydantic import (
@@ -19,6 +20,13 @@ def parse_cors(v: Any) -> list[str] | str:
     elif isinstance(v, list | str):
         return v
     raise ValueError(v)
+
+
+class CDNFolder(str, Enum):
+    """Enum for CDN folder types."""
+    IMAGES = "images"
+    UPLOADS = "uploads"
+    MODELS = "models"
 
 
 class Settings(BaseSettings):
@@ -96,7 +104,6 @@ class Settings(BaseSettings):
     # BunnyCDN storage settings
     BUNNYCDN_STORAGE_ZONE: str | None = None
     BUNNYCDN_API_KEY: str | None = None
-    BUNNYCDN_FOLDER_NAME: str = "uploads"
 
     @computed_field
     def bunnycdn_enabled(self) -> bool:
