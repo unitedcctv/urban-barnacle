@@ -20,6 +20,7 @@ import { Route as LayoutSuadminImport } from './routes/_layout/suadmin'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutProducersImport } from './routes/_layout/producers'
 import { Route as LayoutProducerImport } from './routes/_layout/producer'
+import { Route as LayoutLogsImport } from './routes/_layout/logs'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutGalleryImport } from './routes/_layout/gallery'
 import { Route as LayoutCreateitemImport } from './routes/_layout/createitem'
@@ -71,6 +72,11 @@ const LayoutProducersRoute = LayoutProducersImport.update({
 
 const LayoutProducerRoute = LayoutProducerImport.update({
   path: '/producer',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutLogsRoute = LayoutLogsImport.update({
+  path: '/logs',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -140,6 +146,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutItemImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/logs': {
+      preLoaderRoute: typeof LayoutLogsImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/producer': {
       preLoaderRoute: typeof LayoutProducerImport
       parentRoute: typeof LayoutImport
@@ -179,6 +189,7 @@ export const routeTree = rootRoute.addChildren([
     LayoutCreateitemRoute,
     LayoutGalleryRoute,
     LayoutItemRoute,
+    LayoutLogsRoute,
     LayoutProducerRoute,
     LayoutProducersRoute,
     LayoutSettingsRoute,

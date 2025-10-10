@@ -62,7 +62,6 @@ def get_navigation_items(
 
         if UserPermission.SUPERUSER in user.permissions:
             items.insert(0, {"title": "SU Admin", "path": "/suadmin", "icon": "FiTool"})
-            items.append({"title": "Logs", "path": "/logs", "icon": "FiFileText"})
 
         if user.permissions in [UserPermission.INVESTOR, UserPermission.SUPERUSER]:
             items.append({"title": "Business Plan", "path": "/businessplan", "icon": "FiDollarSign"})

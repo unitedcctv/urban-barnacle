@@ -12,9 +12,10 @@ import {
   Button,
   useToast,
   Flex,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { z } from "zod";
 
@@ -212,12 +213,23 @@ function SuAdmin() {
         <Navbar type={"User"} addModalAs={AddUser} />
       </Flex>
       <UsersTable />
-      <Flex gap={4}>
+      <Flex gap={4} wrap="wrap">
         <Button variant="primary" onClick={registerWatch}>
           Register Drive Watch
         </Button>
         <Button variant="primary" onClick={populateChunks}>
           Populate AI Chunks
+        </Button>
+        <Button as={Link} to="/logs" variant="primary">
+          View Logs
+        </Button>
+        <Button 
+          as={ChakraLink} 
+          href={import.meta.env.VITE_SENTRY_URL || "https://sentry.io"} 
+          isExternal 
+          variant="primary"
+        >
+          Open Sentry
         </Button>
       </Flex>
     </Container>
