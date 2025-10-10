@@ -95,14 +95,17 @@ services:
       EMAILS_FROM_EMAIL: "noreply@example.com"
       # CORS configuration for local development
       BACKEND_CORS_ORIGINS: "http://localhost:5173,http://localhost:3000,http://localhost"
+      # TODO: Blockchain/NFT certificate functionality temporarily disabled
+      # Re-enable when blockchain features are needed again
       # Blockchain configuration
-      WEB3_URL: "http://blockchain:8545"
-      BLOCKCHAIN_ENABLED: "true"
+      # WEB3_URL: "http://blockchain:8545"
+      BLOCKCHAIN_ENABLED: "false"
     depends_on:
       db:
         condition: service_healthy
-      blockchain:
-        condition: service_started
+      # TODO: Blockchain dependency disabled - uncomment when re-enabling blockchain
+      # blockchain:
+      #   condition: service_started
       prestart:
         condition: service_completed_successfully
 
@@ -138,56 +141,58 @@ services:
         - path: ./frontend/package.json
           action: rebuild
 
+  # TODO: Blockchain/NFT certificate functionality temporarily disabled
+  # Re-enable these services when blockchain features are needed again
   # Blockchain service for NFT integration
-  blockchain:
-    build:
-      context: ./contracts
-    restart: "no"  # Development override
-    ports:
-      - "8545:8545"   # Hardhat node
-      - "8546:8546"   # Hardhat websocket (if needed)
-    environment:
-      - NODE_ENV=development
-      - DEBUG=hardhat*
-    healthcheck:
-      test: ["CMD", "node", "-e", "const http = require('http'); const req = http.request({hostname: '127.0.0.1', port: 8545, method: 'POST', headers: {'Content-Type': 'application/json'}}, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.write(JSON.stringify({jsonrpc: '2.0', method: 'eth_blockNumber', params: [], id: 1})); req.end();"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    develop:
-      watch:
-        - path: ./contracts
-          action: sync
-          target: /app
-          ignore:
-            - ./contracts/node_modules
-            - node_modules
-            - ./contracts/cache
-            - ./contracts/artifacts
-        - path: ./contracts/package.json
-          action: rebuild
-        - path: ./contracts/hardhat.config.js
-          action: rebuild
-    volumes:
-      - blockchain-dev-data:/app/cache
-      - blockchain-dev-artifacts:/app/artifacts
-    command: ["npm", "run", "node", "--", "--hostname", "0.0.0.0"]
-    networks:
-      - default
+  # blockchain:
+  #   build:
+  #     context: ./contracts
+  #   restart: "no"  # Development override
+  #   ports:
+  #     - "8545:8545"   # Hardhat node
+  #     - "8546:8546"   # Hardhat websocket (if needed)
+  #   environment:
+  #     - NODE_ENV=development
+  #     - DEBUG=hardhat*
+  #   healthcheck:
+  #     test: ["CMD", "node", "-e", "const http = require('http'); const req = http.request({hostname: '127.0.0.1', port: 8545, method: 'POST', headers: {'Content-Type': 'application/json'}}, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.write(JSON.stringify({jsonrpc: '2.0', method: 'eth_blockNumber', params: [], id: 1})); req.end();"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 40s
+  #   develop:
+  #     watch:
+  #       - path: ./contracts
+  #         action: sync
+  #         target: /app
+  #         ignore:
+  #           - ./contracts/node_modules
+  #           - node_modules
+  #           - ./contracts/cache
+  #           - ./contracts/artifacts
+  #       - path: ./contracts/package.json
+  #         action: rebuild
+  #       - path: ./contracts/hardhat.config.js
+  #         action: rebuild
+  #   volumes:
+  #     - blockchain-dev-data:/app/cache
+  #     - blockchain-dev-artifacts:/app/artifacts
+  #   command: ["npm", "run", "node", "--", "--hostname", "0.0.0.0"]
+  #   networks:
+  #     - default
 
-  # Development-only services
-  hardhat-console:
-    build:
-      context: ./contracts
-    profiles: ["tools"]  # Only start with --profile tools
-    volumes:
-      - ./contracts:/app:delegated
-    command: ["npm", "run", "console", "--", "--network", "localhost"]
-    depends_on:
-      - blockchain
-    networks:
-      - default
+  # TODO: Development-only blockchain services disabled
+  # hardhat-console:
+  #   build:
+  #     context: ./contracts
+  #   profiles: ["tools"]  # Only start with --profile tools
+  #   volumes:
+  #     - ./contracts:/app:delegated
+  #   command: ["npm", "run", "console", "--", "--network", "localhost"]
+  #   depends_on:
+  #     - blockchain
+  #   networks:
+  #     - default
 
 volumes:
   blockchain-dev-data:

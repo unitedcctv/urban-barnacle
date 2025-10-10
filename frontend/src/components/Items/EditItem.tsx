@@ -7,17 +7,18 @@ import {
   Box,
   HStack,
   Text,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
-  VStack,
-  Badge,
-  Link,
+  // TODO: Blockchain/NFT - Re-enable these imports when blockchain features are needed
+  // Modal,
+  // ModalOverlay,
+  // ModalContent,
+  // ModalHeader,
+  // ModalFooter,
+  // ModalBody,
+  // ModalCloseButton,
+  // useDisclosure,
+  // VStack,
+  // Badge,
+  // Link,
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -46,7 +47,8 @@ const EditItem = ({
   const queryClient = useQueryClient();
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const showToast = useCustomToast();
-  const { isOpen: isNFTModalOpen, onOpen: onNFTModalOpen, onClose: onNFTModalClose } = useDisclosure();
+  // TODO: Blockchain/NFT certificate functionality temporarily disabled
+  // const { isOpen: isNFTModalOpen, onOpen: onNFTModalOpen, onClose: onNFTModalClose } = useDisclosure();
 
   // Store original values for comparison
   // Convert image_urls array to comma-separated string for backward compatibility
@@ -261,7 +263,7 @@ const EditItem = ({
         )}
       </FormControl>
 
-      {/* NFT Information */}
+      {/* TODO: Blockchain/NFT certificate functionality temporarily disabled - Re-enable when needed
       <FormControl mt={4}>
         <FormLabel>NFT Information</FormLabel>
         {item?.nft_token_id ? (
@@ -281,12 +283,12 @@ const EditItem = ({
           </Text>
         )}
       </FormControl>
+      */}
 
       <FormControl mt={4}>
         <FormLabel>Images</FormLabel>
         <ImagesUploader onImagesChange={handleImagesChange} _item={item ?? {}} />
       </FormControl>
-
       <HStack spacing={4} mt={4}>
         <Button
           variant="primary"
@@ -307,8 +309,10 @@ const EditItem = ({
         )}
       </HStack>
 
+      {/* TODO: Blockchain/NFT certificate functionality temporarily disabled */}
+      {/* Re-enable this modal when blockchain features are needed again */}
       {/* NFT Details Modal */}
-      <Modal isOpen={isNFTModalOpen} onClose={onNFTModalClose} size="lg">
+      {/* <Modal isOpen={isNFTModalOpen} onClose={onNFTModalClose} size="lg">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>NFT Details</ModalHeader>
@@ -386,7 +390,7 @@ const EditItem = ({
           <ModalFooter>
           </ModalFooter>
         </ModalContent>
-      </Modal>
+      </Modal> */}
     </Box>
   );
 };

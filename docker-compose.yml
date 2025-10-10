@@ -41,25 +41,27 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-adminer-https.tls.certresolver=le
       - traefik.http.services.${STACK_NAME?Variable not set}-adminer.loadbalancer.server.port=8080
 
-  blockchain:
-    build:
-      context: ./contracts
-    restart: always
-    ports:
-      - "8545:8545"  # Hardhat node port
-    networks:
-      - default
-    environment:
-      - NODE_ENV=development
-    volumes:
-      - blockchain-data:/app/cache
-      - blockchain-artifacts:/app/artifacts
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8545"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+  # TODO: Blockchain/NFT certificate functionality temporarily disabled
+  # Re-enable this service when blockchain features are needed again
+  # blockchain:
+  #   build:
+  #     context: ./contracts
+  #   restart: always
+  #   ports:
+  #     - "8545:8545"  # Hardhat node port
+  #   networks:
+  #     - default
+  #   environment:
+  #     - NODE_ENV=development
+  #   volumes:
+  #     - blockchain-data:/app/cache
+  #     - blockchain-artifacts:/app/artifacts
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8545"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 40s
 
   prestart:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'

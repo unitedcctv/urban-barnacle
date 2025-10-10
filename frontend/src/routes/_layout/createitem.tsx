@@ -8,22 +8,21 @@ import {
   Box,
   Text,
   HStack,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-
-  ModalBody,
-
-  useDisclosure,
-  VStack,
-  Badge,
-  CloseButton,
-  ModalCloseButton,
+  // TODO: Blockchain/NFT - Re-enable these imports when blockchain features are needed
+  // Alert,
+  // AlertIcon,
+  // AlertTitle,
+  // AlertDescription,
+  // Modal,
+  // ModalOverlay,
+  // ModalContent,
+  // ModalHeader,
+  // ModalBody,
+  // useDisclosure,
+  // VStack,
+  // Badge,
+  // CloseButton,
+  // ModalCloseButton,
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -36,7 +35,8 @@ import { handleError } from "../../utils";
 import ImagesUploader, { ImagesUploaderRef } from "../../components/Items/ImagesUploader";
 import { createFileRoute } from "@tanstack/react-router";
 import { UserPublic } from "../../client";
-import { imagesDeleteItemImages, modelsUploadModel, modelsDeleteItemModel, itemsDeleteItem, itemsMintItemNft } from "../../client/sdk.gen";
+// TODO: Blockchain/NFT - Re-enable itemsMintItemNft import when blockchain features are needed
+import { imagesDeleteItemImages, modelsUploadModel, modelsDeleteItemModel, itemsDeleteItem /*, itemsMintItemNft */ } from "../../client/sdk.gen";
 
 export const Route = createFileRoute("/_layout/createitem")({
   component: CreateItem,
@@ -46,13 +46,15 @@ function CreateItem() {
   const [isItemStarted, setIsItemStarted] = useState(false);
   const [createdItemId, setCreatedItemId] = useState<string>("");
   const [modelFile, setModelFile] = useState<File | null>(null);
-  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
-  const [balanceMessage, setBalanceMessage] = useState<string>("");
-  const [balanceStatus, setBalanceStatus] = useState<"info" | "warning" | "error" | "success">("info");
-  const [isMintingNft, setIsMintingNft] = useState(false);
-  const [isNftAlertDismissed, setIsNftAlertDismissed] = useState(false);
-  const [isBalanceAlertDismissed, setIsBalanceAlertDismissed] = useState(false);
-  const { isOpen: isTokenModalOpen, onOpen: onTokenModalOpen, onClose: onTokenModalClose } = useDisclosure();
+  // TODO: Blockchain/NFT certificate functionality temporarily disabled
+  // Re-enable these state variables when blockchain features are needed again
+  // const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+  // const [balanceMessage, setBalanceMessage] = useState<string>("");
+  // const [balanceStatus, setBalanceStatus] = useState<"info" | "warning" | "error" | "success">("info");
+  // const [isMintingNft, setIsMintingNft] = useState(false);
+  // const [isNftAlertDismissed, setIsNftAlertDismissed] = useState(false);
+  // const [isBalanceAlertDismissed, setIsBalanceAlertDismissed] = useState(false);
+  // const { isOpen: isTokenModalOpen, onOpen: onTokenModalOpen, onClose: onTokenModalClose } = useDisclosure();
   const queryClient = useQueryClient();
   const showToast = useCustomToast();
   const navigate = useNavigate();
@@ -67,12 +69,13 @@ function CreateItem() {
     model: "",
     certificate: "",
     images: "",
+    // TODO: Blockchain/NFT certificate functionality temporarily disabled
     // NFT fields
-    is_nft_enabled: true,
-    nft_token_id: null,
-    nft_contract_address: null,
-    nft_transaction_hash: null,
-    nft_metadata_uri: null,
+    // is_nft_enabled: true,
+    // nft_token_id: null,
+    // nft_contract_address: null,
+    // nft_transaction_hash: null,
+    // nft_metadata_uri: null,
   };
 
   const {
@@ -109,34 +112,36 @@ function CreateItem() {
     },
   });
 
-  const mintNftMutation = useMutation({
-    mutationFn: (itemId: string) => itemsMintItemNft({ id: itemId }),
-    onError: (err: ApiError) => {
-      handleError(err, showToast);
-      setIsMintingNft(false);
-    },
-    onSuccess: (updatedItem) => {
-      console.log("NFT minted successfully, updatedItem:", updatedItem);
-      showToast("Success!", "NFT minted successfully!", "success");
-      setIsMintingNft(false);
-      
-      // Update the form with the new NFT data
-      console.log("Updating form values with NFT data...");
-      setValue("nft_token_id", updatedItem.nft_token_id, { shouldDirty: true, shouldTouch: true });
-      setValue("nft_contract_address", updatedItem.nft_contract_address, { shouldDirty: true, shouldTouch: true });
-      setValue("nft_transaction_hash", updatedItem.nft_transaction_hash, { shouldDirty: true, shouldTouch: true });
-      setValue("nft_metadata_uri", updatedItem.nft_metadata_uri, { shouldDirty: true, shouldTouch: true });
-      
-      console.log("Form values after update:", {
-        nft_token_id: watch("nft_token_id"),
-        nft_contract_address: watch("nft_contract_address"),
-        nft_transaction_hash: watch("nft_transaction_hash"),
-        nft_metadata_uri: watch("nft_metadata_uri")
-      });
-      
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-    },
-  });
+  // TODO: Blockchain/NFT certificate functionality temporarily disabled
+  // Re-enable this mutation when blockchain features are needed again
+  // const mintNftMutation = useMutation({
+  //   mutationFn: (itemId: string) => itemsMintItemNft({ id: itemId }),
+  //   onError: (err: ApiError) => {
+  //     handleError(err, showToast);
+  //     setIsMintingNft(false);
+  //   },
+  //   onSuccess: (updatedItem) => {
+  //     console.log("NFT minted successfully, updatedItem:", updatedItem);
+  //     showToast("Success!", "NFT minted successfully!", "success");
+  //     setIsMintingNft(false);
+  //     
+  //     // Update the form with the new NFT data
+  //     console.log("Updating form values with NFT data...");
+  //     setValue("nft_token_id", updatedItem.nft_token_id, { shouldDirty: true, shouldTouch: true });
+  //     setValue("nft_contract_address", updatedItem.nft_contract_address, { shouldDirty: true, shouldTouch: true });
+  //     setValue("nft_transaction_hash", updatedItem.nft_transaction_hash, { shouldDirty: true, shouldTouch: true });
+  //     setValue("nft_metadata_uri", updatedItem.nft_metadata_uri, { shouldDirty: true, shouldTouch: true });
+  //     
+  //     console.log("Form values after update:", {
+  //       nft_token_id: watch("nft_token_id"),
+  //       nft_contract_address: watch("nft_contract_address"),
+  //       nft_transaction_hash: watch("nft_transaction_hash"),
+  //       nft_metadata_uri: watch("nft_metadata_uri")
+  //     });
+  //     
+  //     queryClient.invalidateQueries({ queryKey: ["items"] });
+  //   },
+  // });
 
   const handleImagesChange = (commaSeparatedUrls: string) => {
     setValue("images", commaSeparatedUrls, { shouldDirty: true });
@@ -211,13 +216,15 @@ function CreateItem() {
     }
   };
 
+  // TODO: Blockchain/NFT certificate functionality temporarily disabled
+  // Re-enable these functions when blockchain features are needed again
   // Environment detection
-  const isProduction = import.meta.env.PROD || import.meta.env.VITE_ENVIRONMENT === 'production';
-  const isDevelopment = import.meta.env.DEV || import.meta.env.VITE_ENVIRONMENT === 'development';
-  const isStaging = import.meta.env.VITE_ENVIRONMENT === 'staging';
+  // const isProduction = import.meta.env.PROD || import.meta.env.VITE_ENVIRONMENT === 'production';
+  // const isDevelopment = import.meta.env.DEV || import.meta.env.VITE_ENVIRONMENT === 'development';
+  // const isStaging = import.meta.env.VITE_ENVIRONMENT === 'staging';
 
   // Check ETH balance and handle funding
-  const checkBalanceAndFund = async (): Promise<boolean> => {
+  /* const checkBalanceAndFund = async (): Promise<boolean> => {
     setIsCheckingBalance(true);
     setBalanceMessage("");
     
@@ -344,9 +351,9 @@ function CreateItem() {
     } finally {
       setIsCheckingBalance(false);
     }
-  };
+  }; */
 
-  const handleMintNft = async () => {
+  /* const handleMintNft = async () => {
     console.log("handleMintNft called");
     
     if (!createdItemId) {
@@ -377,7 +384,7 @@ function CreateItem() {
 
     console.log("Calling mintNftMutation.mutate with itemId:", createdItemId);
     mintNftMutation.mutate(createdItemId);
-  };
+  }; */
 
   const onSubmit: SubmitHandler<any> = async (formData) => {
     if (!isItemStarted) {
@@ -499,15 +506,17 @@ function CreateItem() {
         <Button
           variant="primary"
           type="submit"
-          isLoading={isSubmitting || isCheckingBalance}
-          isDisabled={(!isItemStarted && !title) || isCheckingBalance}
+          isLoading={isSubmitting}
+          isDisabled={!isItemStarted && !title}
           flex={1}
           px={6}
           py={3}
         >
-          {isCheckingBalance ? "Checking Balance..." : (isItemStarted ? "Update Item" : "Initialise Item")}
+          {isItemStarted ? "Update Item" : "Initialise Item"}
         </Button>
-        {(() => {
+        {/* TODO: Blockchain/NFT certificate functionality temporarily disabled */}
+        {/* Re-enable these buttons when blockchain features are needed again */}
+        {/* {(() => {
           const tokenId = watch("nft_token_id");
           console.log("Current nft_token_id value:", tokenId, "Type:", typeof tokenId);
           return tokenId === null || tokenId === undefined;
@@ -534,7 +543,7 @@ function CreateItem() {
           >
             View NFT Details
           </Button>
-        )}
+        )} */}
         <Button
           variant="outline"
           onClick={handleCancel}
@@ -547,8 +556,10 @@ function CreateItem() {
         </Button>
       </HStack>
 
+      {/* TODO: Blockchain/NFT certificate functionality temporarily disabled */}
+      {/* Re-enable this modal when blockchain features are needed again */}
       {/* NFT Details Modal */}
-      <Modal isOpen={isTokenModalOpen} onClose={onTokenModalClose} size="lg">
+      {/* <Modal isOpen={isTokenModalOpen} onClose={onTokenModalClose} size="lg">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>NFT Token Details</ModalHeader>
@@ -585,11 +596,13 @@ function CreateItem() {
             </VStack>
           </ModalBody>
         </ModalContent>
-      </Modal>
+      </Modal> */}
 
       {/* Success Alerts at Bottom */}
+      {/* TODO: Blockchain/NFT certificate functionality temporarily disabled */}
+      {/* Re-enable these alerts when blockchain features are needed again */}
       {/* NFT Success Alert */}
-      {(watch("nft_token_id") !== null && watch("nft_token_id") !== undefined && !isNftAlertDismissed) && (
+      {/* {(watch("nft_token_id") !== null && watch("nft_token_id") !== undefined && !isNftAlertDismissed) && (
         <Alert status="success" mt={4} position="relative">
           <AlertIcon />
           <Box flex="1">
@@ -605,10 +618,10 @@ function CreateItem() {
             onClick={() => setIsNftAlertDismissed(true)}
           />
         </Alert>
-      )}
+      )} */}
 
       {/* Balance Status Alert (only show success status) */}
-      {balanceMessage && balanceStatus === "success" && !isBalanceAlertDismissed && (
+      {/* {balanceMessage && balanceStatus === "success" && !isBalanceAlertDismissed && (
         <Alert status={balanceStatus} mt={4} position="relative">
           <AlertIcon />
           <Box flex="1">
@@ -622,7 +635,7 @@ function CreateItem() {
             onClick={() => setIsBalanceAlertDismissed(true)}
           />
         </Alert>
-      )}
+      )} */}
     </Box>
   );
 }
