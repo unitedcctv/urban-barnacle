@@ -45,13 +45,20 @@ class LogBufferHandler(logging.Handler):
 def setup_log_buffer() -> None:
     """Setup the log buffer handler."""
     buffer_handler = LogBufferHandler()
-    buffer_handler.setLevel(logging.INFO)
+    buffer_handler.setLevel(logging.DEBUG)  # Capture all levels
     formatter = logging.Formatter('%(message)s')
     buffer_handler.setFormatter(formatter)
     
     # Add to root logger to catch all logs
     root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)  # Ensure root logger captures everything
     root_logger.addHandler(buffer_handler)
+    
+    # Also add to specific loggers that might not propagate
+    for logger_name in ['uvicorn', 'uvicorn.error', 'uvicorn.access', 'app']:
+        logger = logging.getLogger(logger_name)
+        logger.addHandler(buffer_handler)
+        logger.setLevel(logging.INFO)
 
 
 @router.get("/recent")

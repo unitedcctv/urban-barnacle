@@ -86,9 +86,10 @@ function LogsPage() {
       return res.json()
     },
     refetchInterval: 5000, // Auto-refresh every 5 seconds
-    staleTime: 4000, // Consider data fresh for 4 seconds
+    staleTime: 5000, // Consider data fresh for full interval
     gcTime: 30000, // Keep in cache for 30 seconds (formerly cacheTime)
     retry: 1, // Only retry once on failure
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
   })
 
   // Fetch stats
