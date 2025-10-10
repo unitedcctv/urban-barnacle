@@ -10,3 +10,4 @@ barnacle_ssh.pem
 **/.venv
 **/.doc.json
 accounts
+scripts/test_bunnycdn.sh

@@ -108,6 +108,13 @@ class Settings(BaseSettings):
 
     @computed_field
     def bunnycdn_enabled(self) -> bool:
+        """
+        Enable CDN only in staging/production environments.
+        Development always uses local storage.
+        """
+        if self.ENVIRONMENT == "local":
+            return False
+        # Use CDN in staging/production if credentials are configured
         return bool(self.BUNNYCDN_STORAGE_ZONE and self.BUNNYCDN_API_KEY)
     
     @computed_field
