@@ -58,7 +58,7 @@ function LogsPage() {
   const apiBase = import.meta.env.VITE_API_URL ?? ""
 
   // Fetch logs
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["logs", limit, levelFilter],
     queryFn: async (): Promise<LogsResponse> => {
       const token = localStorage.getItem("access_token")
@@ -78,10 +78,17 @@ function LogsPage() {
         headers,
         credentials: "include",
       })
-      if (!res.ok) throw new Error("Failed to fetch logs")
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error("Failed to fetch logs:", res.status, errorText)
+        throw new Error(`Failed to fetch logs: ${res.status}`)
+      }
       return res.json()
     },
     refetchInterval: 5000, // Auto-refresh every 5 seconds
+    staleTime: 4000, // Consider data fresh for 4 seconds
+    gcTime: 30000, // Keep in cache for 30 seconds (formerly cacheTime)
+    retry: 1, // Only retry once on failure
   })
 
   // Fetch stats
@@ -100,10 +107,16 @@ function LogsPage() {
         headers,
         credentials: "include",
       })
-      if (!res.ok) throw new Error("Failed to fetch stats")
+      if (!res.ok) {
+        console.error("Failed to fetch stats:", res.status)
+        throw new Error("Failed to fetch stats")
+      }
       return res.json()
     },
     refetchInterval: 10000,
+    staleTime: 9000,
+    gcTime: 30000,
+    retry: 1,
   })
 
   const getLevelColor = (level: string) => {
@@ -162,9 +175,12 @@ function LogsPage() {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <HStack justify="space-between">
-          <Heading size="lg">Application Logs</Heading>
+          <Heading size="lg">
+            Application Logs
+            {isFetching && <Badge ml={2} colorScheme="blue">Refreshing...</Badge>}
+          </Heading>
           <HStack>
-            <Button onClick={() => refetch()} colorScheme="blue" size="sm">
+            <Button onClick={() => refetch()} colorScheme="blue" size="sm" isLoading={isFetching}>
               Refresh
             </Button>
             <Button onClick={handleClearLogs} colorScheme="red" size="sm">
@@ -226,7 +242,7 @@ function LogsPage() {
           borderColor={borderColor}
           overflowX="auto"
         >
-          {isLoading ? (
+          {isLoading && !data ? (
             <Box p={8} textAlign="center">
               <Text>Loading logs...</Text>
             </Box>
@@ -243,7 +259,7 @@ function LogsPage() {
               <Tbody>
                 {data?.logs && data.logs.length > 0 ? (
                   data.logs.map((log: LogEntry, idx: number) => (
-                    <Tr key={idx}>
+                    <Tr key={`${log.timestamp}-${idx}`}>
                       <Td fontSize="xs">
                         {new Date(log.timestamp).toLocaleString()}
                       </Td>
