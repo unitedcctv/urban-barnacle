@@ -42,6 +42,11 @@ jobs:
       # BunnyCDN Configuration
       BUNNYCDN_STORAGE_ZONE: ${{ vars.BUNNYCDN_STORAGE_ZONE }}
       BUNNYCDN_API_KEY: ${{ secrets.BUNNYCDN_API_KEY }}
+      # Social Media Links
+      VITE_MASTODON_URL: ${{ vars.VITE_MASTODON_URL }}
+      VITE_BLUESKY_URL: ${{ vars.VITE_BLUESKY_URL }}
+      VITE_REDDIT_URL: ${{ vars.VITE_REDDIT_URL }}
+      VITE_LINKEDIN_URL: ${{ vars.VITE_LINKEDIN_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

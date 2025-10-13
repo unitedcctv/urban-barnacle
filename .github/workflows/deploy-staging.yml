@@ -62,6 +62,11 @@ jobs:
       CONTRACT_DEPLOY_GAS_PRICE: ${{ vars.CONTRACT_DEPLOY_GAS_PRICE }}
       BLOCKCHAIN_ENABLED: ${{ vars.BLOCKCHAIN_ENABLED }}
       BLOCKCHAIN_AUTO_DEPLOY: ${{ vars.BLOCKCHAIN_AUTO_DEPLOY }}
+      # Social Media Links
+      VITE_MASTODON_URL: ${{ vars.VITE_MASTODON_URL }}
+      VITE_BLUESKY_URL: ${{ vars.VITE_BLUESKY_URL }}
+      VITE_REDDIT_URL: ${{ vars.VITE_REDDIT_URL }}
+      VITE_LINKEDIN_URL: ${{ vars.VITE_LINKEDIN_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
