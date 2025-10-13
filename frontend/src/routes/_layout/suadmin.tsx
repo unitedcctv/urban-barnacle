@@ -12,7 +12,6 @@ import {
   Button,
   useToast,
   Flex,
-  Link as ChakraLink,
 } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
@@ -222,14 +221,6 @@ function SuAdmin() {
         </Button>
         <Button as={Link} to="/logs" variant="primary">
           View Logs
-        </Button>
-        <Button 
-          as={ChakraLink} 
-          href={import.meta.env.VITE_SENTRY_URL || "https://sentry.io"} 
-          isExternal 
-          variant="primary"
-        >
-          Open Sentry
         </Button>
       </Flex>
     </Container>

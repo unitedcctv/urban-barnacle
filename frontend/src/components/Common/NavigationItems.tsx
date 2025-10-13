@@ -2,7 +2,7 @@ import { Flex, Icon, Text, Skeleton, useColorModeValue } from "@chakra-ui/react"
 import type { ElementType } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { FiTool, FiSettings, FiEye, FiDollarSign, FiFilePlus, FiHome, FiFileText } from "react-icons/fi";
+import { FiTool, FiSettings, FiEye, FiDollarSign, FiFilePlus, FiHome, FiFileText, FiUsers } from "react-icons/fi";
 import { FaCubes } from "react-icons/fa";
 import { useEffect } from "react";
 
@@ -59,6 +59,7 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
     FiFilePlus,
     FiHome,
     FiFileText,
+    FiUsers,
     FaCubes,
   };
 

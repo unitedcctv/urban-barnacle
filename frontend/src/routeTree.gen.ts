@@ -24,6 +24,7 @@ import { Route as LayoutLogsImport } from './routes/_layout/logs'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutGalleryImport } from './routes/_layout/gallery'
 import { Route as LayoutCreateitemImport } from './routes/_layout/createitem'
+import { Route as LayoutCommunityImport } from './routes/_layout/community'
 import { Route as LayoutBusinessplanImport } from './routes/_layout/businessplan'
 import { Route as LayoutPaymentSuccessImport } from './routes/_layout/payment/success'
 import { Route as LayoutPaymentCancelImport } from './routes/_layout/payment/cancel'
@@ -95,6 +96,11 @@ const LayoutCreateitemRoute = LayoutCreateitemImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutCommunityRoute = LayoutCommunityImport.update({
+  path: '/community',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutBusinessplanRoute = LayoutBusinessplanImport.update({
   path: '/businessplan',
   getParentRoute: () => LayoutRoute,
@@ -132,6 +138,10 @@ declare module '@tanstack/react-router' {
     }
     '/_layout/businessplan': {
       preLoaderRoute: typeof LayoutBusinessplanImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/community': {
+      preLoaderRoute: typeof LayoutCommunityImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/createitem': {
@@ -186,6 +196,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutBusinessplanRoute,
+    LayoutCommunityRoute,
     LayoutCreateitemRoute,
     LayoutGalleryRoute,
     LayoutItemRoute,
