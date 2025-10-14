@@ -1,6 +1,7 @@
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
@@ -41,6 +42,10 @@ if settings.all_cors_origins:
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+# Mount static files for local development (uploads directory)
+# Ensure the uploads directory exists
+settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
 
 # Convenience endpoint for front-end requesting current user
 from app.api.deps import CurrentUser  # noqa: E402  noqa: F401

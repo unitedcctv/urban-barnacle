@@ -142,17 +142,12 @@ class ItemPublic(ItemBase):
         if hasattr(item, 'item_images') and item.item_images:
             logger.info(f"Processing {len(item.item_images)} images for item {item.id}, environment: {settings.ENVIRONMENT}")
             for img in item.item_images:
-                # In development (local), always construct local download URL
-                # In staging/production, use the path as-is (CDN URL)
-                if settings.ENVIRONMENT == "local":
-                    # For local development, construct download URL
-                    url = f"{base_url}/api/v1/images/download/{img.id}"
-                    logger.info(f"Image {img.id}: local path={img.path}, constructed URL={url}")
-                    image_urls.append(url)
-                else:
-                    # For staging/production, use CDN URL directly
-                    logger.info(f"Image {img.id}: using CDN path={img.path}")
-                    image_urls.append(img.path)
+                # Storage module now returns proper URLs for both local and CDN
+                # Local: http://localhost:8000/uploads/images/filename.webp
+                # CDN: https://zone.b-cdn.net/images/filename.webp
+                # Just use the stored path directly
+                logger.info(f"Image {img.id}: using path={img.path}")
+                image_urls.append(img.path)
         
         return cls(
             id=item.id,

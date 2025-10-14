@@ -69,7 +69,7 @@ export default function Home() {
               <Heading size="lg" mb={2}>
                 {item.title ?? "Parallax Title"}
               </Heading>
-              <Text>This is a placeholder for text fields that can be populated later.</Text>
+              <Text>{item.description}</Text>
             </Box>
             </Flex>
           )
