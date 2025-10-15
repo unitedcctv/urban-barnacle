@@ -4,6 +4,7 @@ import { itemsReadItems } from "../../client/sdk.gen.ts"
 import { Box, Text, Heading, Flex } from "@chakra-ui/react"
 import ErrorPage from "../../components/Common/ErrorPage"
 import HoldingPage from "../../components/Common/HoldingPage"
+import LoadingLogo from "../../components/Common/LoadingLogo"
 
 export const Route = createFileRoute("/_layout/")({
     component: Home,
@@ -27,7 +28,11 @@ export default function Home() {
   })
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <Box height="100vh" display="flex" alignItems="center" justifyContent="center">
+        <LoadingLogo size="526px" />
+      </Box>
+    )
   }
 
   if (isError) {
