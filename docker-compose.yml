@@ -185,10 +185,6 @@ services:
       args:
         - VITE_API_URL=https://api.${DOMAIN?Variable not set}
         - NODE_ENV=production
-        - VITE_MASTODON_URL=${VITE_MASTODON_URL}
-        - VITE_BLUESKY_URL=${VITE_BLUESKY_URL}
-        - VITE_REDDIT_URL=${VITE_REDDIT_URL}
-        - VITE_LINKEDIN_URL=${VITE_LINKEDIN_URL}
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public

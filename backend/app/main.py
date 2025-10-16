@@ -28,6 +28,20 @@ async def startup_event() -> None:
     # Setup log buffer for viewing logs via HTTP
     from app.api.routes.logs import setup_log_buffer
     setup_log_buffer()
+    
+    # Start background scheduler for social media posts
+    from app.services.scheduler import start_scheduler, fetch_social_media_posts
+    start_scheduler()
+    
+    # Fetch social media posts immediately on startup
+    await fetch_social_media_posts()
+
+
+@app.on_event("shutdown")
+async def shutdown_event() -> None:
+    """Cleanup on application shutdown."""
+    from app.services.scheduler import shutdown_scheduler
+    shutdown_scheduler()
 
 
 # Set all CORS enabled origins

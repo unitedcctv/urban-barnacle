@@ -928,6 +928,121 @@ export const ProducersPublicSchema = {
   title: "ProducersPublic",
 } as const
 
+export const SocialPostPublicSchema = {
+  properties: {
+    id: {
+      type: "integer",
+      title: "Id",
+    },
+    platform: {
+      type: "string",
+      title: "Platform",
+    },
+    post_id: {
+      type: "string",
+      title: "Post Id",
+    },
+    author: {
+      type: "string",
+      title: "Author",
+    },
+    author_avatar: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Author Avatar",
+    },
+    content: {
+      type: "string",
+      title: "Content",
+    },
+    url: {
+      type: "string",
+      title: "Url",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    likes: {
+      type: "integer",
+      title: "Likes",
+    },
+    reposts: {
+      type: "integer",
+      title: "Reposts",
+    },
+    replies: {
+      type: "integer",
+      title: "Replies",
+    },
+  },
+  type: "object",
+  required: [
+    "id",
+    "platform",
+    "post_id",
+    "author",
+    "author_avatar",
+    "content",
+    "url",
+    "created_at",
+    "likes",
+    "reposts",
+    "replies",
+  ],
+  title: "SocialPostPublic",
+  description: "Schema for returning social media posts to the frontend",
+} as const
+
+export const SocialPostsResponseSchema = {
+  properties: {
+    mastodon: {
+      items: {
+        $ref: "#/components/schemas/SocialPostPublic",
+      },
+      type: "array",
+      title: "Mastodon",
+    },
+    bluesky: {
+      items: {
+        $ref: "#/components/schemas/SocialPostPublic",
+      },
+      type: "array",
+      title: "Bluesky",
+    },
+    reddit: {
+      items: {
+        $ref: "#/components/schemas/SocialPostPublic",
+      },
+      type: "array",
+      title: "Reddit",
+    },
+    linkedin: {
+      items: {
+        $ref: "#/components/schemas/SocialPostPublic",
+      },
+      type: "array",
+      title: "Linkedin",
+    },
+    last_updated: {
+      type: "string",
+      format: "date-time",
+      title: "Last Updated",
+    },
+  },
+  type: "object",
+  required: ["mastodon", "bluesky", "reddit", "linkedin", "last_updated"],
+  title: "SocialPostsResponse",
+  description: "Response containing posts from all platforms",
+} as const
+
 export const TokenSchema = {
   properties: {
     access_token: {

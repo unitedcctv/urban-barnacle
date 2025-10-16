@@ -57,6 +57,7 @@ services:
 
   # Backend with development overrides
   backend:
+    image: backend:dev  # Override to use local image name
     restart: "no"
     ports:
       - "8000:8000"
@@ -111,6 +112,7 @@ services:
 
   # Prestart (migrations/initial data) - runs automatically before backend starts
   prestart:
+    image: backend:dev  # Override to use local image name
     restart: "no"
 
   # Mailcatcher for email testing
@@ -122,6 +124,7 @@ services:
 
   # Frontend with development overrides
   frontend:
+    image: frontend:dev  # Override to use local image name
     restart: "no"
     ports:
       - "5173:80"

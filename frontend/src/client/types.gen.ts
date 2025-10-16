@@ -181,6 +181,34 @@ export type ProducerUpdate = {
   location?: string | null
 }
 
+/**
+ * Schema for returning social media posts to the frontend
+ */
+export type SocialPostPublic = {
+  id: number
+  platform: string
+  post_id: string
+  author: string
+  author_avatar: string | null
+  content: string
+  url: string
+  created_at: string
+  likes: number
+  reposts: number
+  replies: number
+}
+
+/**
+ * Response containing posts from all platforms
+ */
+export type SocialPostsResponse = {
+  mastodon: Array<SocialPostPublic>
+  bluesky: Array<SocialPostPublic>
+  reddit: Array<SocialPostPublic>
+  linkedin: Array<SocialPostPublic>
+  last_updated: string
+}
+
 export type Token = {
   access_token: string
   token_type?: string
@@ -567,6 +595,12 @@ export type AiDriveChangeWebhookData = {
 export type AiDriveChangeWebhookResponse = void
 
 export type BusinessPlanDownloadBusinessPlanResponse = unknown
+
+export type SocialMediaGetSocialPostsResponse = SocialPostsResponse
+
+export type SocialMediaRefreshSocialPostsResponse = {
+  [key: string]: unknown
+}
 
 export type PrivateCreateUserData = {
   requestBody: PrivateUserCreate

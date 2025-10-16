@@ -32,6 +32,8 @@ dependencies = [
     "eth-account>=0.10.0",
     # Payment processing
     "stripe>=7.0.0",
+    # Background tasks
+    "apscheduler>=3.10.4",
 ]
 
 [tool.uv]

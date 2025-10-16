@@ -104,6 +104,8 @@ import type {
   AiDriveChangeWebhookData,
   AiDriveChangeWebhookResponse,
   BusinessPlanDownloadBusinessPlanResponse,
+  SocialMediaGetSocialPostsResponse,
+  SocialMediaRefreshSocialPostsResponse,
   PrivateCreateUserData,
   PrivateCreateUserResponse,
   UsersApiCurrentUserResponse,
@@ -854,6 +856,7 @@ export const logsGetLogStats =
 
 /**
  * Upload Model
+ * Upload a 3D model file (.blend) and return the URL.
  * @param data The data for the request.
  * @param data.itemId
  * @param data.userId
@@ -881,6 +884,7 @@ export const modelsUploadModel = (
 
 /**
  * Get Model
+ * Get model filename for an item (note: simplified implementation).
  * @param data The data for the request.
  * @param data.itemId
  * @param data.userId
@@ -905,6 +909,7 @@ export const modelsGetModel = (
 
 /**
  * Delete Model
+ * Delete a model file by filename (supports both local and BunnyCDN).
  * @param data The data for the request.
  * @param data.itemId
  * @param data.userId
@@ -931,6 +936,7 @@ export const modelsDeleteModel = (
 
 /**
  * Download Model
+ * Download a model file by filename.
  * @param data The data for the request.
  * @param data.itemId
  * @param data.userId
@@ -957,6 +963,7 @@ export const modelsDownloadModel = (
 
 /**
  * Delete Item Model
+ * Delete all model files for an item (note: this endpoint may need refinement for BunnyCDN).
  * @param data The data for the request.
  * @param data.itemId
  * @returns string Successful Response
@@ -1331,6 +1338,36 @@ export const businessPlanDownloadBusinessPlan =
     return __request(OpenAPI, {
       method: "GET",
       url: "/api/v1/business-plan/download",
+    })
+  }
+
+/**
+ * Get Social Posts
+ * Get the latest social media posts from all platforms.
+ * Returns cached posts from the database.
+ * @returns SocialPostsResponse Successful Response
+ * @throws ApiError
+ */
+export const socialMediaGetSocialPosts =
+  (): CancelablePromise<SocialMediaGetSocialPostsResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/social/posts",
+    })
+  }
+
+/**
+ * Refresh Social Posts
+ * Manually trigger a refresh of social media posts.
+ * This endpoint can be called by superusers to force an update.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const socialMediaRefreshSocialPosts =
+  (): CancelablePromise<SocialMediaRefreshSocialPostsResponse> => {
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/api/v1/social/refresh",
     })
   }
 
