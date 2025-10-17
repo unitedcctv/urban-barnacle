@@ -1,6 +1,5 @@
 import {
   Container,
-  Heading,
   Flex,
   Button,
   Modal,
@@ -13,7 +12,6 @@ import {
   VStack,
   Divider,
   Box,
-  Text,
   Icon,
 } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
@@ -33,16 +31,6 @@ function UserSettings() {
   return (
     <Container maxW="6xl" py={8}>
       <VStack spacing={8} align="flex-start" w="full">
-        {/* Header */}
-        <Box w="full">
-          <Heading size="lg" textAlign={{ base: "center", md: "left" }} mb={2}>
-            User Settings
-          </Heading>
-          <Text color="gray.600" textAlign={{ base: "center", md: "left" }}>
-            Manage your account information and preferences
-          </Text>
-        </Box>
-
         {/* Main Settings Grid */}
         <Flex 
           gap={8} 

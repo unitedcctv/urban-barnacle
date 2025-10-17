@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Container,
-  Heading,
   HStack,
   Select,
   Table,
@@ -175,19 +174,13 @@ function LogsPage() {
     <Container maxW="container.xl" py={8}>
       <VStack spacing={6} align="stretch">
         {/* Header */}
-        <HStack justify="space-between">
-          <Heading size="lg">
-            Application Logs
-            {isFetching && <Badge ml={2} colorScheme="blue">Refreshing...</Badge>}
-          </Heading>
-          <HStack>
-            <Button onClick={() => refetch()} colorScheme="blue" size="sm" isLoading={isFetching}>
-              Refresh
-            </Button>
-            <Button onClick={handleClearLogs} colorScheme="red" size="sm">
-              Clear Buffer
-            </Button>
-          </HStack>
+        <HStack justify="flex-end">
+          <Button onClick={() => refetch()} colorScheme="blue" size="sm" isLoading={isFetching}>
+            Refresh
+          </Button>
+          <Button onClick={handleClearLogs} colorScheme="red" size="sm">
+            Clear Buffer
+          </Button>
         </HStack>
 
         {/* Stats */}

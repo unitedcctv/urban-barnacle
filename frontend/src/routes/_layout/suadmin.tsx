@@ -1,6 +1,5 @@
 import {
   Container,
-  Heading,
   SkeletonText,
   Table,
   TableContainer,
@@ -246,10 +245,6 @@ function SuAdmin() {
   };
   return (
     <Container maxW="full">
-      <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        Superuser Admin
-      </Heading>
-
       <Flex mb={4} gap={4} direction={{ base: "column", md: "row" }}>
         <Navbar type={"User"} addModalAs={AddUser} />
       </Flex>

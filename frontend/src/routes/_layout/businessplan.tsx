@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Box, Heading, Text, Button, HStack, useToast } from "@chakra-ui/react";
+import { Box, Text, Button, HStack, useToast } from "@chakra-ui/react";
 import { DownloadIcon } from "@chakra-ui/icons";
 import AskBusinessPlan from "../../components/Common/ask";
 
@@ -57,10 +57,7 @@ function BusinessPlan() {
 
   return (
     <Box p={8} maxW="4xl" mx="auto">
-      <HStack justify="space-between" align="center" mb={6}>
-        <Heading as="h1" size="lg">
-          Business Plan
-        </Heading>
+      <HStack justify="flex-end" align="center" mb={6}>
         <Button
           leftIcon={<DownloadIcon />}
           colorScheme="blue"

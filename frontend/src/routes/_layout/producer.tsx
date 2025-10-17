@@ -124,10 +124,6 @@ function Admin() {
 
   return (
     <Container maxW="full">
-      <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        Producer Admin
-      </Heading>
-
       <Box
         p={6}
         mt={6}
