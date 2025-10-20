@@ -1,9 +1,10 @@
-import { Tr, Td, Badge, Flex, Box, Button, Text } from "@chakra-ui/react"
+import { Tr, Td, Badge, Flex, Box, Text } from "@chakra-ui/react"
 import { UserPublic } from "../../client/types.gen"
 import Delete from "../Common/DeleteAlert"
 import EditUser from "../Admin/EditUser"
 import { useDisclosure } from "@chakra-ui/react"
 import editIcon from "../../theme/assets/icons/edit.svg"
+import deleteIcon from "../../theme/assets/icons/delete.svg"
 
 type UserRowProps = {
   user: UserPublic
@@ -68,34 +69,40 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
         </Flex>
       </Td>
       <Td>
-        <Button
-          onClick={deleteModal.onOpen}
-          cursor="pointer"
-          color="red.400"
-          borderRadius="50%"
-          h={12}
-          w={12}
-        >
-          X
-        </Button>
+        <Flex cursor="pointer" onClick={deleteModal.onOpen} w="24px" h="24px">
+          <img 
+            src={deleteIcon} 
+            alt="delete" 
+            style={{ 
+              width: "24px", 
+              height: "24px",
+              display: "block",
+              opacity: "0.6",
+              transition: "opacity 0.2s",
+              filter: "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+          />
+        </Flex>
       </Td>
       <Td>
-        <Button
-            onClick={editUserModal.onOpen}
-            cursor="pointer"
-            borderRadius="50%"
-            h={12}
-          >
+        <Flex cursor="pointer" onClick={editUserModal.onOpen} w="24px" h="24px">
           <img 
             src={editIcon} 
             alt="edit" 
             style={{ 
-              width: "20px", 
-              height: "20px",
-              filter: "brightness(0) saturate(100%)"
-            }} 
+              width: "24px", 
+              height: "24px",
+              display: "block",
+              opacity: "0.6",
+              transition: "opacity 0.2s",
+              filter: "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
           />
-        </Button>
+        </Flex>
       </Td>
       <Td>
         <EditUser

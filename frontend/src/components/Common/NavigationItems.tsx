@@ -10,7 +10,7 @@ import producersIcon from "../../theme/assets/icons/producers.svg";
 import settingsIcon from "../../theme/assets/icons/settings.svg";
 import suSettingsIcon from "../../theme/assets/icons/su_settings.svg";
 import businessIcon from "../../theme/assets/icons/business.svg";
-import editIcon from "../../theme/assets/icons/edit.svg";
+import addItemIcon from "../../theme/assets/icons/add_item.svg";
 
 interface NavigationItemsProps {
   onClose?: () => void;
@@ -67,7 +67,7 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
     settings: settingsIcon,
     su_settings: suSettingsIcon,
     business: businessIcon,
-    edit: editIcon,
+    add_item: addItemIcon,
   };
 
   if (isLoading) {
@@ -105,8 +105,12 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
           style={{ 
             width: "24px", 
             height: "24px",
-            filter: isActive ? "brightness(0) invert(1)" : "none"
-          }} 
+            filter: isActive ? "brightness(0) invert(1)" : "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)",
+            opacity: "0.6",
+            transition: "opacity 0.2s"
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
         />
         <Text ml={2} fontWeight={isActive ? "bold" : "300"}>
           {title}

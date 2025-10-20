@@ -43,7 +43,21 @@ function UserSettings() {
             <Button
                 variant="primary"
                 onClick={onOpen}
-                leftIcon={<img src={passwordIcon} alt="password" style={{ width: "20px", height: "20px" }} />}
+                leftIcon={
+                  <img 
+                    src={passwordIcon} 
+                    alt="password" 
+                    style={{ 
+                      width: "20px", 
+                      height: "20px",
+                      opacity: "0.6",
+                      transition: "opacity 0.2s",
+                      filter: "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+                  />
+                }
                 mt={4}
               >
                 Change Password

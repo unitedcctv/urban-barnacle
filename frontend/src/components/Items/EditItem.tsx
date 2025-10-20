@@ -5,6 +5,7 @@ import {
   FormLabel,
   Input,
   Box,
+  Flex,
   HStack,
   Text,
   // TODO: Blockchain/NFT - Re-enable these imports when blockchain features are needed
@@ -30,6 +31,7 @@ import { itemsUpdateItem, modelsUploadModel, modelsDeleteModel } from "../../cli
 import useCustomToast from "../../hooks/useCustomToast";
 import { handleError } from "../../utils";
 import { UserPublic } from "../../client";
+import deleteIcon from "../../theme/assets/icons/delete.svg";
 
 import ImagesUploader from "./ImagesUploader";
 
@@ -230,14 +232,27 @@ const EditItem = ({
               <Text fontSize="sm" color="green.500">
                 ✓ {currentModel}
               </Text>
-              <Button
-                size="sm"
-                variant="outline"
-                colorScheme="red"
+              <Flex 
+                cursor="pointer" 
                 onClick={handleModelDelete}
+                w="24px" 
+                h="24px"
               >
-                Delete
-              </Button>
+                <img 
+                  src={deleteIcon} 
+                  alt="delete" 
+                  style={{ 
+                    width: "24px", 
+                    height: "24px",
+                    display: "block",
+                    opacity: "0.6",
+                    transition: "opacity 0.2s",
+                    filter: "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)"
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+                />
+              </Flex>
             </HStack>
           </Box>
         ) : (

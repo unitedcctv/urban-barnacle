@@ -59,7 +59,7 @@ def get_navigation_items(
         items.append({"title": "Settings", "path": "/settings", "icon": "settings"})
 
         if user.is_active:
-            items.append({"title": "Create Item", "path": "/createitem", "icon": "edit"})
+            items.append({"title": "Create Item", "path": "/createitem", "icon": "add_item"})
 
         if UserPermission.SUPERUSER in user.permissions:
             items.insert(0, {"title": "SU Admin", "path": "/suadmin", "icon": "su_settings"})

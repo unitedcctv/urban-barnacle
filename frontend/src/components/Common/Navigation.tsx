@@ -14,7 +14,8 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { FiLogOut, FiMenu } from "react-icons/fi"
+import menuIcon from "../../theme/assets/icons/menu.svg"
+import logoutIcon from "../../theme/assets/icons/logout.svg"
 
 import type { UserPublic } from "../../client"
 import useAuth from "../../hooks/useAuth"
@@ -59,7 +60,7 @@ const Navigation = () => {
         position="absolute"
         fontSize="20px"
         m={4}
-        icon={<FiMenu />}
+        icon={<Icon as={menuIcon as unknown as ElementType} boxSize={16} color={logoColor} />}
       />
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
@@ -82,7 +83,19 @@ const Navigation = () => {
                   alignItems="center"
                   _hover={{ bg: secBgHover }}
                 >
-                  <FiLogOut />
+                  <img 
+                    src={logoutIcon} 
+                    alt="Logout" 
+                    style={{ 
+                      width: "20px", 
+                      height: "20px",
+                      opacity: "0.6",
+                      transition: "opacity 0.2s",
+                      filter: "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+                  />
                   <Text ml={2}>Log out</Text>
                 </Flex>
               </Box>

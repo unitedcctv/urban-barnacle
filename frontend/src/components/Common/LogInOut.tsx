@@ -1,7 +1,6 @@
 import React from "react"
 import {
   Flex,
-  Icon,
   Text,
   Modal,
   ModalOverlay,
@@ -11,7 +10,8 @@ import {
   ModalBody,
   useDisclosure,
 } from "@chakra-ui/react"
-import { FiLogOut, FiLogIn } from "react-icons/fi"
+import loginIcon from "../../theme/assets/icons/login.svg"
+import logoutIcon from "../../theme/assets/icons/logout.svg"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import type { UserPublic } from "../../client"
@@ -62,11 +62,36 @@ const LogInOut = () => {
       {currentUser?.is_active ? (
         <Flex p={2} onClick={handleLogout} align="center" cursor="pointer">
           <Text>Logout</Text>
-          <Icon ml={2} as={FiLogOut} alignSelf="center" />
+          <img 
+            src={logoutIcon} 
+            alt="Logout" 
+            style={{ 
+              width: "20px", 
+              height: "20px", 
+              marginLeft: "8px",
+              opacity: "0.6",
+              transition: "opacity 0.2s",
+              filter: "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+          />
         </Flex>
       ) : (
         <Flex onClick={onOpen} p={2} align="center" cursor="pointer">
-          <Icon as={FiLogIn} alignSelf="center" />
+          <img 
+            src={loginIcon} 
+            alt="Login" 
+            style={{ 
+              width: "20px", 
+              height: "20px",
+              opacity: "0.6",
+              transition: "opacity 0.2s",
+              filter: "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+          />
           <Text ml={2}>Login</Text>
         </Flex>
       )}

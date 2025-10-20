@@ -7,7 +7,9 @@ import {
   ListItem,
   useToast,
   Button,
+  Flex,
 } from "@chakra-ui/react"
+import deleteIcon from "../../theme/assets/icons/delete.svg"
 
 import {
   DndContext,
@@ -271,15 +273,31 @@ const SortableItem: React.FC<SortableItemProps> = ({ file, onDelete }) => {
   return (
     <ListItem ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <Box>{file.name}</Box>
-      <Button
+      <Flex 
         ml={4}
-        variant="outline"
-        colorScheme="red"
-        size="xs"
-        onClick={() => onDelete(file)}
+        cursor="pointer" 
+        onClick={(e) => {
+          e.stopPropagation()
+          onDelete(file)
+        }} 
+        w="24px" 
+        h="24px"
       >
-        Delete
-      </Button>
+        <img 
+          src={deleteIcon} 
+          alt="delete" 
+          style={{ 
+            width: "24px", 
+            height: "24px",
+            display: "block",
+            opacity: "0.6",
+            transition: "opacity 0.2s",
+            filter: "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)"
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+        />
+      </Flex>
     </ListItem>
   )
 }
