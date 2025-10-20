@@ -1,9 +1,9 @@
-import { Tr, Td, Badge, Flex, Box, Button, Icon, Text } from "@chakra-ui/react"
+import { Tr, Td, Badge, Flex, Box, Button, Text } from "@chakra-ui/react"
 import { UserPublic } from "../../client/types.gen"
 import Delete from "../Common/DeleteAlert"
 import EditUser from "../Admin/EditUser"
 import { useDisclosure } from "@chakra-ui/react"
-import { FiEdit } from "react-icons/fi"
+import editIcon from "../../theme/assets/icons/edit.svg"
 
 type UserRowProps = {
   user: UserPublic
@@ -86,7 +86,15 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
             borderRadius="50%"
             h={12}
           >
-          <Icon as={FiEdit} alignSelf="center" />
+          <img 
+            src={editIcon} 
+            alt="edit" 
+            style={{ 
+              width: "20px", 
+              height: "20px",
+              filter: "brightness(0) saturate(100%)"
+            }} 
+          />
         </Button>
       </Td>
       <Td>

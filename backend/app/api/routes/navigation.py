@@ -49,25 +49,25 @@ def get_navigation_items(
     user = _get_user_optional(session, authorization)
 
     items: list[NavigationItem] = [
-        {"title": "Gallery", "path": "/gallery", "icon": "FiEye"},
-        {"title": "Producers", "path": "/producers", "icon": "FaCubes"},
-        {"title": "Community", "path": "/community", "icon": "FiUsers"},
+        {"title": "Gallery", "path": "/gallery", "icon": "gallery"},
+        {"title": "Producers", "path": "/producers", "icon": "producers"},
+        {"title": "Community", "path": "/community", "icon": "community"},
     ]
 
     if user:
         # Logged-in users can create items.
-        items.append({"title": "Settings", "path": "/settings", "icon": "FiTool"})
+        items.append({"title": "Settings", "path": "/settings", "icon": "settings"})
 
         if user.is_active:
-            items.append({"title": "Create Item", "path": "/createitem", "icon": "FiFilePlus"})
+            items.append({"title": "Create Item", "path": "/createitem", "icon": "edit"})
 
         if UserPermission.SUPERUSER in user.permissions:
-            items.insert(0, {"title": "SU Admin", "path": "/suadmin", "icon": "FiTool"})
+            items.insert(0, {"title": "SU Admin", "path": "/suadmin", "icon": "su_settings"})
 
         if user.permissions in [UserPermission.INVESTOR, UserPermission.SUPERUSER]:
-            items.append({"title": "Business Plan", "path": "/businessplan", "icon": "FiDollarSign"})
+            items.append({"title": "Business Plan", "path": "/businessplan", "icon": "business"})
 
         if user.permissions == UserPermission.PRODUCER:
-            items.append({"title": "Home", "path": "/producer", "icon": "FiHome"})
+            items.append({"title": "Home", "path": "/producer", "icon": "producers"})
 
     return items

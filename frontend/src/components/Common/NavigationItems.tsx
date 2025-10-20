@@ -1,10 +1,16 @@
-import { Flex, Icon, Text, Skeleton, useColorModeValue } from "@chakra-ui/react";
-import type { ElementType } from "react";
+import { Flex, Text, Skeleton, useColorModeValue } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
-import { FiTool, FiSettings, FiEye, FiDollarSign, FiFilePlus, FiHome, FiFileText, FiUsers } from "react-icons/fi";
-import { FaCubes } from "react-icons/fa";
 import { useEffect } from "react";
+
+// Import custom SVG icons
+import galleryIcon from "../../theme/assets/icons/gallery.svg";
+import communityIcon from "../../theme/assets/icons/community.svg";
+import producersIcon from "../../theme/assets/icons/producers.svg";
+import settingsIcon from "../../theme/assets/icons/settings.svg";
+import suSettingsIcon from "../../theme/assets/icons/su_settings.svg";
+import businessIcon from "../../theme/assets/icons/business.svg";
+import editIcon from "../../theme/assets/icons/edit.svg";
 
 interface NavigationItemsProps {
   onClose?: () => void;
@@ -53,17 +59,15 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
   const activeBg = "ui.main"; // Use primary button color
   const activeText = "ui.light";
 
-  // map of icon names to components
-  const iconMap: Record<string, ElementType | (() => JSX.Element)> = {
-    FiEye,
-    FiTool,
-    FiSettings,
-    FiDollarSign,
-    FiFilePlus,
-    FiHome,
-    FiFileText,
-    FiUsers,
-    FaCubes,
+  // Map icon names to SVG file paths
+  const iconMap: Record<string, string> = {
+    gallery: galleryIcon,
+    community: communityIcon,
+    producers: producersIcon,
+    settings: settingsIcon,
+    su_settings: suSettingsIcon,
+    business: businessIcon,
+    edit: editIcon,
   };
 
   if (isLoading) {
@@ -76,7 +80,7 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
   }
 
   const listItems = items.map(({ icon: iconName, title, path }: NavigationItem) => {
-    const IconComp = iconMap[iconName] ?? FiEye;
+    const iconSrc = iconMap[iconName] ?? galleryIcon;
     const isActive = location.pathname === path;
     
     return (
@@ -84,7 +88,7 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
         as={Link}
         to={path}
         px={4}
-        py={2}
+        py={0}
         key={title}
         bg={isActive ? activeBg : "transparent"}
         color={isActive ? activeText : textColor}
@@ -93,13 +97,17 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
         align="center"
         cursor={isActive ? "default" : "pointer"}
         pointerEvents={isActive ? "none" : "auto"}
-        h="60px"
+        h="52px"
       >
-        {typeof IconComp === "function" ? (
-          <IconComp />
-        ) : (
-          <Icon as={IconComp} alignSelf="center" />
-        )}
+        <img 
+          src={iconSrc} 
+          alt={title}
+          style={{ 
+            width: "24px", 
+            height: "24px",
+            filter: isActive ? "brightness(0) invert(1)" : "none"
+          }} 
+        />
         <Text ml={2} fontWeight={isActive ? "bold" : "300"}>
           {title}
         </Text>

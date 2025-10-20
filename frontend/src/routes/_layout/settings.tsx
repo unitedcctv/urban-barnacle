@@ -12,10 +12,9 @@ import {
   VStack,
   Divider,
   Box,
-  Icon,
 } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
-import { FiLock } from "react-icons/fi"
+import passwordIcon from "../../theme/assets/icons/password.svg"
 import UserInformation from "../../components/UserSettings/UserInformation"
 import Appearance from "../../components/UserSettings/Appearance"
 import ChangePassword from "../../components/UserSettings/ChangePassword"
@@ -44,7 +43,7 @@ function UserSettings() {
             <Button
                 variant="primary"
                 onClick={onOpen}
-                leftIcon={<Icon as={FiLock} />}
+                leftIcon={<img src={passwordIcon} alt="password" style={{ width: "20px", height: "20px" }} />}
                 mt={4}
               >
                 Change Password

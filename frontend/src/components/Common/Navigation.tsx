@@ -109,7 +109,7 @@ const Navigation = () => {
         align="center"
         bg={secBgColor}
         p={4}
-        h="60px"
+        h="52px"
         w="100%"
         padding={0}
         position="fixed"
