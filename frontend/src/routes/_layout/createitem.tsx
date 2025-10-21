@@ -568,7 +568,7 @@ function CreateItem() {
             <VStack spacing={4} align="stretch">
               <Box>
                 <Text fontWeight="bold" mb={2}>Token ID</Text>
-                <Badge colorScheme="blue" fontSize="md" p={2}>
+                <Badge colorScheme="gray" fontSize="md" p={2}>
                   {watch("nft_token_id") || "Not available"}
                 </Badge>
               </Box>

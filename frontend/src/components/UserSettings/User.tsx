@@ -25,7 +25,7 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
         {permissionArray.map((permission) => (
           <Box
             key={permission}
-            bg="blue.500"
+            bg="gray.500"
             color="white"
             px={3}
             py={1}
@@ -73,16 +73,25 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
           <img 
             src={deleteIcon} 
             alt="delete" 
+            className="hover-icon"
             style={{ 
               width: "24px", 
               height: "24px",
               display: "block",
               opacity: "0.6",
-              transition: "opacity 0.2s",
+              transition: "all 0.2s ease",
               filter: "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)"
             }}
-            onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
-            onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = "1";
+              e.currentTarget.style.transform = "scale(1.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = "0.6";
+              e.currentTarget.style.transform = "scale(1)";
+            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+            onMouseUp={(e) => e.currentTarget.style.transform = "scale(1.15)"}
           />
         </Flex>
       </Td>
@@ -91,16 +100,27 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
           <img 
             src={editIcon} 
             alt="edit" 
+            className="hover-icon"
             style={{ 
               width: "24px", 
               height: "24px",
               display: "block",
               opacity: "0.6",
-              transition: "opacity 0.2s",
-              filter: "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
+              transition: "all 0.2s ease",
+              filter: "brightness(0) saturate(0%) invert(60%)"
             }}
-            onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
-            onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = "1";
+              e.currentTarget.style.transform = "scale(1.15)";
+              e.currentTarget.style.filter = "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = "0.6";
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.filter = "brightness(0) saturate(0%) invert(60%)";
+            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+            onMouseUp={(e) => e.currentTarget.style.transform = "scale(1.15)"}
           />
         </Flex>
       </Td>

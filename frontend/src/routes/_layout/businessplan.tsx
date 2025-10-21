@@ -59,12 +59,24 @@ function BusinessPlan() {
     <Box p={8} maxW="4xl" mx="auto">
       <HStack justify="flex-end" align="center" mb={6}>
         <Button
-          leftIcon={<DownloadIcon />}
+          leftIcon={<DownloadIcon color="gray.500" />}
           colorScheme="blue"
           bg="ui.main"
           color="white"
           _hover={{ bg: "ui.dark" }}
           onClick={handleDownloadPDF}
+          sx={{
+            '& svg': {
+              transition: 'all 0.2s ease',
+            },
+            '&:hover svg': {
+              color: '#4a90e2',
+              transform: 'scale(1.15)',
+            },
+            '&:active svg': {
+              transform: 'scale(1.05)',
+            },
+          }}
         >
           Download PDF
         </Button>

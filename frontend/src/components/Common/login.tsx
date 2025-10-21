@@ -92,15 +92,22 @@ function Login({ onClose, openSignUp }: LoginProps) {
               required
             />
             <InputRightElement
-              color="ui.dim"
+              color="gray.500"
               _hover={{
                 cursor: "pointer",
+                color: "#4a90e2",
+                transform: "scale(1.15)",
               }}
+              _active={{
+                transform: "scale(1.05)",
+              }}
+              transition="all 0.2s ease"
             >
               <Icon
                 as={show ? ViewOffIcon : ViewIcon}
                 onClick={setShow.toggle}
                 aria-label={show ? "Hide password" : "Show password"}
+                className="hover-icon"
               >
                 {show ? <ViewOffIcon /> : <ViewIcon />}
               </Icon>

@@ -98,19 +98,47 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
         cursor={isActive ? "default" : "pointer"}
         pointerEvents={isActive ? "none" : "auto"}
         h="52px"
+        onMouseEnter={(e) => {
+          if (isActive) return;
+          const img = e.currentTarget.querySelector('img');
+          if (img) {
+            img.style.opacity = "1";
+            img.style.transform = "scale(1.15)";
+            img.style.filter = "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)";
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (isActive) return;
+          const img = e.currentTarget.querySelector('img');
+          if (img) {
+            img.style.opacity = "0.6";
+            img.style.transform = "scale(1)";
+            img.style.filter = "brightness(0) saturate(0%) invert(60%)";
+          }
+        }}
+        onMouseDown={(e) => {
+          if (isActive) return;
+          const img = e.currentTarget.querySelector('img');
+          if (img) img.style.transform = "scale(1.05)";
+        }}
+        onMouseUp={(e) => {
+          if (isActive) return;
+          const img = e.currentTarget.querySelector('img');
+          if (img) img.style.transform = "scale(1.15)";
+        }}
       >
         <img 
           src={iconSrc} 
           alt={title}
+          className="hover-icon"
           style={{ 
             width: "24px", 
             height: "24px",
-            filter: isActive ? "brightness(0) invert(1)" : "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)",
+            filter: isActive ? "brightness(0) invert(1)" : "brightness(0) saturate(0%) invert(60%)",
             opacity: "0.6",
-            transition: "opacity 0.2s"
+            transition: "all 0.2s ease",
+            pointerEvents: "none"
           }}
-          onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
         />
         <Text ml={2} fontWeight={isActive ? "bold" : "300"}>
           {title}

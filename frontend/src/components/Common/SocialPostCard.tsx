@@ -79,16 +79,58 @@ const SocialPostCard = ({ post }: SocialPostCardProps) => {
       </Link>
 
       <HStack spacing={4} mt="auto" pt={2} borderTop="1px" borderColor="gray.100">
-        <HStack spacing={1}>
-          <Icon as={FaHeart} boxSize={3} color="gray.500" />
+        <HStack 
+          spacing={1}
+          sx={{
+            '& svg': {
+              transition: 'all 0.2s ease',
+            },
+            '&:hover svg': {
+              color: '#4a90e2',
+              transform: 'scale(1.15)',
+            },
+            '&:active svg': {
+              transform: 'scale(1.05)',
+            },
+          }}
+        >
+          <Icon as={FaHeart} boxSize={3} color="gray.500" className="hover-icon" />
           <Text fontSize="xs" color="gray.600">{post.likes}</Text>
         </HStack>
-        <HStack spacing={1}>
-          <Icon as={FaRetweet} boxSize={3} color="gray.500" />
+        <HStack 
+          spacing={1}
+          sx={{
+            '& svg': {
+              transition: 'all 0.2s ease',
+            },
+            '&:hover svg': {
+              color: '#4a90e2',
+              transform: 'scale(1.15)',
+            },
+            '&:active svg': {
+              transform: 'scale(1.05)',
+            },
+          }}
+        >
+          <Icon as={FaRetweet} boxSize={3} color="gray.500" className="hover-icon" />
           <Text fontSize="xs" color="gray.600">{post.reposts}</Text>
         </HStack>
-        <HStack spacing={1}>
-          <Icon as={FaComment} boxSize={3} color="gray.500" />
+        <HStack 
+          spacing={1}
+          sx={{
+            '& svg': {
+              transition: 'all 0.2s ease',
+            },
+            '&:hover svg': {
+              color: '#4a90e2',
+              transform: 'scale(1.15)',
+            },
+            '&:active svg': {
+              transform: 'scale(1.05)',
+            },
+          }}
+        >
+          <Icon as={FaComment} boxSize={3} color="gray.500" className="hover-icon" />
           <Text fontSize="xs" color="gray.600">{post.replies}</Text>
         </HStack>
       </HStack>

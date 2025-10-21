@@ -20,6 +20,19 @@ const Navbar = ({ type, addModalAs }: NavbarProps) => {
           gap={1}
           fontSize={{ base: "sm", md: "inherit" }}
           onClick={addModal.onOpen}
+          sx={{
+            '& svg': {
+              color: 'gray.500',
+              transition: 'all 0.2s ease',
+            },
+            '&:hover svg': {
+              color: '#4a90e2',
+              transform: 'scale(1.15)',
+            },
+            '&:active svg': {
+              transform: 'scale(1.05)',
+            },
+          }}
         >
           <Icon as={FaPlus} /> Add {type}
         </Button>
