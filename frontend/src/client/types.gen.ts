@@ -145,11 +145,20 @@ export type NavigationItem = {
   title: string
   path: string
   icon: string
+  action: string | null
 }
 
 export type NewPassword = {
   token: string
   new_password: string
+}
+
+/**
+ * Data for a single platform including posts and error status
+ */
+export type PlatformData = {
+  posts: Array<SocialPostPublic>
+  error?: string | null
 }
 
 export type PrivateUserCreate = {
@@ -202,10 +211,10 @@ export type SocialPostPublic = {
  * Response containing posts from all platforms
  */
 export type SocialPostsResponse = {
-  mastodon: Array<SocialPostPublic>
-  bluesky: Array<SocialPostPublic>
-  reddit: Array<SocialPostPublic>
-  linkedin: Array<SocialPostPublic>
+  mastodon: PlatformData
+  bluesky: PlatformData
+  reddit: PlatformData
+  linkedin: PlatformData
   last_updated: string
 }
 
@@ -536,6 +545,8 @@ export type PaymentsPaymentCancelResponse = unknown
 export type PaymentsStripeWebhookResponse = unknown
 
 export type PaymentsGetStripeConfigResponse = unknown
+
+export type ProducersReadMyProducerResponse = ProducerPublic | null
 
 export type ProducersReadProducersData = {
   limit?: number

@@ -1,0 +1,134 @@
+import { useEffect } from "react";
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+} from "@chakra-ui/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type SubmitHandler, useForm } from "react-hook-form";
+
+import { type ProducerPublic, type ProducerUpdate } from "../../client/types.gen";
+import { producersUpdateProducer } from "../../client/sdk.gen";
+import type { ApiError } from "../../client/core/ApiError";
+import useCustomToast from "../../hooks/useCustomToast";
+import { handleError } from "../../utils";
+
+interface EditProducerProps {
+  producer: ProducerPublic;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const EditProducer = ({ producer, isOpen, onClose }: EditProducerProps) => {
+  const queryClient = useQueryClient();
+  const showToast = useCustomToast();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting, isDirty },
+  } = useForm<ProducerUpdate>({
+    mode: "onBlur",
+    criteriaMode: "all",
+    defaultValues: producer,
+  });
+
+  useEffect(() => {
+    reset(producer);
+  }, [producer, reset]);
+
+  const mutation = useMutation({
+    mutationFn: (data: ProducerUpdate) =>
+      producersUpdateProducer({ id: producer.id, requestBody: data }),
+    onSuccess: () => {
+      showToast("Success!", "Producer profile updated successfully.", "success");
+      onClose();
+    },
+    onError: (err: ApiError) => {
+      handleError(err, showToast);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["producers"] });
+      queryClient.invalidateQueries({ queryKey: ["myProducer"] });
+    },
+  });
+
+  const onSubmit: SubmitHandler<ProducerUpdate> = (data) => {
+    mutation.mutate(data);
+  };
+
+  return (
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} size={{ base: "sm", md: "md" }} isCentered>
+        <ModalOverlay />
+        <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
+          <ModalHeader>Edit Producer Profile</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6} w="100%">
+            <FormControl isRequired isInvalid={!!errors.name}>
+              <FormLabel htmlFor="name">Producer Name</FormLabel>
+              <Input
+                id="name"
+                {...register("name", {
+                  required: "Producer name is required",
+                  minLength: {
+                    value: 1,
+                    message: "Name must be at least 1 character",
+                  },
+                  maxLength: {
+                    value: 255,
+                    message: "Name must be at most 255 characters",
+                  },
+                })}
+                placeholder="Producer Name"
+                type="text"
+              />
+              {errors.name && (
+                <FormErrorMessage>{errors.name.message}</FormErrorMessage>
+              )}
+            </FormControl>
+            <FormControl mt={4} isInvalid={!!errors.location}>
+              <FormLabel htmlFor="location">Location</FormLabel>
+              <Input
+                id="location"
+                {...register("location", {
+                  maxLength: {
+                    value: 255,
+                    message: "Location must be at most 255 characters",
+                  },
+                })}
+                placeholder="Location"
+                type="text"
+              />
+              {errors.location && (
+                <FormErrorMessage>{errors.location.message}</FormErrorMessage>
+              )}
+            </FormControl>
+          </ModalBody>
+          <ModalFooter gap={3}>
+            <Button 
+              variant="primary" 
+              type="submit" 
+              isLoading={isSubmitting}
+              isDisabled={!isDirty}
+            >
+              Save Changes
+            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
+
+export default EditProducer;

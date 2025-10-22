@@ -83,6 +83,7 @@ import type {
   PaymentsPaymentCancelResponse,
   PaymentsStripeWebhookResponse,
   PaymentsGetStripeConfigResponse,
+  ProducersReadMyProducerResponse,
   ProducersReadProducersData,
   ProducersReadProducersResponse,
   ProducersCreateProducerData,
@@ -1072,6 +1073,20 @@ export const paymentsGetStripeConfig =
   }
 
 /**
+ * Read My Producer
+ * Get current user's producer profile.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const producersReadMyProducer =
+  (): CancelablePromise<ProducersReadMyProducerResponse> => {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/producers/me",
+    })
+  }
+
+/**
  * Read Producers
  * Retrieve producers.
  * @param data The data for the request.
@@ -1145,7 +1160,7 @@ export const producersReadProducer = (
 /**
  * Update Producer
  * Update a producer.
- * Only users with producer permissions can update producers.
+ * Only users with producer permissions can update their own producer profile.
  * @param data The data for the request.
  * @param data.id
  * @param data.requestBody
@@ -1172,7 +1187,7 @@ export const producersUpdateProducer = (
 /**
  * Delete Producer
  * Delete a producer.
- * Only users with producer permissions can delete producers.
+ * Only users can delete their own producer profile.
  * @param data The data for the request.
  * @param data.id
  * @returns Message Successful Response
@@ -1359,7 +1374,7 @@ export const socialMediaGetSocialPosts =
 /**
  * Refresh Social Posts
  * Manually trigger a refresh of social media posts.
- * This endpoint can be called by superusers to force an update.
+ * This endpoint can only be called by superusers to force an update.
  * @returns unknown Successful Response
  * @throws ApiError
  */

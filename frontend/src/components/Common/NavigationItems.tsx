@@ -1,5 +1,5 @@
-import { Flex, Text, Skeleton, useColorModeValue } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
+import { Flex, Text, Skeleton, useColorModeValue, useDisclosure } from "@chakra-ui/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -11,6 +11,13 @@ import settingsIcon from "../../theme/assets/icons/settings.svg";
 import suSettingsIcon from "../../theme/assets/icons/su_settings.svg";
 import businessIcon from "../../theme/assets/icons/business.svg";
 import addItemIcon from "../../theme/assets/icons/add_item.svg";
+import producerEditIcon from "../../theme/assets/icons/producer_edit.svg";
+
+// Import modals
+import AddProducer from "../Producers/AddProducer";
+import EditProducer from "../Producers/EditProducer";
+import { producersReadMyProducer } from "../../client/sdk.gen";
+import type { UserPublic } from "../../client/types.gen";
 
 interface NavigationItemsProps {
   onClose?: () => void;
@@ -22,7 +29,8 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
   interface NavigationItem {
     title: string;
     path: string;
-    icon: string; // e.g., 'logo', 'FiEye'
+    icon: string;
+    action?: string | null; // 'modal' for modal actions, null/undefined for navigation
   }
 
   const apiBase = import.meta.env.VITE_API_URL ?? "";
@@ -68,7 +76,22 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
     su_settings: suSettingsIcon,
     business: businessIcon,
     add_item: addItemIcon,
+    producer_edit: producerEditIcon,
   };
+
+  const queryClient = useQueryClient();
+  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"]);
+  const addProducerModal = useDisclosure();
+  const editProducerModal = useDisclosure();
+  
+  // Fetch producer profile if user has producer permissions
+  const isProducer = currentUser?.permissions === "producer" || currentUser?.permissions === "superuser";
+  const { data: myProducer } = useQuery({
+    queryKey: ["myProducer"],
+    queryFn: () => producersReadMyProducer(),
+    enabled: isProducer,
+  });
+  const hasProducerProfile = !!myProducer;
 
   if (isLoading) {
     return <Skeleton w="full" h="40px" />;
@@ -79,11 +102,96 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
     return null;
   }
 
-  const listItems = items.map(({ icon: iconName, title, path }: NavigationItem) => {
+  const listItems = items.map(({ icon: iconName, title, path, action }: NavigationItem) => {
     const iconSrc = iconMap[iconName] ?? galleryIcon;
-    const isActive = location.pathname === path;
+    const isActive = location.pathname === path && !action;
+    const isModalAction = action === "modal";
     
-    return (
+    const handleClick = (e: React.MouseEvent) => {
+      if (isModalAction) {
+        e.preventDefault();
+        if (title.includes("Edit")) {
+          editProducerModal.onOpen();
+        } else if (title.includes("Create")) {
+          addProducerModal.onOpen();
+        }
+      } else {
+        onClose?.();
+      }
+    };
+    
+    const iconElement = (
+      <img 
+        src={iconSrc} 
+        alt={title}
+        className="hover-icon"
+        style={{ 
+          width: "24px", 
+          height: "24px",
+          filter: isActive ? "brightness(0) invert(1)" : "brightness(0) saturate(0%) invert(60%)",
+          opacity: "0.6",
+          transition: "all 0.2s ease",
+          pointerEvents: "none"
+        }}
+      />
+    );
+    
+    const textElement = (
+      <Text ml={2} fontWeight={isActive ? "bold" : "300"}>
+        {title}
+      </Text>
+    );
+    
+    const mouseHandlers = {
+      onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isActive) return;
+        const img = e.currentTarget.querySelector('img');
+        if (img) {
+          img.style.opacity = "1";
+          img.style.transform = "scale(1.15)";
+          img.style.filter = "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)";
+        }
+      },
+      onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isActive) return;
+        const img = e.currentTarget.querySelector('img');
+        if (img) {
+          img.style.opacity = "0.6";
+          img.style.transform = "scale(1)";
+          img.style.filter = "brightness(0) saturate(0%) invert(60%)";
+        }
+      },
+      onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isActive) return;
+        const img = e.currentTarget.querySelector('img');
+        if (img) img.style.transform = "scale(1.05)";
+      },
+      onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isActive) return;
+        const img = e.currentTarget.querySelector('img');
+        if (img) img.style.transform = "scale(1.15)";
+      },
+    };
+    
+    return isModalAction ? (
+      <Flex
+        as="button"
+        px={4}
+        py={0}
+        key={title}
+        bg="transparent"
+        color={textColor}
+        _hover={{ bg: bgHover }}
+        onClick={handleClick}
+        align="center"
+        cursor="pointer"
+        h="52px"
+        {...mouseHandlers}
+      >
+        {iconElement}
+        {textElement}
+      </Flex>
+    ) : (
       <Flex
         as={Link}
         to={path}
@@ -93,71 +201,42 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
         bg={isActive ? activeBg : "transparent"}
         color={isActive ? activeText : textColor}
         _hover={isActive ? {} : { bg: bgHover }}
-        onClick={onClose}
+        onClick={handleClick}
         align="center"
         cursor={isActive ? "default" : "pointer"}
         pointerEvents={isActive ? "none" : "auto"}
         h="52px"
-        onMouseEnter={(e) => {
-          if (isActive) return;
-          const img = e.currentTarget.querySelector('img');
-          if (img) {
-            img.style.opacity = "1";
-            img.style.transform = "scale(1.15)";
-            img.style.filter = "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)";
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (isActive) return;
-          const img = e.currentTarget.querySelector('img');
-          if (img) {
-            img.style.opacity = "0.6";
-            img.style.transform = "scale(1)";
-            img.style.filter = "brightness(0) saturate(0%) invert(60%)";
-          }
-        }}
-        onMouseDown={(e) => {
-          if (isActive) return;
-          const img = e.currentTarget.querySelector('img');
-          if (img) img.style.transform = "scale(1.05)";
-        }}
-        onMouseUp={(e) => {
-          if (isActive) return;
-          const img = e.currentTarget.querySelector('img');
-          if (img) img.style.transform = "scale(1.15)";
-        }}
+        {...mouseHandlers}
       >
-        <img 
-          src={iconSrc} 
-          alt={title}
-          className="hover-icon"
-          style={{ 
-            width: "24px", 
-            height: "24px",
-            filter: isActive ? "brightness(0) invert(1)" : "brightness(0) saturate(0%) invert(60%)",
-            opacity: "0.6",
-            transition: "all 0.2s ease",
-            pointerEvents: "none"
-          }}
-        />
-        <Text ml={2} fontWeight={isActive ? "bold" : "300"}>
-          {title}
-        </Text>
+        {iconElement}
+        {textElement}
       </Flex>
     );
   });
 
   // Use a lighter background in both modes:
   return (
-    <Flex
-      flexDir="row"
-      gap={4}
-      w="100%"
-      alignContent="center"
-      bg={containerBg}
-    >
-      {listItems}
-    </Flex>
+    <>
+      <Flex
+        flexDir="row"
+        gap={4}
+        w="100%"
+        alignContent="center"
+        bg={containerBg}
+      >
+        {listItems}
+      </Flex>
+      
+      {/* Producer Modals */}
+      <AddProducer isOpen={addProducerModal.isOpen} onClose={addProducerModal.onClose} />
+      {hasProducerProfile && myProducer && (
+        <EditProducer 
+          producer={myProducer} 
+          isOpen={editProducerModal.isOpen} 
+          onClose={editProducerModal.onClose} 
+        />
+      )}
+    </>
   );
 };
 

@@ -69,7 +69,28 @@ const Navigation = () => {
           <DrawerBody py={8}>
             <Flex flexDir="column" justify="space-between">
               <Box>
-                <ChakraFlex as={Link} to="/" align="center" mb={4} _hover={{ textDecoration: "none" }} onClick={onClose}>
+                <ChakraFlex 
+                  as={Link} 
+                  to="/" 
+                  align="center" 
+                  mb={4} 
+                  _hover={{ textDecoration: "none" }} 
+                  onClick={onClose}
+                  sx={{
+                    '& img, & svg': {
+                      transition: 'all 0.2s ease',
+                      opacity: '0.6',
+                    },
+                    '&:hover img, &:hover svg': {
+                      transform: 'scale(1.15)',
+                      opacity: '1',
+                      filter: 'brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)',
+                    },
+                    '&:active img, &:active svg': {
+                      transform: 'scale(1.05)',
+                    },
+                  }}
+                >
                   <UBLogo />
                   <Text ml={2} fontWeight="200" color={textColor} whiteSpace="nowrap" noOfLines={1}>Urban Barnacle</Text>
                 </ChakraFlex> 
@@ -128,7 +149,26 @@ const Navigation = () => {
         position="fixed"
         top="0"
       >
-        <ChakraFlex as={Link} to="/" align="center" _hover={{ textDecoration: "none" }}>
+        <ChakraFlex 
+          as={Link} 
+          to="/" 
+          align="center" 
+          _hover={{ textDecoration: "none" }}
+          sx={{
+            '& img, & svg': {
+              transition: 'all 0.2s ease',
+              opacity: '0.6',
+            },
+            '&:hover img, &:hover svg': {
+              transform: 'scale(1.15)',
+              opacity: '1',
+              filter: 'brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)',
+            },
+            '&:active img, &:active svg': {
+              transform: 'scale(1.05)',
+            },
+          }}
+        >
           <UBLogo />
           <Text ml={3} fontWeight="200" noOfLines={1}>UBDM</Text>
         </ChakraFlex>

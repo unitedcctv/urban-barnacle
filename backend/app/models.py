@@ -266,10 +266,13 @@ class ProducerUpdate(ProducerBase):
 # Database model, database table inferred from class name
 class Producer(ProducerBase, table=True):  # type: ignore[call-arg]
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="user.id")
     created_at: datetime = Field(
         default_factory=datetime.utcnow,
         sa_column=Column(DateTime, nullable=False)
     )
+    # Relationship to user who owns this producer profile
+    user: Optional["User"] = Relationship()
     # Relationship to items produced by this producer
     produced_items: list["Item"] = Relationship(back_populates="producer")
     # Relationship to reviews for this producer

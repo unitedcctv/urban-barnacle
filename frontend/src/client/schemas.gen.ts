@@ -766,9 +766,20 @@ export const NavigationItemSchema = {
       type: "string",
       title: "Icon",
     },
+    action: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Action",
+    },
   },
   type: "object",
-  required: ["title", "path", "icon"],
+  required: ["title", "path", "icon", "action"],
   title: "NavigationItem",
 } as const
 
@@ -788,6 +799,33 @@ export const NewPasswordSchema = {
   type: "object",
   required: ["token", "new_password"],
   title: "NewPassword",
+} as const
+
+export const PlatformDataSchema = {
+  properties: {
+    posts: {
+      items: {
+        $ref: "#/components/schemas/SocialPostPublic",
+      },
+      type: "array",
+      title: "Posts",
+    },
+    error: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Error",
+    },
+  },
+  type: "object",
+  required: ["posts"],
+  title: "PlatformData",
+  description: "Data for a single platform including posts and error status",
 } as const
 
 export const PrivateUserCreateSchema = {
@@ -1004,32 +1042,16 @@ export const SocialPostPublicSchema = {
 export const SocialPostsResponseSchema = {
   properties: {
     mastodon: {
-      items: {
-        $ref: "#/components/schemas/SocialPostPublic",
-      },
-      type: "array",
-      title: "Mastodon",
+      $ref: "#/components/schemas/PlatformData",
     },
     bluesky: {
-      items: {
-        $ref: "#/components/schemas/SocialPostPublic",
-      },
-      type: "array",
-      title: "Bluesky",
+      $ref: "#/components/schemas/PlatformData",
     },
     reddit: {
-      items: {
-        $ref: "#/components/schemas/SocialPostPublic",
-      },
-      type: "array",
-      title: "Reddit",
+      $ref: "#/components/schemas/PlatformData",
     },
     linkedin: {
-      items: {
-        $ref: "#/components/schemas/SocialPostPublic",
-      },
-      type: "array",
-      title: "Linkedin",
+      $ref: "#/components/schemas/PlatformData",
     },
     last_updated: {
       type: "string",
