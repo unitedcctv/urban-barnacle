@@ -1,5 +1,5 @@
-import { Flex, Text, Skeleton, useColorModeValue, useDisclosure } from "@chakra-ui/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Flex, Text, Skeleton, useColorModeValue } from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -13,12 +13,6 @@ import businessIcon from "../../theme/assets/icons/business.svg";
 import addItemIcon from "../../theme/assets/icons/add_item.svg";
 import producerEditIcon from "../../theme/assets/icons/producer_edit.svg";
 
-// Import modals
-import AddProducer from "../Producers/AddProducer";
-import EditProducer from "../Producers/EditProducer";
-import { producersReadMyProducer } from "../../client/sdk.gen";
-import type { UserPublic } from "../../client/types.gen";
-
 interface NavigationItemsProps {
   onClose?: () => void;
   onCount?: (n: number) => void;
@@ -30,7 +24,7 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
     title: string;
     path: string;
     icon: string;
-    action?: string | null; // 'modal' for modal actions, null/undefined for navigation
+    action?: string | null;
   }
 
   const apiBase = import.meta.env.VITE_API_URL ?? "";
@@ -79,20 +73,6 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
     producer_edit: producerEditIcon,
   };
 
-  const queryClient = useQueryClient();
-  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"]);
-  const addProducerModal = useDisclosure();
-  const editProducerModal = useDisclosure();
-  
-  // Fetch producer profile if user has producer permissions
-  const isProducer = currentUser?.permissions === "producer" || currentUser?.permissions === "superuser";
-  const { data: myProducer } = useQuery({
-    queryKey: ["myProducer"],
-    queryFn: () => producersReadMyProducer(),
-    enabled: isProducer,
-  });
-  const hasProducerProfile = !!myProducer;
-
   if (isLoading) {
     return <Skeleton w="full" h="40px" />;
   }
@@ -102,22 +82,12 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
     return null;
   }
 
-  const listItems = items.map(({ icon: iconName, title, path, action }: NavigationItem) => {
+  const listItems = items.map(({ icon: iconName, title, path }: NavigationItem) => {
     const iconSrc = iconMap[iconName] ?? galleryIcon;
-    const isActive = location.pathname === path && !action;
-    const isModalAction = action === "modal";
+    const isActive = location.pathname === path;
     
-    const handleClick = (e: React.MouseEvent) => {
-      if (isModalAction) {
-        e.preventDefault();
-        if (title.includes("Edit")) {
-          editProducerModal.onOpen();
-        } else if (title.includes("Create")) {
-          addProducerModal.onOpen();
-        }
-      } else {
-        onClose?.();
-      }
+    const handleClick = () => {
+      onClose?.();
     };
     
     const iconElement = (
@@ -173,25 +143,7 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
       },
     };
     
-    return isModalAction ? (
-      <Flex
-        as="button"
-        px={4}
-        py={0}
-        key={title}
-        bg="transparent"
-        color={textColor}
-        _hover={{ bg: bgHover }}
-        onClick={handleClick}
-        align="center"
-        cursor="pointer"
-        h="52px"
-        {...mouseHandlers}
-      >
-        {iconElement}
-        {textElement}
-      </Flex>
-    ) : (
+    return (
       <Flex
         as={Link}
         to={path}
@@ -216,27 +168,15 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
 
   // Use a lighter background in both modes:
   return (
-    <>
-      <Flex
-        flexDir="row"
-        gap={4}
-        w="100%"
-        alignContent="center"
-        bg={containerBg}
-      >
-        {listItems}
-      </Flex>
-      
-      {/* Producer Modals */}
-      <AddProducer isOpen={addProducerModal.isOpen} onClose={addProducerModal.onClose} />
-      {hasProducerProfile && myProducer && (
-        <EditProducer 
-          producer={myProducer} 
-          isOpen={editProducerModal.isOpen} 
-          onClose={editProducerModal.onClose} 
-        />
-      )}
-    </>
+    <Flex
+      flexDir="row"
+      gap={4}
+      w="100%"
+      alignContent="center"
+      bg={containerBg}
+    >
+      {listItems}
+    </Flex>
   );
 };
 

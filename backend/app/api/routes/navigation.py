@@ -68,10 +68,6 @@ def get_navigation_items(
         if user.permissions in [UserPermission.INVESTOR, UserPermission.SUPERUSER]:
             items.append({"title": "Business Plan", "path": "/businessplan", "icon": "business", "action": None})
 
-        if user.permissions == UserPermission.PRODUCER:
-            items.append({"title": "Home", "path": "/producer", "icon": "producers", "action": None})
-        
-        # Add producer profile button for users with producer permissions
         if user.permissions in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
             # Check if user has a producer profile
             producer = session.exec(
@@ -79,8 +75,8 @@ def get_navigation_items(
             ).first()
             
             if producer:
-                items.append({"title": "Edit Producer", "path": "#producer-modal", "icon": "producer_edit", "action": "modal"})
+                items.append({"title": "Edit Producer Profile", "path": "/editproducer", "icon": "producer_edit", "action": None})
             else:
-                items.append({"title": "Create Producer", "path": "#producer-modal", "icon": "producer_edit", "action": "modal"})
+                items.append({"title": "Create Producer Profile", "path": "/createproducer", "icon": "producer_edit", "action": None})
 
     return items  # type: ignore
