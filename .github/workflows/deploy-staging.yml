@@ -67,6 +67,10 @@ jobs:
       VITE_BLUESKY_URL: ${{ vars.VITE_BLUESKY_URL }}
       VITE_REDDIT_URL: ${{ vars.VITE_REDDIT_URL }}
       VITE_LINKEDIN_URL: ${{ vars.VITE_LINKEDIN_URL }}
+      MASTODON_INSTANCE_URL: ${{ vars.MASTODON_INSTANCE_URL }}
+      MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+      BLUESKY_HANDLE: ${{ vars.BLUESKY_HANDLE }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
