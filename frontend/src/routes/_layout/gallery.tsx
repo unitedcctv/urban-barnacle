@@ -43,7 +43,7 @@ function ItemsTable() {
   const setPage = (page: number) =>
     // @ts-ignore: Suppress TypeScript error
     navigate({
-      search: (prev: { [key: string]: string }) => ({ ...prev, page }),
+      search: (prev) => ({ ...prev, page }),
     })
 
   const {

@@ -5,6 +5,7 @@ import {
   FormErrorMessage,
   FormLabel,
   HStack,
+  Image,
   Input,
   Text,
   // TODO: Blockchain/NFT - Re-enable these imports when blockchain features are needed
@@ -45,6 +46,7 @@ import ImagesUploader, {
 } from "../../components/Items/ImagesUploader"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
+import uploadIcon from "../../theme/assets/icons/upload.svg"
 
 export const Route = createFileRoute("/_layout/createitem")({
   component: CreateItem,
@@ -478,15 +480,15 @@ function CreateItem() {
             variant="primary"
             onClick={() => document.getElementById("model")?.click()}
             isDisabled={!isItemStarted}
-            width="100%"
-            justifyContent="flex-start"
-            textAlign="left"
-            fontWeight="normal"
-            color={modelFile ? "white" : "gray.500"}
-            bg={modelFile ? undefined : "gray.50"}
-            _hover={modelFile ? undefined : { bg: "gray.100" }}
+            leftIcon={
+              <Image
+                src={uploadIcon}
+                alt="upload"
+                boxSize="20px"
+              />
+            }
           >
-            {modelFile ? modelFile.name : "Select Blender file (.blend)"}
+            {modelFile ? modelFile.name : "Upload Blender File (.blend)"}
           </Button>
         </Box>
         {modelFile && (

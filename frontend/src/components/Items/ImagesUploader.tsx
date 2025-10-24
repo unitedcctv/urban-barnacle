@@ -201,17 +201,10 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
         <Button
           variant="primary"
           onClick={() => document.getElementById("images")?.click()}
-          width="100%"
-          justifyContent="flex-start"
-          textAlign="left"
-          fontWeight="normal"
-          color={files.length > 0 ? "white" : "gray.500"}
-          bg={files.length > 0 ? undefined : "gray.50"}
-          _hover={files.length > 0 ? undefined : { bg: "gray.100" }}
         >
           {files.length > 0
-            ? `${files.length} image${files.length > 1 ? "s" : ""} selected`
-            : "Select images"}
+            ? `Add More Images (${files.length} selected)`
+            : "Upload Image"}
         </Button>
 
         {files.length > 0 && (

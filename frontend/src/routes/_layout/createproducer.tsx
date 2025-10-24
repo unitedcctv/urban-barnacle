@@ -23,6 +23,7 @@ import { producersCreateProducer } from "../../client/sdk.gen"
 import type { ProducerCreate } from "../../client/types.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
+import uploadIcon from "../../theme/assets/icons/upload.svg"
 
 export const Route = createFileRoute("/_layout/createproducer")({
   component: CreateProducer,
@@ -236,15 +237,15 @@ function CreateProducer() {
         <Button
           variant="primary"
           onClick={() => document.getElementById("logo-upload")?.click()}
-          width="100%"
-          justifyContent="flex-start"
-          textAlign="left"
-          fontWeight="normal"
-          color={logoPreview ? "white" : "gray.500"}
-          bg={logoPreview ? undefined : "gray.50"}
-          _hover={logoPreview ? undefined : { bg: "gray.100" }}
+          leftIcon={
+            <Image
+              src={uploadIcon}
+              alt="upload"
+              boxSize="20px"
+            />
+          }
         >
-          {logoPreview ? "Change Logo" : "Select company logo"}
+          {logoPreview ? "Change Logo" : "Select Company Logo"}
         </Button>
         {logoPreview && (
           <Box mt={2}>
@@ -275,19 +276,17 @@ function CreateProducer() {
         <Button
           variant="primary"
           onClick={() => document.getElementById("portfolio-upload")?.click()}
-          width="100%"
-          justifyContent="flex-start"
-          textAlign="left"
-          fontWeight="normal"
-          color={portfolioImages.length > 0 ? "white" : "gray.500"}
-          bg={portfolioImages.length > 0 ? undefined : "gray.50"}
-          _hover={portfolioImages.length > 0 ? undefined : { bg: "gray.100" }}
+          leftIcon={
+            <Image
+              src={uploadIcon}
+              alt="upload"
+              boxSize="20px"
+            />
+          }
         >
           {portfolioImages.length > 0
-            ? `${portfolioImages.length} image${
-                portfolioImages.length > 1 ? "s" : ""
-              } selected`
-            : "Select example work images"}
+            ? `Add More Images (${portfolioImages.length} selected)`
+            : "Select Example Work Images"}
         </Button>
         {portfolioPreviews.length > 0 && (
           <Box mt={2}>
