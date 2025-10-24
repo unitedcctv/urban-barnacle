@@ -16,7 +16,6 @@ from app.api.routes import (
     ai_chat,
     drive_webhook,
     business_plan,
-    social_media,
 )
 from app.core.config import settings
 
@@ -35,7 +34,6 @@ api_router.include_router(navigation.router)
 api_router.include_router(ai_chat.router)
 api_router.include_router(drive_webhook.router)
 api_router.include_router(business_plan.router)
-api_router.include_router(social_media.router, prefix="/social", tags=["social-media"])
 
 
 # Temporarily disabled to test signup endpoint

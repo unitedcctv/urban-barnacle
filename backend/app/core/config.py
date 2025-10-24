@@ -150,17 +150,6 @@ class Settings(BaseSettings):
     def blockchain_enabled(self) -> bool:
         return bool(self.BLOCKCHAIN_ENABLED and (self.ETHEREUM_PRIVATE_KEY or self.PRIVATE_KEY))
     
-    # Social Media API settings
-    MASTODON_INSTANCE_URL: str | None = None
-    MASTODON_ACCESS_TOKEN: str | None = None
-    BLUESKY_HANDLE: str | None = None
-    BLUESKY_APP_PASSWORD: str | None = None
-    REDDIT_CLIENT_ID: str | None = None
-    REDDIT_CLIENT_SECRET: str | None = None
-    REDDIT_USERNAME: str | None = None
-    LINKEDIN_ACCESS_TOKEN: str | None = None
-    LINKEDIN_ORG_ID: str | None = None
-    
     @computed_field
     def web3_url(self) -> str:
         """Get Web3 URL with fallback priority: WEB3_URL -> ETHEREUM_RPC_URL -> default"""

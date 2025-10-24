@@ -7,9 +7,6 @@ from enum import Enum
 from sqlalchemy import Column, String, DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
-# Import social models to ensure they're registered with SQLModel
-from app.models_social import SocialPost, SocialPostPublic, SocialPostsResponse  # noqa: F401
-
 
 # Shared properties
 class UserPermission(str, Enum):
