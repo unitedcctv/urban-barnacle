@@ -1,6 +1,6 @@
 import { Container, Text, Box, Heading, HStack, Link, Icon } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
-import { FaLinkedin, FaReddit, FaMastodon, FaCloud } from "react-icons/fa"
+import { FaLinkedin, FaReddit, FaMastodon, FaCloud, FaYoutube } from "react-icons/fa"
 
 export const Route = createFileRoute("/_layout/community")({
   component: Community,
@@ -11,6 +11,7 @@ function Community() {
   const blueskyUrl = import.meta.env.VITE_BLUESKY_URL
   const redditUrl = import.meta.env.VITE_REDDIT_URL
   const linkedinUrl = import.meta.env.VITE_LINKEDIN_URL
+  const youtubeUrl = import.meta.env.VITE_YOUTUBE_URL
 
   return (
     <Container maxW="full" py={8}>
@@ -26,18 +27,18 @@ function Community() {
           {mastodonUrl && (
             <Link href={mastodonUrl} isExternal>
               <Box
-                p={4}
-                bg="#6364FF"
-                color="white"
-                borderRadius="lg"
-                _hover={{ transform: "scale(1.1)", opacity: 0.9 }}
-                transition="all 0.2s"
+                width="200px"
+                height="200px"
                 display="flex"
                 alignItems="center"
-                gap={2}
+                justifyContent="center"
+                border="10px solid"
+                borderColor="gray.300"
+                borderRadius="md"
+                _hover={{ borderColor: "gray.500", transform: "scale(1.05)" }}
+                transition="all 0.2s"
               >
-                <Icon as={FaMastodon} boxSize={6} />
-                <Text fontWeight="bold">Mastodon</Text>
+                <Icon as={FaMastodon} boxSize="60px" color="#6364FF" />
               </Box>
             </Link>
           )}
@@ -45,18 +46,18 @@ function Community() {
           {blueskyUrl && (
             <Link href={blueskyUrl} isExternal>
               <Box
-                p={4}
-                bg="#1185FE"
-                color="white"
-                borderRadius="lg"
-                _hover={{ transform: "scale(1.1)", opacity: 0.9 }}
-                transition="all 0.2s"
+                width="200px"
+                height="200px"
                 display="flex"
                 alignItems="center"
-                gap={2}
+                justifyContent="center"
+                border="10px solid"
+                borderColor="gray.300"
+                borderRadius="md"
+                _hover={{ borderColor: "gray.500", transform: "scale(1.05)" }}
+                transition="all 0.2s"
               >
-                <Icon as={FaCloud} boxSize={6} />
-                <Text fontWeight="bold">Bluesky</Text>
+                <Icon as={FaCloud} boxSize="60px" color="#1185FE" />
               </Box>
             </Link>
           )}
@@ -64,18 +65,18 @@ function Community() {
           {redditUrl && (
             <Link href={redditUrl} isExternal>
               <Box
-                p={4}
-                bg="#FF4500"
-                color="white"
-                borderRadius="lg"
-                _hover={{ transform: "scale(1.1)", opacity: 0.9 }}
-                transition="all 0.2s"
+                width="200px"
+                height="200px"
                 display="flex"
                 alignItems="center"
-                gap={2}
+                justifyContent="center"
+                border="10px solid"
+                borderColor="gray.300"
+                borderRadius="md"
+                _hover={{ borderColor: "gray.500", transform: "scale(1.05)" }}
+                transition="all 0.2s"
               >
-                <Icon as={FaReddit} boxSize={6} />
-                <Text fontWeight="bold">Reddit</Text>
+                <Icon as={FaReddit} boxSize="60px" color="#FF4500" />
               </Box>
             </Link>
           )}
@@ -83,18 +84,37 @@ function Community() {
           {linkedinUrl && (
             <Link href={linkedinUrl} isExternal>
               <Box
-                p={4}
-                bg="#0A66C2"
-                color="white"
-                borderRadius="lg"
-                _hover={{ transform: "scale(1.1)", opacity: 0.9 }}
-                transition="all 0.2s"
+                width="200px"
+                height="200px"
                 display="flex"
                 alignItems="center"
-                gap={2}
+                justifyContent="center"
+                border="10px solid"
+                borderColor="gray.300"
+                borderRadius="md"
+                _hover={{ borderColor: "gray.500", transform: "scale(1.05)" }}
+                transition="all 0.2s"
               >
-                <Icon as={FaLinkedin} boxSize={6} />
-                <Text fontWeight="bold">LinkedIn</Text>
+                <Icon as={FaLinkedin} boxSize="60px" color="#0A66C2" />
+              </Box>
+            </Link>
+          )}
+          
+          {youtubeUrl && (
+            <Link href={youtubeUrl} isExternal>
+              <Box
+                width="200px"
+                height="200px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                border="10px solid"
+                borderColor="gray.300"
+                borderRadius="md"
+                _hover={{ borderColor: "gray.500", transform: "scale(1.05)" }}
+                transition="all 0.2s"
+              >
+                <Icon as={FaYoutube} boxSize="60px" color="#FF0000" />
               </Box>
             </Link>
           )}

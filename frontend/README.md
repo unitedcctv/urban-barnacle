@@ -126,6 +126,7 @@ VITE_MASTODON_URL=https://mastodon.social/@youraccount
 VITE_BLUESKY_URL=https://bsky.app/profile/youraccount
 VITE_REDDIT_URL=https://reddit.com/r/yourcommunity
 VITE_LINKEDIN_URL=https://linkedin.com/company/yourcompany
+VITE_YOUTUBE_URL=https://youtube.com/@yourchannel
 ```
 
 Only the social networks with configured URLs will be displayed on the community page.

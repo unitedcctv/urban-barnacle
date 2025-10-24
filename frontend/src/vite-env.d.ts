@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_BLUESKY_URL?: string;
   readonly VITE_REDDIT_URL?: string;
   readonly VITE_LINKEDIN_URL?: string;
+  readonly VITE_YOUTUBE_URL?: string;
 }
 
 interface ImportMeta {

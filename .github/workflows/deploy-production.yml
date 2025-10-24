@@ -47,6 +47,7 @@ jobs:
       VITE_BLUESKY_URL: ${{ vars.VITE_BLUESKY_URL }}
       VITE_REDDIT_URL: ${{ vars.VITE_REDDIT_URL }}
       VITE_LINKEDIN_URL: ${{ vars.VITE_LINKEDIN_URL }}
+      VITE_YOUTUBE_URL: ${{ vars.VITE_YOUTUBE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
