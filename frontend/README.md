@@ -117,6 +117,19 @@ VITE_API_URL=https://api.my-domain.example.com
 
 Then, when you run the frontend, it will use that URL as the base URL for the API.
 
+## Social Media Links
+
+The community page includes social media links that can be configured via environment variables. Add the following to your `frontend/.env` file:
+
+```env
+VITE_MASTODON_URL=https://mastodon.social/@youraccount
+VITE_BLUESKY_URL=https://bsky.app/profile/youraccount
+VITE_REDDIT_URL=https://reddit.com/r/yourcommunity
+VITE_LINKEDIN_URL=https://linkedin.com/company/yourcompany
+```
+
+Only the social networks with configured URLs will be displayed on the community page.
+
 ## Code Structure
 
 The frontend code is structured as follows:
