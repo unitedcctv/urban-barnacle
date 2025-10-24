@@ -466,9 +466,12 @@ function CreateItem() {
       </FormControl>
 
       {/* Model File Upload */}
-      <FormControl mt={4} isDisabled={!isItemStarted}>
+      <FormControl mt={4}>
         <FormLabel htmlFor="model">3D Model File (.blend)</FormLabel>
-        <Box>
+        <Box
+          opacity={!isItemStarted ? 0.6 : 1}
+          pointerEvents={!isItemStarted ? "none" : "auto"}
+        >
           <Input
             id="model"
             type="file"
@@ -479,14 +482,20 @@ function CreateItem() {
           <Button
             variant="primary"
             onClick={() => document.getElementById("model")?.click()}
-            isDisabled={!isItemStarted}
             leftIcon={
               <Image
                 src={uploadIcon}
                 alt="upload"
                 boxSize="20px"
+                sx={{
+                  transition: "filter 0.2s ease",
+                  _groupHover: {
+                    filter: "brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1787%) hue-rotate(197deg) brightness(98%) contrast(101%)",
+                  },
+                }}
               />
             }
+            role="group"
           >
             {modelFile ? modelFile.name : "Upload Blender File (.blend)"}
           </Button>

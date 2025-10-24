@@ -6,6 +6,7 @@ import {
   FormErrorMessage,
   FormLabel,
   HStack,
+  Image,
   Input,
   Text,
   // TODO: Blockchain/NFT - Re-enable these imports when blockchain features are needed
@@ -35,6 +36,7 @@ import {
 import type { ItemUpdate } from "../../client/types.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import deleteIcon from "../../theme/assets/icons/delete.svg"
+import uploadIcon from "../../theme/assets/icons/upload.svg"
 import { handleError } from "../../utils"
 
 import ImagesUploader from "./ImagesUploader"
@@ -304,12 +306,22 @@ const EditItem = ({
             <Button
               variant="primary"
               onClick={() => document.getElementById("model-upload")?.click()}
-              width="100%"
-              justifyContent="flex-start"
-              textAlign="left"
-              fontWeight="normal"
+              leftIcon={
+                <Image
+                  src={uploadIcon}
+                  alt="upload"
+                  boxSize="20px"
+                  sx={{
+                    transition: "filter 0.2s ease",
+                    _groupHover: {
+                      filter: "brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1787%) hue-rotate(197deg) brightness(98%) contrast(101%)",
+                    },
+                  }}
+                />
+              }
+              role="group"
             >
-              Select .blend file
+              Upload Blender File (.blend)
             </Button>
           </Box>
         )}

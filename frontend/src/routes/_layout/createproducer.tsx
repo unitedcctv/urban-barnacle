@@ -242,8 +242,15 @@ function CreateProducer() {
               src={uploadIcon}
               alt="upload"
               boxSize="20px"
+              sx={{
+                transition: "filter 0.2s ease",
+                _groupHover: {
+                  filter: "brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1787%) hue-rotate(197deg) brightness(98%) contrast(101%)",
+                },
+              }}
             />
           }
+          role="group"
         >
           {logoPreview ? "Change Logo" : "Select Company Logo"}
         </Button>
@@ -281,8 +288,15 @@ function CreateProducer() {
               src={uploadIcon}
               alt="upload"
               boxSize="20px"
+              sx={{
+                transition: "filter 0.2s ease",
+                _groupHover: {
+                  filter: "brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1787%) hue-rotate(197deg) brightness(98%) contrast(101%)",
+                },
+              }}
             />
           }
+          role="group"
         >
           {portfolioImages.length > 0
             ? `Add More Images (${portfolioImages.length} selected)`
