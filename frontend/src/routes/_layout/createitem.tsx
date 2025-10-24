@@ -1,13 +1,12 @@
-import React, { useState, useRef } from "react";
 import {
+  Box,
   Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Input,
-  Box,
-  Text,
   HStack,
+  Input,
+  Text,
   // TODO: Blockchain/NFT - Re-enable these imports when blockchain features are needed
   // Alert,
   // AlertIcon,
@@ -23,29 +22,38 @@ import {
   // Badge,
   // CloseButton,
   // ModalCloseButton,
-} from "@chakra-ui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "@tanstack/react-router";
-import { type ItemCreate } from "../../client/types.gen";
-import { type ApiError } from "../../client/core/ApiError";
-import { itemsCreateItem, itemsUpdateItem } from "../../client/sdk.gen";
-import useCustomToast from "../../hooks/useCustomToast";
-import { handleError } from "../../utils";
-import ImagesUploader, { ImagesUploaderRef } from "../../components/Items/ImagesUploader";
-import { createFileRoute } from "@tanstack/react-router";
-import { UserPublic } from "../../client";
+} from "@chakra-ui/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
+import type React from "react"
+import { useRef, useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import type { UserPublic } from "../../client"
+import type { ApiError } from "../../client/core/ApiError"
+import { itemsCreateItem, itemsUpdateItem } from "../../client/sdk.gen"
 // TODO: Blockchain/NFT - Re-enable itemsMintItemNft import when blockchain features are needed
-import { imagesDeleteItemImages, modelsUploadModel, modelsDeleteItemModel, itemsDeleteItem /*, itemsMintItemNft */ } from "../../client/sdk.gen";
+import {
+  imagesDeleteItemImages,
+  itemsDeleteItem,
+  /*, itemsMintItemNft */ modelsDeleteItemModel,
+  modelsUploadModel,
+} from "../../client/sdk.gen"
+import type { ItemCreate } from "../../client/types.gen"
+import ImagesUploader, {
+  type ImagesUploaderRef,
+} from "../../components/Items/ImagesUploader"
+import useCustomToast from "../../hooks/useCustomToast"
+import { handleError } from "../../utils"
 
 export const Route = createFileRoute("/_layout/createitem")({
   component: CreateItem,
-});
+})
 
 function CreateItem() {
-  const [isItemStarted, setIsItemStarted] = useState(false);
-  const [createdItemId, setCreatedItemId] = useState<string>("");
-  const [modelFile, setModelFile] = useState<File | null>(null);
+  const [isItemStarted, setIsItemStarted] = useState(false)
+  const [createdItemId, setCreatedItemId] = useState<string>("")
+  const [modelFile, setModelFile] = useState<File | null>(null)
   // TODO: Blockchain/NFT certificate functionality temporarily disabled
   // Re-enable these state variables when blockchain features are needed again
   // const [isCheckingBalance, setIsCheckingBalance] = useState(false);
@@ -55,13 +63,13 @@ function CreateItem() {
   // const [isNftAlertDismissed, setIsNftAlertDismissed] = useState(false);
   // const [isBalanceAlertDismissed, setIsBalanceAlertDismissed] = useState(false);
   // const { isOpen: isTokenModalOpen, onOpen: onTokenModalOpen, onClose: onTokenModalClose } = useDisclosure();
-  const queryClient = useQueryClient();
-  const showToast = useCustomToast();
-  const navigate = useNavigate();
+  const queryClient = useQueryClient()
+  const showToast = useCustomToast()
+  const navigate = useNavigate()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-  const imagesUploaderRef = useRef<ImagesUploaderRef>(null);
+  const imagesUploaderRef = useRef<ImagesUploaderRef>(null)
 
-  let item: any = {
+  const item: any = {
     id: createdItemId || "",
     owner_id: currentUser?.id || "",
     title: "",
@@ -76,7 +84,7 @@ function CreateItem() {
     // nft_contract_address: null,
     // nft_transaction_hash: null,
     // nft_metadata_uri: null,
-  };
+  }
 
   const {
     register,
@@ -84,33 +92,33 @@ function CreateItem() {
     reset,
     setValue,
     watch,
-    formState: { errors, isSubmitting},
+    formState: { errors, isSubmitting },
   } = useForm<any>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: item,
-  });
+  })
 
   const createMutation = useMutation({
     mutationFn: (data: ItemCreate) => itemsCreateItem({ requestBody: data }),
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["items"] })
     },
-  });
+  })
 
   const updateMutation = useMutation({
     mutationFn: (data: { itemId: string; body: ItemCreate }) =>
       itemsUpdateItem({ id: data.itemId, requestBody: data.body }),
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["items"] })
     },
-  });
+  })
 
   // TODO: Blockchain/NFT certificate functionality temporarily disabled
   // Re-enable this mutation when blockchain features are needed again
@@ -124,97 +132,103 @@ function CreateItem() {
   //     console.log("NFT minted successfully, updatedItem:", updatedItem);
   //     showToast("Success!", "NFT minted successfully!", "success");
   //     setIsMintingNft(false);
-  //     
+  //
   //     // Update the form with the new NFT data
   //     console.log("Updating form values with NFT data...");
   //     setValue("nft_token_id", updatedItem.nft_token_id, { shouldDirty: true, shouldTouch: true });
   //     setValue("nft_contract_address", updatedItem.nft_contract_address, { shouldDirty: true, shouldTouch: true });
   //     setValue("nft_transaction_hash", updatedItem.nft_transaction_hash, { shouldDirty: true, shouldTouch: true });
   //     setValue("nft_metadata_uri", updatedItem.nft_metadata_uri, { shouldDirty: true, shouldTouch: true });
-  //     
+  //
   //     console.log("Form values after update:", {
   //       nft_token_id: watch("nft_token_id"),
   //       nft_contract_address: watch("nft_contract_address"),
   //       nft_transaction_hash: watch("nft_transaction_hash"),
   //       nft_metadata_uri: watch("nft_metadata_uri")
   //     });
-  //     
+  //
   //     queryClient.invalidateQueries({ queryKey: ["items"] });
   //   },
   // });
 
   const handleImagesChange = (commaSeparatedUrls: string) => {
-    setValue("images", commaSeparatedUrls, { shouldDirty: true });
-  };
+    setValue("images", commaSeparatedUrls, { shouldDirty: true })
+  }
 
   const handleCancel = async () => {
     // Delete the initialized item and its files if item was created
     if (createdItemId) {
       try {
         // Delete uploaded files first
-        await imagesDeleteItemImages({ itemId: createdItemId });
-        await modelsDeleteItemModel({ itemId: createdItemId });
-        
+        await imagesDeleteItemImages({ itemId: createdItemId })
+        await modelsDeleteItemModel({ itemId: createdItemId })
+
         // Delete the item record from database
-        await itemsDeleteItem({ id: createdItemId });
-        
-        showToast("Success", "Item and all associated files deleted", "success");
+        await itemsDeleteItem({ id: createdItemId })
+
+        showToast("Success", "Item and all associated files deleted", "success")
       } catch (error) {
-        console.error("Error deleting item during cancel:", error);
-        showToast("Warning", "Some cleanup operations may have failed", "error");
+        console.error("Error deleting item during cancel:", error)
+        showToast("Warning", "Some cleanup operations may have failed", "error")
         // Continue with reset even if deletion fails
       }
     }
-    
+
     // Reset all form data
-    reset();
+    reset()
     // Reset local state
-    setModelFile(null);
-    setIsItemStarted(false);
-    setCreatedItemId("");
+    setModelFile(null)
+    setIsItemStarted(false)
+    setCreatedItemId("")
     // Reset images uploader
-    imagesUploaderRef.current?.reset();
+    imagesUploaderRef.current?.reset()
     // Only show reset message if no item was created
     if (!createdItemId) {
-      showToast("Info", "Form has been reset", "success");
+      showToast("Info", "Form has been reset", "success")
     }
-  };
+  }
 
-  const handleModelFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleModelFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0]
     if (file) {
       // Validate file extension
-      if (!file.name.toLowerCase().endsWith('.blend')) {
-        showToast("Error", "Only .blend files are allowed", "error");
-        event.target.value = ""; // Reset the input
-        return;
+      if (!file.name.toLowerCase().endsWith(".blend")) {
+        showToast("Error", "Only .blend files are allowed", "error")
+        event.target.value = "" // Reset the input
+        return
       }
-      
+
       // Check if item is created before uploading
       if (!createdItemId) {
-        showToast("Error", "Please create the item first before uploading model", "error");
-        event.target.value = "";
-        return;
+        showToast(
+          "Error",
+          "Please create the item first before uploading model",
+          "error",
+        )
+        event.target.value = ""
+        return
       }
-      
+
       try {
         // Upload the model file to the server
         await modelsUploadModel({
           formData: { file },
           itemId: createdItemId,
-          userId: currentUser?.id?.toString() || "0"
-        });
-        
-        setModelFile(file);
-        setValue("model", file.name, { shouldDirty: true });
-        showToast("Success", "Model file uploaded successfully", "success");
+          userId: currentUser?.id?.toString() || "0",
+        })
+
+        setModelFile(file)
+        setValue("model", file.name, { shouldDirty: true })
+        showToast("Success", "Model file uploaded successfully", "success")
       } catch (error) {
-        console.error("Error uploading model:", error);
-        showToast("Error", "Failed to upload model file", "error");
-        event.target.value = "";
+        console.error("Error uploading model:", error)
+        showToast("Error", "Failed to upload model file", "error")
+        event.target.value = ""
       }
     }
-  };
+  }
 
   // TODO: Blockchain/NFT certificate functionality temporarily disabled
   // Re-enable these functions when blockchain features are needed again
@@ -390,34 +404,38 @@ function CreateItem() {
     if (!isItemStarted) {
       createMutation.mutate(formData, {
         onSuccess: (newItem) => {
-          setCreatedItemId(newItem.id);
-          showToast("Success!", "Item created successfully.", "success");
-          setIsItemStarted(true);
+          setCreatedItemId(newItem.id)
+          showToast("Success!", "Item created successfully.", "success")
+          setIsItemStarted(true)
         },
-      });
+      })
     } else {
       if (!createdItemId) {
-        showToast("Error", "Cannot update an item without a valid item ID", "error");
-        return;
+        showToast(
+          "Error",
+          "Cannot update an item without a valid item ID",
+          "error",
+        )
+        return
       }
 
       updateMutation.mutate(
         { itemId: createdItemId, body: formData },
         {
           onSuccess: () => {
-            showToast("Success!", "Item updated successfully.", "success");
-            reset();
-            setIsItemStarted(false);
-            setCreatedItemId("");
-            navigate({ to: "/gallery" });
+            showToast("Success!", "Item updated successfully.", "success")
+            reset()
+            setIsItemStarted(false)
+            setCreatedItemId("")
+            navigate({ to: "/gallery" })
           },
-        }
-      );
+        },
+      )
     }
-  };
+  }
 
   // Watch the title and all other fields
-  const title = watch("title");
+  const title = watch("title")
 
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)}>
@@ -430,13 +448,19 @@ function CreateItem() {
           placeholder="Title"
           type="text"
         />
-        {errors.title && <FormErrorMessage>{errors.title.message as string}</FormErrorMessage>}
+        {errors.title && (
+          <FormErrorMessage>{errors.title.message as string}</FormErrorMessage>
+        )}
       </FormControl>
 
       {/* Description Field */}
       <FormControl mt={4} isDisabled={!isItemStarted}>
         <FormLabel htmlFor="description">Description</FormLabel>
-        <Input id="description" {...register("description")} placeholder="Description" />
+        <Input
+          id="description"
+          {...register("description")}
+          placeholder="Description"
+        />
       </FormControl>
 
       {/* Model File Upload */}
@@ -452,7 +476,7 @@ function CreateItem() {
           />
           <Button
             variant="primary"
-            onClick={() => document.getElementById('model')?.click()}
+            onClick={() => document.getElementById("model")?.click()}
             isDisabled={!isItemStarted}
             width="100%"
             justifyContent="flex-start"
@@ -472,14 +496,6 @@ function CreateItem() {
         )}
       </FormControl>
 
-
-
-
-
-
-
-
-
       {/* Images Uploader */}
       <FormControl mt={4} isDisabled={!isItemStarted}>
         <FormLabel>Images</FormLabel>
@@ -490,16 +506,16 @@ function CreateItem() {
           <ImagesUploader
             ref={imagesUploaderRef}
             onImagesChange={handleImagesChange}
-            _item={{
-              id: createdItemId,
-              images: "",
-              owner_id: currentUser?.id || 0,
-            } as any}
+            _item={
+              {
+                id: createdItemId,
+                images: "",
+                owner_id: currentUser?.id || 0,
+              } as any
+            }
           />
         </Box>
       </FormControl>
-
-
 
       {/* Action Buttons */}
       <HStack spacing={4} mt={6}>
@@ -637,7 +653,7 @@ function CreateItem() {
         </Alert>
       )} */}
     </Box>
-  );
+  )
 }
 
-export default CreateItem;
+export default CreateItem

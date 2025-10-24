@@ -1,12 +1,12 @@
 import {
+  Box,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Input,
-  Box,
-  Flex,
   HStack,
+  Input,
   Text,
   // TODO: Blockchain/NFT - Re-enable these imports when blockchain features are needed
   // Modal,
@@ -20,55 +20,59 @@ import {
   // VStack,
   // Badge,
   // Link,
-} from "@chakra-ui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
-import { ItemPublic } from "../../client";
-import { type ItemUpdate } from "../../client/types.gen";
-import { type ApiError } from "../../client/core/ApiError";
-import { itemsUpdateItem, modelsUploadModel, modelsDeleteModel } from "../../client/sdk.gen";
-import useCustomToast from "../../hooks/useCustomToast";
-import { handleError } from "../../utils";
-import { UserPublic } from "../../client";
-import deleteIcon from "../../theme/assets/icons/delete.svg";
+} from "@chakra-ui/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import type { ItemPublic } from "../../client"
+import type { UserPublic } from "../../client"
+import type { ApiError } from "../../client/core/ApiError"
+import {
+  itemsUpdateItem,
+  modelsDeleteModel,
+  modelsUploadModel,
+} from "../../client/sdk.gen"
+import type { ItemUpdate } from "../../client/types.gen"
+import useCustomToast from "../../hooks/useCustomToast"
+import deleteIcon from "../../theme/assets/icons/delete.svg"
+import { handleError } from "../../utils"
 
-import ImagesUploader from "./ImagesUploader";
+import ImagesUploader from "./ImagesUploader"
 
-const EditItem = ({ 
-  item, 
-  onSuccess, 
-  onDelete, 
-  buttonsDisabled 
-}: { 
-  item: ItemPublic; 
-  onSuccess: () => void;
-  onDelete?: () => Promise<void>;
-  buttonsDisabled?: boolean;
+const EditItem = ({
+  item,
+  onSuccess,
+  onDelete,
+  buttonsDisabled,
+}: {
+  item: ItemPublic
+  onSuccess: () => void
+  onDelete?: () => Promise<void>
+  buttonsDisabled?: boolean
 }) => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-  const showToast = useCustomToast();
+  const showToast = useCustomToast()
   // TODO: Blockchain/NFT certificate functionality temporarily disabled
   // const { isOpen: isNFTModalOpen, onOpen: onNFTModalOpen, onClose: onNFTModalClose } = useDisclosure();
 
   // Store original values for comparison
   // Convert image_urls array to comma-separated string for backward compatibility
-  const imagesString = item?.image_urls?.join(",") || "";
+  const imagesString = item?.image_urls?.join(",") || ""
   const originalValues = {
     title: item?.title || "",
     description: item?.description || "",
     model: item?.model || "",
     images: imagesString,
-  };
+  }
 
-  const [originalImages, setOriginalImages] = useState<string>("");
-  const [currentImages, setCurrentImages] = useState<string>("");
-  const [imagesDeleted, setImagesDeleted] = useState(false);
-  const [currentModel, setCurrentModel] = useState<string | null>(null);
-  const [modelFile, setModelFile] = useState<File | null>(null);
-  const [modelDeleted, setModelDeleted] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
+  const [originalImages, setOriginalImages] = useState<string>("")
+  const [currentImages, setCurrentImages] = useState<string>("")
+  const [imagesDeleted, setImagesDeleted] = useState(false)
+  const [currentModel, setCurrentModel] = useState<string | null>(null)
+  const [modelFile, setModelFile] = useState<File | null>(null)
+  const [modelDeleted, setModelDeleted] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
 
   const {
     register,
@@ -88,120 +92,133 @@ const EditItem = ({
       model: item?.model || "",
       images: imagesString,
     },
-  });
+  })
 
   // Watch form values for changes
-  const watchedValues = watch();
+  const watchedValues = watch()
 
   // Initialize images state
   useEffect(() => {
-    setOriginalImages(imagesString);
-    setCurrentImages(imagesString);
-    setImagesDeleted(false);
-    
+    setOriginalImages(imagesString)
+    setCurrentImages(imagesString)
+    setImagesDeleted(false)
+
     // Initialize model state
-    setCurrentModel(item.model || null);
-    setModelFile(null);
-    setModelDeleted(false);
-  }, [imagesString, item.model]);
+    setCurrentModel(item.model || null)
+    setModelFile(null)
+    setModelDeleted(false)
+  }, [imagesString, item.model])
 
   // Check for changes whenever form values, images, or model change
   useEffect(() => {
-    const formHasChanges = 
+    const formHasChanges =
       (watchedValues.title || "") !== originalValues.title ||
       (watchedValues.description || "") !== originalValues.description ||
       (watchedValues.model || "") !== originalValues.model ||
       currentImages !== originalImages ||
       imagesDeleted ||
       modelDeleted ||
-      modelFile !== null;
-    
-    setHasChanges(formHasChanges);
-  }, [watchedValues, currentImages, originalImages, imagesDeleted, modelDeleted, modelFile, originalValues]);
+      modelFile !== null
+
+    setHasChanges(formHasChanges)
+  }, [
+    watchedValues,
+    currentImages,
+    originalImages,
+    imagesDeleted,
+    modelDeleted,
+    modelFile,
+    originalValues,
+  ])
 
   const mutation = useMutation({
     mutationFn: (data: ItemUpdate) =>
-      itemsUpdateItem({ id: item.id, requestBody: { ...data, title: data.title ?? "" } }),
+      itemsUpdateItem({
+        id: item.id,
+        requestBody: { ...data, title: data.title ?? "" },
+      }),
     onSuccess: () => {
-      showToast("Success!", "Item updated successfully.", "success");
-      reset();
-      queryClient.invalidateQueries({ queryKey: ["items"] }); // Ensure item list refreshes
-      onSuccess();
+      showToast("Success!", "Item updated successfully.", "success")
+      reset()
+      queryClient.invalidateQueries({ queryKey: ["items"] }) // Ensure item list refreshes
+      onSuccess()
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
-  });
+  })
 
   const handleImagesChange = (urls: string) => {
-    setCurrentImages(urls);
-    setValue("images", urls, { shouldDirty: true });
+    setCurrentImages(urls)
+    setValue("images", urls, { shouldDirty: true })
     // Track if images were deleted
     if (urls !== originalImages) {
-      setImagesDeleted(originalImages !== "" && urls === "");
+      setImagesDeleted(originalImages !== "" && urls === "")
     }
-  };
+  }
 
   // Model management handlers
-  const handleModelUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleModelUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0]
     if (file) {
       // Validate file extension
-      if (!file.name.toLowerCase().endsWith('.blend')) {
-        showToast("Error", "Only .blend files are allowed", "error");
-        event.target.value = "";
-        return;
+      if (!file.name.toLowerCase().endsWith(".blend")) {
+        showToast("Error", "Only .blend files are allowed", "error")
+        event.target.value = ""
+        return
       }
-      
+
       try {
         // Upload the model file to the server
         await modelsUploadModel({
           formData: { file },
           itemId: item?.id || "",
-          userId: currentUser?.id?.toString() || "0"
-        });
-        
-        setModelFile(file);
-        setCurrentModel(file.name);
-        setModelDeleted(false);
-        setValue("model", file.name, { shouldDirty: true });
-        showToast("Success", "Model file uploaded successfully", "success");
+          userId: currentUser?.id?.toString() || "0",
+        })
+
+        setModelFile(file)
+        setCurrentModel(file.name)
+        setModelDeleted(false)
+        setValue("model", file.name, { shouldDirty: true })
+        showToast("Success", "Model file uploaded successfully", "success")
       } catch (error) {
-        console.error("Error uploading model:", error);
-        showToast("Error", "Failed to upload model file", "error");
-        event.target.value = "";
+        console.error("Error uploading model:", error)
+        showToast("Error", "Failed to upload model file", "error")
+        event.target.value = ""
       }
     }
-  };
+  }
 
   const handleModelDelete = async () => {
-    if (!item?.id || !currentModel) return;
-    
+    if (!item?.id || !currentModel) return
+
     try {
       await modelsDeleteModel({
         itemId: item.id,
         userId: currentUser?.id?.toString() || "0",
-        fileName: currentModel
-      });
-      
-      setCurrentModel(null);
-      setModelFile(null);
-      setModelDeleted(true);
-      setValue("model", "", { shouldDirty: true });
-      showToast("Success", "Model file deleted successfully", "success");
+        fileName: currentModel,
+      })
+
+      setCurrentModel(null)
+      setModelFile(null)
+      setModelDeleted(true)
+      setValue("model", "", { shouldDirty: true })
+      showToast("Success", "Model file deleted successfully", "success")
     } catch (error) {
-      console.error("Error deleting model:", error);
-      showToast("Error", "Failed to delete model file", "error");
+      console.error("Error deleting model:", error)
+      showToast("Error", "Failed to delete model file", "error")
     }
-  };
+  }
 
   const onSubmit: SubmitHandler<ItemUpdate> = (data) => {
     const updatedData = {
       ...data,
       title: data.title ?? "",
-    };
-    mutation.mutate(updatedData);
-  };
+    }
+    mutation.mutate(updatedData)
+  }
 
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)}>
@@ -216,12 +233,18 @@ const EditItem = ({
           placeholder="Title"
           type="text"
         />
-        {errors.title && <FormErrorMessage>{errors.title.message}</FormErrorMessage>}
+        {errors.title && (
+          <FormErrorMessage>{errors.title.message}</FormErrorMessage>
+        )}
       </FormControl>
 
       <FormControl mt={4}>
         <FormLabel htmlFor="description">Description</FormLabel>
-        <Input id="description" {...register("description")} placeholder="Description" />
+        <Input
+          id="description"
+          {...register("description")}
+          placeholder="Description"
+        />
       </FormControl>
 
       <FormControl mt={4}>
@@ -232,34 +255,39 @@ const EditItem = ({
               <Text fontSize="sm" color="green.500">
                 ✓ {currentModel}
               </Text>
-              <Flex 
-                cursor="pointer" 
+              <Flex
+                cursor="pointer"
                 onClick={handleModelDelete}
-                w="24px" 
+                w="24px"
                 h="24px"
               >
-                <img 
-                  src={deleteIcon} 
-                  alt="delete" 
+                <img
+                  src={deleteIcon}
+                  alt="delete"
                   className="hover-icon"
-                  style={{ 
-                    width: "24px", 
+                  style={{
+                    width: "24px",
                     height: "24px",
                     display: "block",
                     opacity: "0.6",
                     transition: "all 0.2s ease",
-                    filter: "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)"
+                    filter:
+                      "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = "1";
-                    e.currentTarget.style.transform = "scale(1.15)";
+                    e.currentTarget.style.opacity = "1"
+                    e.currentTarget.style.transform = "scale(1.15)"
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = "0.6";
-                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.opacity = "0.6"
+                    e.currentTarget.style.transform = "scale(1)"
                   }}
-                  onMouseDown={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                  onMouseUp={(e) => e.currentTarget.style.transform = "scale(1.15)"}
+                  onMouseDown={(e) =>
+                    (e.currentTarget.style.transform = "scale(1.05)")
+                  }
+                  onMouseUp={(e) =>
+                    (e.currentTarget.style.transform = "scale(1.15)")
+                  }
                 />
               </Flex>
             </HStack>
@@ -275,7 +303,7 @@ const EditItem = ({
             />
             <Button
               variant="primary"
-              onClick={() => document.getElementById('model-upload')?.click()}
+              onClick={() => document.getElementById("model-upload")?.click()}
               width="100%"
               justifyContent="flex-start"
               textAlign="left"
@@ -311,7 +339,10 @@ const EditItem = ({
 
       <FormControl mt={4}>
         <FormLabel>Images</FormLabel>
-        <ImagesUploader onImagesChange={handleImagesChange} _item={item ?? {}} />
+        <ImagesUploader
+          onImagesChange={handleImagesChange}
+          _item={item ?? {}}
+        />
       </FormControl>
       <HStack spacing={4} mt={4}>
         <Button
@@ -416,7 +447,7 @@ const EditItem = ({
         </ModalContent>
       </Modal> */}
     </Box>
-  );
-};
+  )
+}
 
-export default EditItem;
+export default EditItem

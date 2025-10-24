@@ -1,6 +1,8 @@
 import {
+  Badge,
   Box,
   Button,
+  Code,
   Container,
   HStack,
   Select,
@@ -11,10 +13,8 @@ import {
   Th,
   Thead,
   Tr,
-  useColorModeValue,
   VStack,
-  Badge,
-  Code,
+  useColorModeValue,
 } from "@chakra-ui/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
@@ -50,7 +50,7 @@ function LogsPage() {
   const queryClient = useQueryClient()
   const [limit, setLimit] = useState(100)
   const [levelFilter, setLevelFilter] = useState<string>("")
-  
+
   const bgColor = useColorModeValue("white", "gray.800")
   const borderColor = useColorModeValue("gray.200", "gray.700")
 
@@ -175,7 +175,12 @@ function LogsPage() {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <HStack justify="flex-end">
-          <Button onClick={() => refetch()} colorScheme="blue" size="sm" isLoading={isFetching}>
+          <Button
+            onClick={() => refetch()}
+            colorScheme="blue"
+            size="sm"
+            isLoading={isFetching}
+          >
             Refresh
           </Button>
           <Button onClick={handleClearLogs} colorScheme="red" size="sm">
@@ -185,16 +190,25 @@ function LogsPage() {
 
         {/* Stats */}
         {stats && (
-          <Box bg={bgColor} p={4} borderRadius="md" borderWidth={1} borderColor={borderColor}>
+          <Box
+            bg={bgColor}
+            p={4}
+            borderRadius="md"
+            borderWidth={1}
+            borderColor={borderColor}
+          >
             <HStack spacing={6}>
               <Text>
-                <strong>Total:</strong> {stats.total_entries} / {stats.buffer_capacity}
+                <strong>Total:</strong> {stats.total_entries} /{" "}
+                {stats.buffer_capacity}
               </Text>
-              {Object.entries(stats.level_counts || {}).map(([level, count]) => (
-                <Badge key={level} colorScheme={getLevelColor(level)}>
-                  {level}: {count as number}
-                </Badge>
-              ))}
+              {Object.entries(stats.level_counts || {}).map(
+                ([level, count]) => (
+                  <Badge key={level} colorScheme={getLevelColor(level)}>
+                    {level}: {count as number}
+                  </Badge>
+                ),
+              )}
             </HStack>
           </Box>
         )}
@@ -258,7 +272,10 @@ function LogsPage() {
                         {new Date(log.timestamp).toLocaleString()}
                       </Td>
                       <Td>
-                        <Badge colorScheme={getLevelColor(log.level)} fontSize="xs">
+                        <Badge
+                          colorScheme={getLevelColor(log.level)}
+                          fontSize="xs"
+                        >
                           {log.level}
                         </Badge>
                       </Td>

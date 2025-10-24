@@ -1,5 +1,7 @@
 import {
+  Button,
   Container,
+  Flex,
   SkeletonText,
   Table,
   TableContainer,
@@ -8,48 +10,47 @@ import {
   Th,
   Thead,
   Tr,
-  Button,
   useToast,
-  Flex,
-} from "@chakra-ui/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { z } from "zod";
+} from "@chakra-ui/react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useEffect } from "react"
+import { z } from "zod"
 
-import { usersReadUsers } from "../../client/sdk.gen.ts";
-import { type UserPublic } from "../../client/types.gen.ts";
-import AddUser from "../../components/Admin/AddUser.tsx";
-import Navbar from "../../components/Common/Navbar.tsx";
-import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx";
-import { UserRow } from "../../components/UserSettings/User.tsx";
+import { usersReadUsers } from "../../client/sdk.gen.ts"
+import type { UserPublic } from "../../client/types.gen.ts"
+import AddUser from "../../components/Admin/AddUser.tsx"
+import Navbar from "../../components/Common/Navbar.tsx"
+import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
+import { UserRow } from "../../components/UserSettings/User.tsx"
 
 const usersSearchSchema = z.object({
   page: z.number().catch(1),
-});
+})
 
 export const Route = createFileRoute("/_layout/suadmin")({
   component: SuAdmin,
   validateSearch: (search) => usersSearchSchema.parse(search),
-});
+})
 
-const PER_PAGE = 5;
+const PER_PAGE = 5
 
 function getUsersQueryOptions({ page }: { page: number }) {
   return {
-    queryFn: () => usersReadUsers({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
+    queryFn: () =>
+      usersReadUsers({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
     queryKey: ["users", { page }],
-  };
+  }
 }
 
 function UsersTable() {
-  const queryClient = useQueryClient();
-  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"]);
-  const { page } = Route.useSearch() as { page: number };
-  const navigate = useNavigate({ from: Route.fullPath });
+  const queryClient = useQueryClient()
+  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
+  const { page } = Route.useSearch() as { page: number }
+  const navigate = useNavigate({ from: Route.fullPath })
   const setPage = (page: number) =>
     // @ts-ignore: Suppress TypeScript error
-    navigate({ search: (prev) => ({ ...prev, page }) });
+    navigate({ search: (prev) => ({ ...prev, page }) })
 
   const {
     data: users,
@@ -58,16 +59,16 @@ function UsersTable() {
   } = useQuery({
     ...getUsersQueryOptions({ page }),
     placeholderData: (prevData) => prevData,
-  });
+  })
 
-  const hasNextPage = !isPlaceholderData && users?.data.length === PER_PAGE;
-  const hasPreviousPage = page > 1;
+  const hasNextPage = !isPlaceholderData && users?.data.length === PER_PAGE
+  const hasPreviousPage = page > 1
 
   useEffect(() => {
     if (hasNextPage) {
-      queryClient.prefetchQuery(getUsersQueryOptions({ page: page + 1 }));
+      queryClient.prefetchQuery(getUsersQueryOptions({ page: page + 1 }))
     }
-  }, [page, queryClient, hasNextPage]);
+  }, [page, queryClient, hasNextPage])
 
   return (
     <>
@@ -79,8 +80,8 @@ function UsersTable() {
               <Th width="40%">Email</Th>
               <Th width="35%">Permissions</Th>
               <Th width="5%">Status</Th>
-              <Th width="5%"></Th>
-              <Th width="5%"></Th>
+              <Th width="5%" />
+              <Th width="5%" />
             </Tr>
           </Thead>
           {isPending ? (
@@ -96,7 +97,11 @@ function UsersTable() {
           ) : (
             <Tbody>
               {users?.data.map((user) => (
-                <UserRow key={user.id} user={user} currentUserId={currentUser?.id} />
+                <UserRow
+                  key={user.id}
+                  user={user}
+                  currentUserId={currentUser?.id}
+                />
               ))}
             </Tbody>
           )}
@@ -109,15 +114,15 @@ function UsersTable() {
         hasPreviousPage={hasPreviousPage}
       />
     </>
-  );
+  )
 }
 
 function SuAdmin() {
-  const toast = useToast();
+  const toast = useToast()
   const registerWatch = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const token = localStorage.getItem("access_token")
+      const apiBase = import.meta.env.VITE_API_URL ?? ""
       const res = await fetch(`${apiBase}/api/v1/drive/register-watch`, {
         method: "POST",
         credentials: "include", // send cookies if present
@@ -125,43 +130,43 @@ function SuAdmin() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-      });
-      
+      })
+
       if (!res.ok) {
-        let errorMessage = "Unknown error occurred";
+        let errorMessage = "Unknown error occurred"
         try {
           // Try to parse JSON error response
-          const errorData = await res.json();
-          errorMessage = errorData.detail || errorData.message || res.statusText;
+          const errorData = await res.json()
+          errorMessage = errorData.detail || errorData.message || res.statusText
         } catch {
           // Fallback to text if JSON parsing fails
-          errorMessage = await res.text() || res.statusText;
+          errorMessage = (await res.text()) || res.statusText
         }
-        throw new Error(errorMessage);
+        throw new Error(errorMessage)
       }
-      
-      const result = await res.json();
-      toast({ 
-        title: "Google Drive watch registered successfully", 
+
+      const result = await res.json()
+      toast({
+        title: "Google Drive watch registered successfully",
         description: result.message || "Drive watch is now active",
         status: "success",
-        duration: 5000
-      });
+        duration: 5000,
+      })
     } catch (err: any) {
-      toast({ 
-        title: "Failed to register Drive watch", 
-        description: err.message || "An unexpected error occurred", 
+      toast({
+        title: "Failed to register Drive watch",
+        description: err.message || "An unexpected error occurred",
         status: "error",
         duration: 8000,
-        isClosable: true
-      });
+        isClosable: true,
+      })
     }
-  };
+  }
 
   const populateChunks = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const token = localStorage.getItem("access_token")
+      const apiBase = import.meta.env.VITE_API_URL ?? ""
       const res = await fetch(`${apiBase}/api/v1/drive/populate-chunks`, {
         method: "POST",
         credentials: "include",
@@ -169,43 +174,45 @@ function SuAdmin() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-      });
-      
+      })
+
       if (!res.ok) {
-        let errorMessage = "Unknown error occurred";
+        let errorMessage = "Unknown error occurred"
         try {
           // Try to parse JSON error response
-          const errorData = await res.json();
-          errorMessage = errorData.detail || errorData.message || res.statusText;
+          const errorData = await res.json()
+          errorMessage = errorData.detail || errorData.message || res.statusText
         } catch {
           // Fallback to text if JSON parsing fails
-          errorMessage = await res.text() || res.statusText;
+          errorMessage = (await res.text()) || res.statusText
         }
-        throw new Error(errorMessage);
+        throw new Error(errorMessage)
       }
-      
-      const result = await res.json();
-      toast({ 
-        title: "AI chunks populated successfully", 
-        description: result.message || "Business plan content is now available for AI chat",
+
+      const result = await res.json()
+      toast({
+        title: "AI chunks populated successfully",
+        description:
+          result.message ||
+          "Business plan content is now available for AI chat",
         status: "success",
-        duration: 5000
-      });
+        duration: 5000,
+      })
     } catch (err: any) {
-      toast({ 
-        title: "Failed to populate AI chunks", 
-        description: err.message || "An unexpected error occurred", 
+      toast({
+        title: "Failed to populate AI chunks",
+        description: err.message || "An unexpected error occurred",
         status: "error",
         duration: 8000,
-        isClosable: true
-      });
+        isClosable: true,
+      })
     }
-  };
+  }
 
   const refreshSocialPosts = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const token = localStorage.getItem("access_token")
+      const apiBase = import.meta.env.VITE_API_URL ?? ""
       const res = await fetch(`${apiBase}/api/v1/social/refresh`, {
         method: "POST",
         credentials: "include",
@@ -213,36 +220,38 @@ function SuAdmin() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-      });
-      
+      })
+
       if (!res.ok) {
-        let errorMessage = "Unknown error occurred";
+        let errorMessage = "Unknown error occurred"
         try {
-          const errorData = await res.json();
-          errorMessage = errorData.detail || errorData.message || res.statusText;
+          const errorData = await res.json()
+          errorMessage = errorData.detail || errorData.message || res.statusText
         } catch {
-          errorMessage = await res.text() || res.statusText;
+          errorMessage = (await res.text()) || res.statusText
         }
-        throw new Error(errorMessage);
+        throw new Error(errorMessage)
       }
-      
-      const result = await res.json();
-      toast({ 
-        title: "Social media posts refreshed", 
-        description: result.message || "Successfully fetched latest posts from all platforms",
+
+      const result = await res.json()
+      toast({
+        title: "Social media posts refreshed",
+        description:
+          result.message ||
+          "Successfully fetched latest posts from all platforms",
         status: "success",
-        duration: 5000
-      });
+        duration: 5000,
+      })
     } catch (err: any) {
-      toast({ 
-        title: "Failed to refresh social posts", 
-        description: err.message || "An unexpected error occurred", 
+      toast({
+        title: "Failed to refresh social posts",
+        description: err.message || "An unexpected error occurred",
         status: "error",
         duration: 8000,
-        isClosable: true
-      });
+        isClosable: true,
+      })
     }
-  };
+  }
   return (
     <Container maxW="full">
       <Flex mb={4} gap={4} direction={{ base: "column", md: "row" }}>
@@ -264,7 +273,7 @@ function SuAdmin() {
         </Button>
       </Flex>
     </Container>
-  );
+  )
 }
 
-export default SuAdmin;
+export default SuAdmin

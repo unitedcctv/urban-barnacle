@@ -15,13 +15,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
 
-import { type ApiError, type ProducerPublic, type ProducerUpdate } from "../../client"
-import useCustomToast from "../../hooks/useCustomToast"
+import type { ApiError, ProducerPublic, ProducerUpdate } from "../../client"
 import {
+  producersCreateProducer,
   producersReadProducers,
   producersUpdateProducer,
-  producersCreateProducer,
 } from "../../client/sdk.gen"
+import useCustomToast from "../../hooks/useCustomToast"
 
 export const Route = createFileRoute("/_layout/producer")({
   component: Admin,
@@ -54,7 +54,10 @@ function Admin() {
   const updateProducerMutation = useMutation({
     mutationFn: async (data: ProducerUpdate) => {
       if (!currentProducer) throw new Error("No producer to update")
-      return producersUpdateProducer({ id: currentProducer.id, requestBody: data })
+      return producersUpdateProducer({
+        id: currentProducer.id,
+        requestBody: data,
+      })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["producers"] })
@@ -124,10 +127,7 @@ function Admin() {
 
   return (
     <Container maxW="full">
-      <Box
-        p={6}
-        mt={6}
-      >
+      <Box p={6} mt={6}>
         {!currentProducer && !isEditing ? (
           <VStack spacing={4}>
             <Text>No producer profile found. Create one to get started.</Text>
@@ -200,7 +200,9 @@ function Admin() {
                   <Box>
                     <Text fontWeight="bold">Created:</Text>
                     <Text>
-                      {new Date(currentProducer.created_at).toLocaleDateString()}
+                      {new Date(
+                        currentProducer.created_at,
+                      ).toLocaleDateString()}
                     </Text>
                   </Box>
                 </Stack>

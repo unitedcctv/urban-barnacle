@@ -1,27 +1,27 @@
-import React from "react"
 import {
   Flex,
-  Text,
   Modal,
-  ModalOverlay,
+  ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  useDisclosure,
+  ModalOverlay,
+  Text,
   useColorModeValue,
+  useDisclosure,
 } from "@chakra-ui/react"
-import loginIcon from "../../theme/assets/icons/login.svg"
-import logoutIcon from "../../theme/assets/icons/logout.svg"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
+import React from "react"
 import type { UserPublic } from "../../client"
-import Login from "./login"
-import SignUpModal from "../UserSettings/SignUpModal.tsx"
 import useAuth, { isLoggedIn } from "../../hooks/useAuth"
+import loginIcon from "../../theme/assets/icons/login.svg"
+import logoutIcon from "../../theme/assets/icons/logout.svg"
+import SignUpModal from "../UserSettings/SignUpModal.tsx"
+import Login from "./login"
 
 async function fetchCurrentUser(): Promise<UserPublic | null> {
-  const apiBase = import.meta.env.VITE_API_URL ?? "";
+  const apiBase = import.meta.env.VITE_API_URL ?? ""
   const response = await fetch(`${apiBase}/api/currentUser`)
   if (!response.ok) return null
   return response.json()
@@ -60,8 +60,12 @@ const LogInOut = () => {
 
   const bgHover = useColorModeValue("#EDF2F7", "#4A5568")
 
-  const mouseHandlers = (e: React.MouseEvent<HTMLDivElement>, entering: boolean, action?: "down" | "up") => {
-    const img = e.currentTarget.querySelector('img')
+  const mouseHandlers = (
+    e: React.MouseEvent<HTMLDivElement>,
+    entering: boolean,
+    action?: "down" | "up",
+  ) => {
+    const img = e.currentTarget.querySelector("img")
     if (!img) return
 
     if (action === "down") {
@@ -71,7 +75,8 @@ const LogInOut = () => {
     } else if (entering) {
       img.style.opacity = "1"
       img.style.transform = "scale(1.15)"
-      img.style.filter = "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
+      img.style.filter =
+        "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
     } else {
       img.style.opacity = "0.6"
       img.style.transform = "scale(1)"
@@ -82,12 +87,12 @@ const LogInOut = () => {
   return (
     <>
       {currentUser?.is_active ? (
-        <Flex 
+        <Flex
           px={4}
           py={0}
           h="52px"
-          onClick={handleLogout} 
-          align="center" 
+          onClick={handleLogout}
+          align="center"
           cursor="pointer"
           _hover={{ bg: bgHover }}
           onMouseEnter={(e) => mouseHandlers(e, true)}
@@ -96,27 +101,27 @@ const LogInOut = () => {
           onMouseUp={(e) => mouseHandlers(e, true, "up")}
         >
           <Text>Logout</Text>
-          <img 
-            src={logoutIcon} 
-            alt="Logout" 
-            style={{ 
-              width: "20px", 
-              height: "20px", 
+          <img
+            src={logoutIcon}
+            alt="Logout"
+            style={{
+              width: "20px",
+              height: "20px",
               marginLeft: "8px",
               opacity: "0.6",
               transition: "all 0.2s ease",
               filter: "brightness(0) saturate(0%) invert(60%)",
-              pointerEvents: "none"
+              pointerEvents: "none",
             }}
           />
         </Flex>
       ) : (
-        <Flex 
+        <Flex
           px={4}
           py={0}
           h="52px"
-          onClick={onOpen} 
-          align="center" 
+          onClick={onOpen}
+          align="center"
           cursor="pointer"
           _hover={{ bg: bgHover }}
           onMouseEnter={(e) => mouseHandlers(e, true)}
@@ -124,16 +129,16 @@ const LogInOut = () => {
           onMouseDown={(e) => mouseHandlers(e, true, "down")}
           onMouseUp={(e) => mouseHandlers(e, true, "up")}
         >
-          <img 
-            src={loginIcon} 
-            alt="Login" 
-            style={{ 
-              width: "20px", 
+          <img
+            src={loginIcon}
+            alt="Login"
+            style={{
+              width: "20px",
               height: "20px",
               opacity: "0.6",
               transition: "all 0.2s ease",
               filter: "brightness(0) saturate(0%) invert(60%)",
-              pointerEvents: "none"
+              pointerEvents: "none",
             }}
           />
           <Text ml={2}>Login</Text>
@@ -151,7 +156,11 @@ const LogInOut = () => {
         </ModalContent>
       </Modal>
 
-      <SignUpModal isOpen={signUp.isOpen} onClose={signUp.onClose} openLogin={onOpen} />
+      <SignUpModal
+        isOpen={signUp.isOpen}
+        onClose={signUp.onClose}
+        openLogin={onOpen}
+      />
     </>
   )
 }

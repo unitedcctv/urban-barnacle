@@ -1,19 +1,20 @@
-import { Box, Text, Input, Button, VStack } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { Box, Button, Input, Text, VStack } from "@chakra-ui/react"
+import type React from "react"
+import { useState } from "react"
 
 const AskBusinessPlan = () => {
-  const [query, setQuery] = useState("");
-  const [response, setResponse] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("")
+  const [response, setResponse] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    setLoading(true);
-    setResponse(null);
+    e.preventDefault()
+    if (!query.trim()) return
+    setLoading(true)
+    setResponse(null)
     try {
-      const token = localStorage.getItem("access_token");
-      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const token = localStorage.getItem("access_token")
+      const apiBase = import.meta.env.VITE_API_URL ?? ""
       const res = await fetch(`${apiBase}/api/v1/ai/chat`, {
         method: "POST",
         credentials: "include",
@@ -22,24 +23,24 @@ const AskBusinessPlan = () => {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ message: query }),
-      });
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error("Streaming unsupported");
-      const decoder = new TextDecoder();
-      let text = "";
+      })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error("Streaming unsupported")
+      const decoder = new TextDecoder()
+      let text = ""
       for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        text += decoder.decode(value, { stream: true });
-        setResponse(text);
+        const { done, value } = await reader.read()
+        if (done) break
+        text += decoder.decode(value, { stream: true })
+        setResponse(text)
       }
     } catch (err) {
-      console.error(err);
-      setResponse("Error fetching response");
+      console.error(err)
+      setResponse("Error fetching response")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <Box mt={8}>
@@ -72,7 +73,7 @@ const AskBusinessPlan = () => {
         </Box>
       )}
     </Box>
-  );
-};
+  )
+}
 
-export default AskBusinessPlan;
+export default AskBusinessPlan

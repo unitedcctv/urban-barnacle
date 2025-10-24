@@ -801,33 +801,6 @@ export const NewPasswordSchema = {
   title: "NewPassword",
 } as const
 
-export const PlatformDataSchema = {
-  properties: {
-    posts: {
-      items: {
-        $ref: "#/components/schemas/SocialPostPublic",
-      },
-      type: "array",
-      title: "Posts",
-    },
-    error: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Error",
-    },
-  },
-  type: "object",
-  required: ["posts"],
-  title: "PlatformData",
-  description: "Data for a single platform including posts and error status",
-} as const
-
 export const PrivateUserCreateSchema = {
   properties: {
     email: {
@@ -873,6 +846,28 @@ export const ProducerCreateSchema = {
       ],
       title: "Location",
     },
+    logo_url: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Logo Url",
+    },
+    portfolio_images: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Portfolio Images",
+    },
   },
   type: "object",
   required: ["name"],
@@ -898,6 +893,28 @@ export const ProducerPublicSchema = {
         },
       ],
       title: "Location",
+    },
+    logo_url: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Logo Url",
+    },
+    portfolio_images: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Portfolio Images",
     },
     id: {
       type: "string",
@@ -942,6 +959,28 @@ export const ProducerUpdateSchema = {
       ],
       title: "Location",
     },
+    logo_url: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Logo Url",
+    },
+    portfolio_images: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Portfolio Images",
+    },
   },
   type: "object",
   title: "ProducerUpdate",
@@ -964,105 +1003,6 @@ export const ProducersPublicSchema = {
   type: "object",
   required: ["data", "count"],
   title: "ProducersPublic",
-} as const
-
-export const SocialPostPublicSchema = {
-  properties: {
-    id: {
-      type: "integer",
-      title: "Id",
-    },
-    platform: {
-      type: "string",
-      title: "Platform",
-    },
-    post_id: {
-      type: "string",
-      title: "Post Id",
-    },
-    author: {
-      type: "string",
-      title: "Author",
-    },
-    author_avatar: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Author Avatar",
-    },
-    content: {
-      type: "string",
-      title: "Content",
-    },
-    url: {
-      type: "string",
-      title: "Url",
-    },
-    created_at: {
-      type: "string",
-      format: "date-time",
-      title: "Created At",
-    },
-    likes: {
-      type: "integer",
-      title: "Likes",
-    },
-    reposts: {
-      type: "integer",
-      title: "Reposts",
-    },
-    replies: {
-      type: "integer",
-      title: "Replies",
-    },
-  },
-  type: "object",
-  required: [
-    "id",
-    "platform",
-    "post_id",
-    "author",
-    "author_avatar",
-    "content",
-    "url",
-    "created_at",
-    "likes",
-    "reposts",
-    "replies",
-  ],
-  title: "SocialPostPublic",
-  description: "Schema for returning social media posts to the frontend",
-} as const
-
-export const SocialPostsResponseSchema = {
-  properties: {
-    mastodon: {
-      $ref: "#/components/schemas/PlatformData",
-    },
-    bluesky: {
-      $ref: "#/components/schemas/PlatformData",
-    },
-    reddit: {
-      $ref: "#/components/schemas/PlatformData",
-    },
-    linkedin: {
-      $ref: "#/components/schemas/PlatformData",
-    },
-    last_updated: {
-      type: "string",
-      format: "date-time",
-      title: "Last Updated",
-    },
-  },
-  type: "object",
-  required: ["mastodon", "bluesky", "reddit", "linkedin", "last_updated"],
-  title: "SocialPostsResponse",
-  description: "Response containing posts from all platforms",
 } as const
 
 export const TokenSchema = {

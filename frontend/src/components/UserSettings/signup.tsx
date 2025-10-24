@@ -55,7 +55,7 @@ function SignUp({ onClose, openLogin }: SignUpProps = {}) {
         if (onClose) {
           onClose()
         }
-      }
+      },
     })
   }
 

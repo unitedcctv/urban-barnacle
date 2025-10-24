@@ -12,7 +12,6 @@ const Appearance = () => {
   const { colorMode, toggleColorMode } = useColorMode()
 
   return (
-
     <Container>
       <Heading size="sm" py={4}>
         Appearance

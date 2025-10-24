@@ -1,4 +1,4 @@
-import disabledStyles from "./disabled-styles";
+import disabledStyles from "./disabled-styles"
 
 const components = {
   Button: {
@@ -70,6 +70,6 @@ const components = {
       },
     },
   },
-};
+}
 
-export default components;
+export default components

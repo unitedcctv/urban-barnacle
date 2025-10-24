@@ -12,9 +12,7 @@ import {
   Text,
   useBoolean,
 } from "@chakra-ui/react"
-import {
-  Link as RouterLink,
-} from "@tanstack/react-router"
+import { Link as RouterLink } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
 import type { Body_login_login_access_token as AccessToken } from "../../client/types.gen"

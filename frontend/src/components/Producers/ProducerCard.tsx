@@ -1,14 +1,14 @@
-import { Box, Heading, Stack, Text, useColorModeValue } from "@chakra-ui/react";
-import type { ProducerPublic } from "../../client";
+import { Box, Heading, Stack, Text, useColorModeValue } from "@chakra-ui/react"
+import type { ProducerPublic } from "../../client"
 
 interface ProducerCardProps {
-  producer: ProducerPublic;
+  producer: ProducerPublic
 }
 
 export default function ProducerCard({ producer }: ProducerCardProps) {
-  const cardBg = useColorModeValue("ui.white", "ui.dark");
-  const border = useColorModeValue("ui.border", "ui.darkSlate");
-  const subtle = useColorModeValue("gray.600", "gray.300");
+  const cardBg = useColorModeValue("ui.white", "ui.dark")
+  const border = useColorModeValue("ui.border", "ui.darkSlate")
+  const subtle = useColorModeValue("gray.600", "gray.300")
 
   return (
     <Box
@@ -31,5 +31,5 @@ export default function ProducerCard({ producer }: ProducerCardProps) {
         </Text>
       </Stack>
     </Box>
-  );
+  )
 }

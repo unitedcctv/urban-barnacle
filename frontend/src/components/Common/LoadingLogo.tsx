@@ -6,9 +6,7 @@ interface LoadingLogoProps {
   size?: string
 }
 
-const LoadingLogo = ({ 
-  size = "120px"
-}: LoadingLogoProps) => {
+const LoadingLogo = ({ size = "120px" }: LoadingLogoProps) => {
   return (
     <Box className="loading-logo-container">
       <Box

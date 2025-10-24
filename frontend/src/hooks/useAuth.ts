@@ -3,10 +3,14 @@ import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 
 import { AxiosError } from "axios"
-import {type ApiError } from "../client/core/ApiError"
-import { type UserPublic, type UserRegister } from "../client/types.gen"
-import { type Body_login_login_access_token as AccessToken } from "../client/types.gen"
-import { usersReadUserMe, usersRegisterUser, loginLoginAccessToken } from "../client/sdk.gen"
+import type { ApiError } from "../client/core/ApiError"
+import {
+  loginLoginAccessToken,
+  usersReadUserMe,
+  usersRegisterUser,
+} from "../client/sdk.gen"
+import type { UserPublic, UserRegister } from "../client/types.gen"
+import type { Body_login_login_access_token as AccessToken } from "../client/types.gen"
 
 import useCustomToast from "./useCustomToast"
 
@@ -19,7 +23,11 @@ const useAuth = () => {
   const navigate = useNavigate()
   const showToast = useCustomToast()
   const queryClient = useQueryClient()
-  const { data: user, isLoading, error: userError } = useQuery<UserPublic | null, Error>({
+  const {
+    data: user,
+    isLoading,
+    error: userError,
+  } = useQuery<UserPublic | null, Error>({
     queryKey: ["currentUser"],
     queryFn: usersReadUserMe,
     enabled: isLoggedIn(),
@@ -29,7 +37,11 @@ const useAuth = () => {
   // Handle authentication errors
   if (userError && isLoggedIn()) {
     const error = userError as any
-    if (error?.status === 401 || error?.status === 403 || error?.message?.includes("User not found")) {
+    if (
+      error?.status === 401 ||
+      error?.status === 403 ||
+      error?.message?.includes("User not found")
+    ) {
       localStorage.removeItem("access_token")
       navigate({ to: "/" })
     }

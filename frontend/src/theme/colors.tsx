@@ -28,9 +28,9 @@ const colors = {
     // Additional colors for navigation and login-out
     hoverLight: "#EDF2F7",
     hoverDark: "#4A5568",
-    altLight: "#F9FAFB",  // e.g., used for lighter backgrounds
-    altDark: "#343F4C",   // e.g., used for darker backgrounds
+    altLight: "#F9FAFB", // e.g., used for lighter backgrounds
+    altDark: "#343F4C", // e.g., used for darker backgrounds
   },
-};
+}
 
-export default colors;
+export default colors

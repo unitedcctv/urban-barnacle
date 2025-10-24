@@ -1,4 +1,4 @@
-import { defineConfig, defaultPlugins } from "@hey-api/openapi-ts"
+import { defaultPlugins, defineConfig } from "@hey-api/openapi-ts"
 
 export default defineConfig({
   client: "legacy/axios",
@@ -10,8 +10,8 @@ export default defineConfig({
       name: "@hey-api/sdk",
     },
     {
-      name: '@hey-api/schemas',
-      type: 'json',
+      name: "@hey-api/schemas",
+      type: "json",
     },
   ],
 })

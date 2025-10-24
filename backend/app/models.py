@@ -248,6 +248,8 @@ class ImagesPublic(SQLModel):
 class ProducerBase(SQLModel):
     name: str = Field(min_length=1, max_length=255)
     location: Optional[str] = Field(default=None, max_length=255)
+    logo_url: Optional[str] = Field(default=None)
+    portfolio_images: Optional[str] = Field(default=None)  # Comma-separated URLs
 
 
 # Properties to receive on producer creation

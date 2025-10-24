@@ -7,12 +7,12 @@ import {
   FormLabel,
   Input,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
   ModalBody,
+  ModalCloseButton,
+  ModalContent,
   ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   VStack,
   useColorModeValue,
@@ -20,14 +20,14 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import { type ApiError } from "../../client/core/ApiError"
-import { UserPublic, UserUpdateMe } from "../../client/types.gen"
+import type { ApiError } from "../../client/core/ApiError"
 import { usersUpdateUserMe } from "../../client/sdk.gen"
+import type { UserPublic, UserUpdateMe } from "../../client/types.gen"
 import useAuth from "../../hooks/useAuth"
 import useCustomToast from "../../hooks/useCustomToast"
 import { emailPattern, handleError } from "../../utils"
 
-function UserInformation(){
+function UserInformation() {
   const queryClient = useQueryClient()
   const color = useColorModeValue("inherit", "ui.light")
   const showToast = useCustomToast()
@@ -91,7 +91,7 @@ function UserInformation(){
             {currentUser?.full_name || "N/A"}
           </Text>
         </Box>
-        
+
         <Box w="full">
           <Text fontSize="sm" color={color} fontWeight="medium" mb={1}>
             Email
@@ -100,21 +100,19 @@ function UserInformation(){
             {currentUser?.email}
           </Text>
         </Box>
-        
+
         {permissions && permissions.length > 0 && (
           <Box w="full" fontSize="sm" color="ui.dim" mt={4}>
             <Text>
-              <Text as="span" fontWeight="medium">Permissions: </Text>
+              <Text as="span" fontWeight="medium">
+                Permissions:{" "}
+              </Text>
               {permissions.join(", ")}
             </Text>
           </Box>
         )}
-        
-        <Button
-          variant="primary"
-          onClick={onOpen}
-          mt={4}
-        >
+
+        <Button variant="primary" onClick={onOpen} mt={4}>
           Edit
         </Button>
       </VStack>
@@ -140,7 +138,7 @@ function UserInformation(){
                     w="full"
                   />
                 </FormControl>
-                
+
                 <FormControl w="full" isInvalid={!!errors.email}>
                   <FormLabel color={color} htmlFor="email">
                     Email

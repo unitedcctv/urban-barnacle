@@ -1,4 +1,10 @@
-import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from "@chakra-ui/react"
+import {
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
+} from "@chakra-ui/react"
 import SignUp from "./signup.tsx"
 
 interface SignUpModalProps {

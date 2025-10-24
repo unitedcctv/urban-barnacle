@@ -1,10 +1,10 @@
-import { Tr, Td, Badge, Flex, Box, Text } from "@chakra-ui/react"
-import { UserPublic } from "../../client/types.gen"
-import Delete from "../Common/DeleteAlert"
-import EditUser from "../Admin/EditUser"
+import { Badge, Box, Flex, Td, Text, Tr } from "@chakra-ui/react"
 import { useDisclosure } from "@chakra-ui/react"
-import editIcon from "../../theme/assets/icons/edit.svg"
+import type { UserPublic } from "../../client/types.gen"
 import deleteIcon from "../../theme/assets/icons/delete.svg"
+import editIcon from "../../theme/assets/icons/edit.svg"
+import EditUser from "../Admin/EditUser"
+import Delete from "../Common/DeleteAlert"
 
 type UserRowProps = {
   user: UserPublic
@@ -70,66 +70,73 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
       </Td>
       <Td>
         <Flex cursor="pointer" onClick={deleteModal.onOpen} w="24px" h="24px">
-          <img 
-            src={deleteIcon} 
-            alt="delete" 
+          <img
+            src={deleteIcon}
+            alt="delete"
             className="hover-icon"
-            style={{ 
-              width: "24px", 
+            style={{
+              width: "24px",
               height: "24px",
               display: "block",
               opacity: "0.6",
               transition: "all 0.2s ease",
-              filter: "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)"
+              filter:
+                "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = "1";
-              e.currentTarget.style.transform = "scale(1.15)";
+              e.currentTarget.style.opacity = "1"
+              e.currentTarget.style.transform = "scale(1.15)"
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = "0.6";
-              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.opacity = "0.6"
+              e.currentTarget.style.transform = "scale(1)"
             }}
-            onMouseDown={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-            onMouseUp={(e) => e.currentTarget.style.transform = "scale(1.15)"}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.transform = "scale(1.05)")
+            }
+            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1.15)")}
           />
         </Flex>
       </Td>
       <Td>
         <Flex cursor="pointer" onClick={editUserModal.onOpen} w="24px" h="24px">
-          <img 
-            src={editIcon} 
-            alt="edit" 
+          <img
+            src={editIcon}
+            alt="edit"
             className="hover-icon"
-            style={{ 
-              width: "24px", 
+            style={{
+              width: "24px",
               height: "24px",
               display: "block",
               opacity: "0.6",
               transition: "all 0.2s ease",
-              filter: "brightness(0) saturate(0%) invert(60%)"
+              filter: "brightness(0) saturate(0%) invert(60%)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = "1";
-              e.currentTarget.style.transform = "scale(1.15)";
-              e.currentTarget.style.filter = "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)";
+              e.currentTarget.style.opacity = "1"
+              e.currentTarget.style.transform = "scale(1.15)"
+              e.currentTarget.style.filter =
+                "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)"
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = "0.6";
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.filter = "brightness(0) saturate(0%) invert(60%)";
+              e.currentTarget.style.opacity = "0.6"
+              e.currentTarget.style.transform = "scale(1)"
+              e.currentTarget.style.filter =
+                "brightness(0) saturate(0%) invert(60%)"
             }}
-            onMouseDown={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-            onMouseUp={(e) => e.currentTarget.style.transform = "scale(1.15)"}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.transform = "scale(1.05)")
+            }
+            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1.15)")}
           />
         </Flex>
       </Td>
       <Td>
         <EditUser
-            user={user as UserPublic}
-            isOpen={editUserModal.isOpen}
-            onClose={editUserModal.onClose}
-          />
+          user={user as UserPublic}
+          isOpen={editUserModal.isOpen}
+          onClose={editUserModal.onClose}
+        />
         <Delete
           type="User"
           id={user.id}

@@ -1,5 +1,5 @@
-import { Flex, Box } from "@chakra-ui/react"
-import { Outlet, createFileRoute} from "@tanstack/react-router"
+import { Box, Flex } from "@chakra-ui/react"
+import { Outlet, createFileRoute } from "@tanstack/react-router"
 
 import Navigation from "../components/Common/Navigation"
 

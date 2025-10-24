@@ -1,6 +1,8 @@
 import {
-  Button,
   Box,
+  Button,
+  Checkbox,
+  FormControl,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -9,16 +11,18 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
-  Checkbox,
-  FormControl,
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { type SubmitHandler, useForm } from "react-hook-form"
 import { useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type ApiError } from "../../client/core/ApiError"
-import { type UserPublic, type UserUpdate, type UserPermission } from "../../client/types.gen"
+import type { ApiError } from "../../client/core/ApiError"
 import { usersUpdateUser } from "../../client/sdk.gen"
+import type {
+  UserPermission,
+  UserPublic,
+  UserUpdate,
+} from "../../client/types.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
 import PermissionsCheckboxGroup from "./Permissions"
@@ -105,15 +109,10 @@ const EditUser = ({ user, isOpen, onClose }: EditUserProps) => {
                 Is active?
               </Checkbox>
             </FormControl>
-
           </ModalBody>
 
           <ModalFooter gap={3}>
-            <Button
-              variant="primary"
-              type="submit"
-              isLoading={isSubmitting}
-            >
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>
               Save
             </Button>
           </ModalFooter>

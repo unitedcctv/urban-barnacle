@@ -1,6 +1,20 @@
-import { Container, Text, Box, Heading, HStack, Link, Icon } from "@chakra-ui/react"
+import {
+  Box,
+  Container,
+  HStack,
+  Heading,
+  Icon,
+  Link,
+  Text,
+} from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
-import { FaLinkedin, FaReddit, FaMastodon, FaCloud, FaYoutube } from "react-icons/fa"
+import {
+  FaCloud,
+  FaLinkedin,
+  FaMastodon,
+  FaReddit,
+  FaYoutube,
+} from "react-icons/fa"
 
 export const Route = createFileRoute("/_layout/community")({
   component: Community,
@@ -22,7 +36,7 @@ function Community() {
         <Text color="gray.600" mb={8}>
           Connect with us on social media
         </Text>
-        
+
         <HStack spacing={6} justify="center" wrap="wrap">
           {mastodonUrl && (
             <Link href={mastodonUrl} isExternal>
@@ -42,7 +56,7 @@ function Community() {
               </Box>
             </Link>
           )}
-          
+
           {blueskyUrl && (
             <Link href={blueskyUrl} isExternal>
               <Box
@@ -61,7 +75,7 @@ function Community() {
               </Box>
             </Link>
           )}
-          
+
           {redditUrl && (
             <Link href={redditUrl} isExternal>
               <Box
@@ -80,7 +94,7 @@ function Community() {
               </Box>
             </Link>
           )}
-          
+
           {linkedinUrl && (
             <Link href={linkedinUrl} isExternal>
               <Box
@@ -99,7 +113,7 @@ function Community() {
               </Box>
             </Link>
           )}
-          
+
           {youtubeUrl && (
             <Link href={youtubeUrl} isExternal>
               <Box

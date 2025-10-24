@@ -1,86 +1,93 @@
-import * as React from "react";
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Container,
-  Text,
-  VStack,
-  Alert,
-  AlertIcon,
   Link,
   Spinner,
-} from "@chakra-ui/react";
-import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
-import useCustomToast from "../../../hooks/useCustomToast";
+  Text,
+  VStack,
+} from "@chakra-ui/react"
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
+import * as React from "react"
+import useCustomToast from "../../../hooks/useCustomToast"
 
 export const Route = createFileRoute("/_layout/payment/success")({
   component: PaymentSuccess,
-});
+})
 
 interface PaymentSuccessData {
-  message: string;
-  download_url: string;
-  item_title: string;
-  expires_in: string;
+  message: string
+  download_url: string
+  item_title: string
+  expires_in: string
 }
 
 function PaymentSuccess() {
-  const search = useSearch({ from: Route.id });
-  const sessionId = (search as { session_id?: string }).session_id;
-  const navigate = useNavigate();
-  const showToast = useCustomToast();
-  
-  const [loading, setLoading] = React.useState(true);
-  const [paymentData, setPaymentData] = React.useState<PaymentSuccessData | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
+  const search = useSearch({ from: Route.id })
+  const sessionId = (search as { session_id?: string }).session_id
+  const navigate = useNavigate()
+  const showToast = useCustomToast()
+
+  const [loading, setLoading] = React.useState(true)
+  const [paymentData, setPaymentData] =
+    React.useState<PaymentSuccessData | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const verifyPayment = async () => {
       if (!sessionId) {
-        setError("No session ID provided");
-        setLoading(false);
-        return;
+        setError("No session ID provided")
+        setLoading(false)
+        return
       }
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/v1/payments/success?session_id=${sessionId}`,
+          `${
+            import.meta.env.VITE_API_URL
+          }/api/v1/payments/success?session_id=${sessionId}`,
           {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
             },
-          }
-        );
+          },
+        )
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail || 'Payment verification failed');
+          const errorData = await response.json()
+          throw new Error(errorData.detail || "Payment verification failed")
         }
 
-        const data = await response.json();
-        setPaymentData(data);
-        showToast("Success!", "Payment completed successfully!", "success");
+        const data = await response.json()
+        setPaymentData(data)
+        showToast("Success!", "Payment completed successfully!", "success")
       } catch (error) {
-        console.error('Payment verification error:', error);
-        setError(error instanceof Error ? error.message : 'Payment verification failed');
-        showToast("Error", "Failed to verify payment", "error");
+        console.error("Payment verification error:", error)
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Payment verification failed",
+        )
+        showToast("Error", "Failed to verify payment", "error")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    verifyPayment();
-  }, [sessionId, showToast]);
+    verifyPayment()
+  }, [sessionId, showToast])
 
   const handleDownload = () => {
     if (paymentData?.download_url) {
-      window.open(paymentData.download_url, '_blank');
+      window.open(paymentData.download_url, "_blank")
     }
-  };
+  }
 
   const handleBackToGallery = () => {
-    navigate({ to: "/gallery" });
-  };
+    navigate({ to: "/gallery" })
+  }
 
   if (loading) {
     return (
@@ -90,7 +97,7 @@ function PaymentSuccess() {
           <Text>Verifying your payment...</Text>
         </VStack>
       </Container>
-    );
+    )
   }
 
   if (error) {
@@ -101,12 +108,10 @@ function PaymentSuccess() {
             <AlertIcon />
             {error}
           </Alert>
-          <Button onClick={handleBackToGallery}>
-            Back to Gallery
-          </Button>
+          <Button onClick={handleBackToGallery}>Back to Gallery</Button>
         </VStack>
       </Container>
-    );
+    )
   }
 
   return (
@@ -116,7 +121,7 @@ function PaymentSuccess() {
           <AlertIcon />
           Payment Successful!
         </Alert>
-        
+
         <Box textAlign="center">
           <Text fontSize="2xl" fontWeight="bold" mb={2}>
             Thank you for your purchase!
@@ -128,25 +133,19 @@ function PaymentSuccess() {
 
         <Box textAlign="center">
           <Text mb={4}>
-            Your download is ready! Click the button below to download your 3D model.
+            Your download is ready! Click the button below to download your 3D
+            model.
           </Text>
           <Text fontSize="sm" color="gray.500" mb={4}>
             Download link expires in {paymentData?.expires_in}
           </Text>
-          
+
           <VStack spacing={4}>
-            <Button
-              colorScheme="green"
-              size="lg"
-              onClick={handleDownload}
-            >
+            <Button colorScheme="green" size="lg" onClick={handleDownload}>
               Download 3D Model
             </Button>
-            
-            <Button
-              variant="outline"
-              onClick={handleBackToGallery}
-            >
+
+            <Button variant="outline" onClick={handleBackToGallery}>
               Back to Gallery
             </Button>
           </VStack>
@@ -162,5 +161,5 @@ function PaymentSuccess() {
         </Box>
       </VStack>
     </Container>
-  );
+  )
 }

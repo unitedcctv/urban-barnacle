@@ -4,7 +4,9 @@ interface ErrorPageProps {
   message?: string
 }
 
-export default function ErrorPage({ message = "Something went wrong." }: ErrorPageProps) {
+export default function ErrorPage({
+  message = "Something went wrong.",
+}: ErrorPageProps) {
   return (
     <Flex w="100%" h="80vh" direction="column" align="center" justify="center">
       <Text fontSize="3xl" fontWeight="bold" mb={2}>

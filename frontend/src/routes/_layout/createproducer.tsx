@@ -1,30 +1,40 @@
+import { DeleteIcon } from "@chakra-ui/icons"
 import {
+  Box,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Input,
-  Box,
   HStack,
-} from "@chakra-ui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "@tanstack/react-router";
-import { type ProducerCreate } from "../../client/types.gen";
-import { type ApiError } from "../../client/core/ApiError";
-import { producersCreateProducer } from "../../client/sdk.gen";
-import useCustomToast from "../../hooks/useCustomToast";
-import { handleError } from "../../utils";
-import { createFileRoute } from "@tanstack/react-router";
+  IconButton,
+  Image,
+  Input,
+  Text,
+  VStack,
+} from "@chakra-ui/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import type { ApiError } from "../../client/core/ApiError"
+import { producersCreateProducer } from "../../client/sdk.gen"
+import type { ProducerCreate } from "../../client/types.gen"
+import useCustomToast from "../../hooks/useCustomToast"
+import { handleError } from "../../utils"
 
 export const Route = createFileRoute("/_layout/createproducer")({
   component: CreateProducer,
-});
+})
 
 function CreateProducer() {
-  const queryClient = useQueryClient();
-  const showToast = useCustomToast();
-  const navigate = useNavigate();
+  const queryClient = useQueryClient()
+  const showToast = useCustomToast()
+  const navigate = useNavigate()
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [portfolioImages, setPortfolioImages] = useState<File[]>([])
+  const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([])
 
   const {
     register,
@@ -37,32 +47,136 @@ function CreateProducer() {
     defaultValues: {
       name: "",
       location: "",
+      logo_url: undefined,
+      portfolio_images: undefined,
     },
-  });
+  })
 
   const mutation = useMutation({
-    mutationFn: (data: ProducerCreate) => producersCreateProducer({ requestBody: data }),
+    mutationFn: async (data: ProducerCreate) => {
+      // Upload logo if provided
+      if (logoPreview) {
+        const logoInput = document.getElementById(
+          "logo-upload",
+        ) as HTMLInputElement
+        if (logoInput?.files?.[0]) {
+          const formData = new FormData()
+          formData.append("file", logoInput.files[0])
+          try {
+            const response = await fetch(
+              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/upload`,
+              {
+                method: "POST",
+                body: formData,
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem(
+                    "access_token",
+                  )}`,
+                },
+              },
+            )
+            if (response.ok) {
+              const imageData = await response.json()
+              data.logo_url = imageData.path
+            }
+          } catch (error) {
+            console.error("Error uploading logo:", error)
+          }
+        }
+      }
+
+      // Upload portfolio images if provided
+      if (portfolioImages.length > 0) {
+        const uploadedUrls: string[] = []
+        for (const file of portfolioImages) {
+          const formData = new FormData()
+          formData.append("file", file)
+          try {
+            const response = await fetch(
+              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/upload`,
+              {
+                method: "POST",
+                body: formData,
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem(
+                    "access_token",
+                  )}`,
+                },
+              },
+            )
+            if (response.ok) {
+              const imageData = await response.json()
+              uploadedUrls.push(imageData.path)
+            }
+          } catch (error) {
+            console.error("Error uploading portfolio image:", error)
+          }
+        }
+        if (uploadedUrls.length > 0) {
+          data.portfolio_images = uploadedUrls.join(",")
+        }
+      }
+
+      return producersCreateProducer({ requestBody: data })
+    },
     onSuccess: () => {
-      showToast("Success!", "Producer profile created successfully.", "success");
-      reset();
-      queryClient.invalidateQueries({ queryKey: ["producers"] });
-      queryClient.invalidateQueries({ queryKey: ["myProducer"] });
-      queryClient.invalidateQueries({ queryKey: ["navigation"] });
-      navigate({ to: "/producers" });
+      showToast("Success!", "Producer profile created successfully.", "success")
+      reset()
+      setLogoPreview(null)
+      setPortfolioImages([])
+      setPortfolioPreviews([])
+      queryClient.invalidateQueries({ queryKey: ["producers"] })
+      queryClient.invalidateQueries({ queryKey: ["myProducer"] })
+      queryClient.invalidateQueries({ queryKey: ["navigation"] })
+      navigate({ to: "/producers" })
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<ProducerCreate> = (data) => {
-    mutation.mutate(data);
-  };
+    mutation.mutate(data)
+  }
 
   const handleCancel = () => {
-    reset();
-    navigate({ to: "/producers" });
-  };
+    reset()
+    setLogoPreview(null)
+    setPortfolioImages([])
+    setPortfolioPreviews([])
+    navigate({ to: "/producers" })
+  }
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handlePortfolioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      setPortfolioImages((prev) => [...prev, ...files])
+
+      files.forEach((file) => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setPortfolioPreviews((prev) => [...prev, reader.result as string])
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+  }
+
+  const removePortfolioImage = (index: number) => {
+    setPortfolioImages((prev) => prev.filter((_, i) => i !== index))
+    setPortfolioPreviews((prev) => prev.filter((_, i) => i !== index))
+  }
 
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)}>
@@ -85,7 +199,9 @@ function CreateProducer() {
           placeholder="Producer Name"
           type="text"
         />
-        {errors.name && <FormErrorMessage>{errors.name.message}</FormErrorMessage>}
+        {errors.name && (
+          <FormErrorMessage>{errors.name.message}</FormErrorMessage>
+        )}
       </FormControl>
 
       {/* Location Field */}
@@ -102,7 +218,113 @@ function CreateProducer() {
           placeholder="Location"
           type="text"
         />
-        {errors.location && <FormErrorMessage>{errors.location.message}</FormErrorMessage>}
+        {errors.location && (
+          <FormErrorMessage>{errors.location.message}</FormErrorMessage>
+        )}
+      </FormControl>
+
+      {/* Logo Upload */}
+      <FormControl mt={4}>
+        <FormLabel htmlFor="logo-upload">Company Logo</FormLabel>
+        <Input
+          id="logo-upload"
+          type="file"
+          accept="image/*"
+          display="none"
+          onChange={handleLogoChange}
+        />
+        <Button
+          variant="primary"
+          onClick={() => document.getElementById("logo-upload")?.click()}
+          width="100%"
+          justifyContent="flex-start"
+          textAlign="left"
+          fontWeight="normal"
+          color={logoPreview ? "white" : "gray.500"}
+          bg={logoPreview ? undefined : "gray.50"}
+          _hover={logoPreview ? undefined : { bg: "gray.100" }}
+        >
+          {logoPreview ? "Change Logo" : "Select company logo"}
+        </Button>
+        {logoPreview && (
+          <Box mt={2}>
+            <Image
+              src={logoPreview}
+              alt="Logo preview"
+              maxH="150px"
+              borderRadius="md"
+            />
+            <Text mt={2} fontSize="sm" color="green.500">
+              ✓ Logo selected
+            </Text>
+          </Box>
+        )}
+      </FormControl>
+
+      {/* Portfolio Images Upload */}
+      <FormControl mt={4}>
+        <FormLabel htmlFor="portfolio-upload">Example Work Images</FormLabel>
+        <Input
+          id="portfolio-upload"
+          type="file"
+          accept="image/*"
+          multiple
+          display="none"
+          onChange={handlePortfolioChange}
+        />
+        <Button
+          variant="primary"
+          onClick={() => document.getElementById("portfolio-upload")?.click()}
+          width="100%"
+          justifyContent="flex-start"
+          textAlign="left"
+          fontWeight="normal"
+          color={portfolioImages.length > 0 ? "white" : "gray.500"}
+          bg={portfolioImages.length > 0 ? undefined : "gray.50"}
+          _hover={portfolioImages.length > 0 ? undefined : { bg: "gray.100" }}
+        >
+          {portfolioImages.length > 0
+            ? `${portfolioImages.length} image${
+                portfolioImages.length > 1 ? "s" : ""
+              } selected`
+            : "Select example work images"}
+        </Button>
+        {portfolioPreviews.length > 0 && (
+          <Box mt={2}>
+            <Text fontSize="sm" color="green.500" mb={2}>
+              ✓ {portfolioPreviews.length} image
+              {portfolioPreviews.length > 1 ? "s" : ""} selected
+            </Text>
+            <VStack align="stretch" spacing={2}>
+              {portfolioPreviews.map((preview, index) => (
+                <Flex
+                  key={index}
+                  align="center"
+                  justify="space-between"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  p={2}
+                >
+                  <Image
+                    src={preview}
+                    alt={`Portfolio ${index + 1}`}
+                    maxH="80px"
+                    borderRadius="md"
+                  />
+                  <IconButton
+                    aria-label="Remove image"
+                    icon={<DeleteIcon />}
+                    size="sm"
+                    colorScheme="red"
+                    variant="ghost"
+                    onClick={() => removePortfolioImage(index)}
+                  />
+                </Flex>
+              ))}
+            </VStack>
+          </Box>
+        )}
       </FormControl>
 
       {/* Action Buttons */}
@@ -129,7 +351,7 @@ function CreateProducer() {
         </Button>
       </HStack>
     </Box>
-  );
+  )
 }
 
-export default CreateProducer;
+export default CreateProducer

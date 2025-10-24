@@ -1,10 +1,10 @@
-import { Global } from "@emotion/react";
+import { Global } from "@emotion/react"
 
-import PoppinsThin from "../theme/assets/Poppins-Thin.ttf";
-import PoppinsLight from "../theme/assets/Poppins-Light.ttf";
-import PoppinsRegular from "../theme/assets/Poppins-Regular.ttf";
-import PoppinsMedium from "../theme/assets/Poppins-Medium.ttf";
-import PoppinsExtraLight from "../theme/assets/Poppins-ExtraLight.ttf";
+import PoppinsExtraLight from "../theme/assets/Poppins-ExtraLight.ttf"
+import PoppinsLight from "../theme/assets/Poppins-Light.ttf"
+import PoppinsMedium from "../theme/assets/Poppins-Medium.ttf"
+import PoppinsRegular from "../theme/assets/Poppins-Regular.ttf"
+import PoppinsThin from "../theme/assets/Poppins-Thin.ttf"
 
 export const Fonts = () => (
   <Global
@@ -41,7 +41,7 @@ export const Fonts = () => (
       }
     `}
   />
-);
+)
 
 const fonts = {
   // Use heavier weight (e.g., 500–700) for headings.
@@ -50,6 +50,6 @@ const fonts = {
   subheading: "Poppins, sans-serif",
   // Use light or regular weight for body text.
   body: "Poppins, sans-serif",
-};
+}
 
-export default fonts;
+export default fonts

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   Button,
   FormControl,
@@ -12,24 +11,25 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-} from "@chakra-ui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
+} from "@chakra-ui/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type ProducerCreate } from "../../client/types.gen";
-import { producersCreateProducer } from "../../client/sdk.gen";
-import type { ApiError } from "../../client/core/ApiError";
-import useCustomToast from "../../hooks/useCustomToast";
-import { handleError } from "../../utils";
+import type { ApiError } from "../../client/core/ApiError"
+import { producersCreateProducer } from "../../client/sdk.gen"
+import type { ProducerCreate } from "../../client/types.gen"
+import useCustomToast from "../../hooks/useCustomToast"
+import { handleError } from "../../utils"
 
 interface AddProducerProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 const AddProducer = ({ isOpen, onClose }: AddProducerProps) => {
-  const queryClient = useQueryClient();
-  const showToast = useCustomToast();
+  const queryClient = useQueryClient()
+  const showToast = useCustomToast()
   const {
     register,
     handleSubmit,
@@ -42,40 +42,46 @@ const AddProducer = ({ isOpen, onClose }: AddProducerProps) => {
       name: "",
       location: "",
     },
-  });
+  })
 
   useEffect(() => {
     if (isOpen) {
       reset({
         name: "",
         location: "",
-      });
+      })
     }
-  }, [isOpen, reset]);
+  }, [isOpen, reset])
 
   const mutation = useMutation({
-    mutationFn: (data: ProducerCreate) => producersCreateProducer({ requestBody: data }),
+    mutationFn: (data: ProducerCreate) =>
+      producersCreateProducer({ requestBody: data }),
     onSuccess: () => {
-      showToast("Success!", "Producer profile created successfully.", "success");
-      reset();
-      onClose();
+      showToast("Success!", "Producer profile created successfully.", "success")
+      reset()
+      onClose()
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["producers"] });
-      queryClient.invalidateQueries({ queryKey: ["myProducer"] });
+      queryClient.invalidateQueries({ queryKey: ["producers"] })
+      queryClient.invalidateQueries({ queryKey: ["myProducer"] })
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<ProducerCreate> = (data) => {
-    mutation.mutate(data);
-  };
+    mutation.mutate(data)
+  }
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} size={{ base: "sm", md: "md" }} isCentered>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size={{ base: "sm", md: "md" }}
+        isCentered
+      >
         <ModalOverlay />
         <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>Create Producer Profile</ModalHeader>
@@ -130,7 +136,7 @@ const AddProducer = ({ isOpen, onClose }: AddProducerProps) => {
         </ModalContent>
       </Modal>
     </>
-  );
-};
+  )
+}
 
-export default AddProducer;
+export default AddProducer

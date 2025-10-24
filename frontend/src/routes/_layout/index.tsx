@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { Box, Flex, Heading, Text } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
-import { Box, Text, Heading, Flex } from "@chakra-ui/react"
 import ErrorPage from "../../components/Common/ErrorPage"
 import HoldingPage from "../../components/Common/HoldingPage"
 import LoadingLogo from "../../components/Common/LoadingLogo"
 
 export const Route = createFileRoute("/_layout/")({
-    component: Home,
+  component: Home,
 })
 
 const ITEM_COUNT = 5
@@ -20,7 +20,12 @@ function getItemsQueryOptions() {
 }
 
 export default function Home() {
-  const { data: items, isLoading, isError, error } = useQuery({
+  const {
+    data: items,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...getItemsQueryOptions(),
     enabled:
       typeof window !== "undefined" &&
@@ -29,14 +34,21 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <Box height="100vh" display="flex" alignItems="center" justifyContent="center">
+      <Box
+        height="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
         <LoadingLogo size="526px" />
       </Box>
     )
   }
 
   if (isError) {
-    return <ErrorPage message={error instanceof Error ? error.message : undefined} />
+    return (
+      <ErrorPage message={error instanceof Error ? error.message : undefined} />
+    )
   }
 
   if (!items || items.data.length === 0) {
@@ -46,24 +58,23 @@ export default function Home() {
   return (
     <Box>
       {items.data.map((item: any) => {
-
         if (!item?.image_urls || item.image_urls.length === 0) return null
         const image_url = item.image_urls[0]
 
-          return (
-            <Flex
-              key={item.id}
-              bgImage={`url(${image_url})`}
-              bgAttachment="fixed"
-              bgSize="cover"
-              bgPosition="center"
-              h="72rem"
-              mb="2rem"
-              align="center"
-              justify="center"
-              direction="column"
-              color="white"
-            >
+        return (
+          <Flex
+            key={item.id}
+            bgImage={`url(${image_url})`}
+            bgAttachment="fixed"
+            bgSize="cover"
+            bgPosition="center"
+            h="72rem"
+            mb="2rem"
+            align="center"
+            justify="center"
+            direction="column"
+            color="white"
+          >
             <Box
               w="30%"
               padding="1rem"
@@ -76,8 +87,8 @@ export default function Home() {
               </Heading>
               <Text>{item.description}</Text>
             </Box>
-            </Flex>
-          )
+          </Flex>
+        )
       })}
     </Box>
   )

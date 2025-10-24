@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Button,
   FormControl,
@@ -12,30 +11,31 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-} from "@chakra-ui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
+} from "@chakra-ui/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type UserCreate, type UserPermission } from "../../client/types.gen";
-import { usersCreateUser } from "../../client/sdk.gen";
-import type { ApiError } from "../../client/core/ApiError";
-import useCustomToast from "../../hooks/useCustomToast";
-import { emailPattern, handleError } from "../../utils";
-import PermissionsSelector from "./Permissions";
+import type { ApiError } from "../../client/core/ApiError"
+import { usersCreateUser } from "../../client/sdk.gen"
+import type { UserCreate, UserPermission } from "../../client/types.gen"
+import useCustomToast from "../../hooks/useCustomToast"
+import { emailPattern, handleError } from "../../utils"
+import PermissionsSelector from "./Permissions"
 
 interface AddUserProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 interface UserCreateForm extends UserCreate {
-  confirm_password: string;
+  confirm_password: string
 }
 
 const AddUser = ({ isOpen, onClose }: AddUserProps) => {
-  const queryClient = useQueryClient();
-  const showToast = useCustomToast();
-  const [permissions, setPermissions] = useState<UserPermission>("guest");
+  const queryClient = useQueryClient()
+  const showToast = useCustomToast()
+  const [permissions, setPermissions] = useState<UserPermission>("guest")
   const {
     register,
     handleSubmit,
@@ -53,7 +53,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
       permissions: "guest",
       is_active: false,
     },
-  });
+  })
 
   useEffect(() => {
     if (isOpen) {
@@ -64,36 +64,41 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
         confirm_password: "",
         permissions: "guest" as UserPermission,
         is_active: false,
-      });
-      setPermissions("guest"); // Reset permissions state
+      })
+      setPermissions("guest") // Reset permissions state
     }
-  }, [isOpen, reset]);
+  }, [isOpen, reset])
 
   const mutation = useMutation({
     mutationFn: (data: UserCreate) => usersCreateUser({ requestBody: data }),
     onSuccess: () => {
-      showToast("Success!", "User created successfully.", "success");
-      reset();
-      onClose();
+      showToast("Success!", "User created successfully.", "success")
+      reset()
+      onClose()
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] })
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<UserCreateForm> = (data) => {
-    data.permissions = permissions;
+    data.permissions = permissions
     // Set all users created by superuser admin to be active by default
-    data.is_active = true;
-    mutation.mutate(data);
-  };
+    data.is_active = true
+    mutation.mutate(data)
+  }
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} size={{ base: "sm", md: "md" }} isCentered>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size={{ base: "sm", md: "md" }}
+        isCentered
+      >
         <ModalOverlay />
         <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>Add User</ModalHeader>
@@ -144,7 +149,11 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 <FormErrorMessage>{errors.password.message}</FormErrorMessage>
               )}
             </FormControl>
-            <FormControl mt={4} isRequired isInvalid={!!errors.confirm_password}>
+            <FormControl
+              mt={4}
+              isRequired
+              isInvalid={!!errors.confirm_password}
+            >
               <FormLabel htmlFor="confirm_password">Confirm Password</FormLabel>
               <Input
                 id="confirm_password"
@@ -158,14 +167,15 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 type="password"
               />
               {errors.confirm_password && (
-                <FormErrorMessage>{errors.confirm_password.message}</FormErrorMessage>
+                <FormErrorMessage>
+                  {errors.confirm_password.message}
+                </FormErrorMessage>
               )}
             </FormControl>
             <PermissionsSelector
               initialPermission={permissions}
               onPermissionChange={(p) => setPermissions(p)}
             />
-
           </ModalBody>
           <ModalFooter gap={3}>
             <Button variant="primary" type="submit" isLoading={isSubmitting}>
@@ -176,7 +186,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
         </ModalContent>
       </Modal>
     </>
-  );
-};
+  )
+}
 
-export default AddUser;
+export default AddUser

@@ -1,39 +1,46 @@
-import { useEffect } from "react";
 import {
+  Box,
   Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Input,
-  Box,
   HStack,
+  Input,
   Skeleton,
   Text,
-} from "@chakra-ui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "@tanstack/react-router";
-import { type ProducerUpdate } from "../../client/types.gen";
-import { type ApiError } from "../../client/core/ApiError";
-import { producersReadMyProducer, producersUpdateProducer } from "../../client/sdk.gen";
-import useCustomToast from "../../hooks/useCustomToast";
-import { handleError } from "../../utils";
-import { createFileRoute } from "@tanstack/react-router";
+} from "@chakra-ui/react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
+import { useEffect } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import type { ApiError } from "../../client/core/ApiError"
+import {
+  producersReadMyProducer,
+  producersUpdateProducer,
+} from "../../client/sdk.gen"
+import type { ProducerUpdate } from "../../client/types.gen"
+import useCustomToast from "../../hooks/useCustomToast"
+import { handleError } from "../../utils"
 
 export const Route = createFileRoute("/_layout/editproducer")({
   component: EditProducer,
-});
+})
 
 function EditProducer() {
-  const queryClient = useQueryClient();
-  const showToast = useCustomToast();
-  const navigate = useNavigate();
+  const queryClient = useQueryClient()
+  const showToast = useCustomToast()
+  const navigate = useNavigate()
 
   // Fetch the current user's producer profile
-  const { data: producer, isLoading, error } = useQuery({
+  const {
+    data: producer,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["myProducer"],
     queryFn: () => producersReadMyProducer(),
-  });
+  })
 
   const {
     register,
@@ -47,7 +54,7 @@ function EditProducer() {
       name: "",
       location: "",
     },
-  });
+  })
 
   // Reset form when producer data is loaded
   useEffect(() => {
@@ -55,43 +62,45 @@ function EditProducer() {
       reset({
         name: producer.name || "",
         location: producer.location || "",
-      });
+      })
     }
-  }, [producer, reset]);
+  }, [producer, reset])
 
   const mutation = useMutation({
     mutationFn: (data: ProducerUpdate) =>
       producersUpdateProducer({ id: producer!.id, requestBody: data }),
     onSuccess: () => {
-      showToast("Success!", "Producer profile updated successfully.", "success");
-      queryClient.invalidateQueries({ queryKey: ["producers"] });
-      queryClient.invalidateQueries({ queryKey: ["myProducer"] });
-      navigate({ to: "/producers" });
+      showToast("Success!", "Producer profile updated successfully.", "success")
+      queryClient.invalidateQueries({ queryKey: ["producers"] })
+      queryClient.invalidateQueries({ queryKey: ["myProducer"] })
+      navigate({ to: "/producers" })
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<ProducerUpdate> = (data) => {
-    mutation.mutate(data);
-  };
+    mutation.mutate(data)
+  }
 
   const handleCancel = () => {
-    reset();
-    navigate({ to: "/producers" });
-  };
+    reset()
+    navigate({ to: "/producers" })
+  }
 
   // Handle error state
   if (error) {
     return (
       <Box>
-        <Text color="red.500">Error loading producer profile. Please try again.</Text>
+        <Text color="red.500">
+          Error loading producer profile. Please try again.
+        </Text>
         <Button mt={4} onClick={() => navigate({ to: "/producers" })}>
           Go Back
         </Button>
       </Box>
-    );
+    )
   }
 
   // Loading state
@@ -102,13 +111,13 @@ function EditProducer() {
         <Skeleton height="40px" mb={4} />
         <Skeleton height="40px" />
       </Box>
-    );
+    )
   }
 
   // If no producer profile exists, redirect to create page
   if (!producer) {
-    navigate({ to: "/createproducer" });
-    return null;
+    navigate({ to: "/createproducer" })
+    return null
   }
 
   return (
@@ -132,7 +141,9 @@ function EditProducer() {
           placeholder="Producer Name"
           type="text"
         />
-        {errors.name && <FormErrorMessage>{errors.name.message}</FormErrorMessage>}
+        {errors.name && (
+          <FormErrorMessage>{errors.name.message}</FormErrorMessage>
+        )}
       </FormControl>
 
       {/* Location Field */}
@@ -149,7 +160,9 @@ function EditProducer() {
           placeholder="Location"
           type="text"
         />
-        {errors.location && <FormErrorMessage>{errors.location.message}</FormErrorMessage>}
+        {errors.location && (
+          <FormErrorMessage>{errors.location.message}</FormErrorMessage>
+        )}
       </FormControl>
 
       {/* Action Buttons */}
@@ -177,7 +190,7 @@ function EditProducer() {
         </Button>
       </HStack>
     </Box>
-  );
+  )
 }
 
-export default EditProducer;
+export default EditProducer

@@ -1,4 +1,4 @@
-import { Flex, Image} from "@chakra-ui/react"
+import { Flex, Image } from "@chakra-ui/react"
 import UBLogo from "../../theme/assets/ubdm.svg"
 
 export default function HoldingPage() {

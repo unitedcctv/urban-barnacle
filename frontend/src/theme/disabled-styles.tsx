@@ -1,7 +1,7 @@
 const disabledStyles = {
-    _disabled: {
-      backgroundColor: "ui.main",
-    },
-  };
+  _disabled: {
+    backgroundColor: "ui.main",
+  },
+}
 
-export default disabledStyles;
+export default disabledStyles

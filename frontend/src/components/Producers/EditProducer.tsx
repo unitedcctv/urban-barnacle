@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   Button,
   FormControl,
@@ -12,25 +11,26 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-} from "@chakra-ui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
+} from "@chakra-ui/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type ProducerPublic, type ProducerUpdate } from "../../client/types.gen";
-import { producersUpdateProducer } from "../../client/sdk.gen";
-import type { ApiError } from "../../client/core/ApiError";
-import useCustomToast from "../../hooks/useCustomToast";
-import { handleError } from "../../utils";
+import type { ApiError } from "../../client/core/ApiError"
+import { producersUpdateProducer } from "../../client/sdk.gen"
+import type { ProducerPublic, ProducerUpdate } from "../../client/types.gen"
+import useCustomToast from "../../hooks/useCustomToast"
+import { handleError } from "../../utils"
 
 interface EditProducerProps {
-  producer: ProducerPublic;
-  isOpen: boolean;
-  onClose: () => void;
+  producer: ProducerPublic
+  isOpen: boolean
+  onClose: () => void
 }
 
 const EditProducer = ({ producer, isOpen, onClose }: EditProducerProps) => {
-  const queryClient = useQueryClient();
-  const showToast = useCustomToast();
+  const queryClient = useQueryClient()
+  const showToast = useCustomToast()
   const {
     register,
     handleSubmit,
@@ -40,35 +40,40 @@ const EditProducer = ({ producer, isOpen, onClose }: EditProducerProps) => {
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: producer,
-  });
+  })
 
   useEffect(() => {
-    reset(producer);
-  }, [producer, reset]);
+    reset(producer)
+  }, [producer, reset])
 
   const mutation = useMutation({
     mutationFn: (data: ProducerUpdate) =>
       producersUpdateProducer({ id: producer.id, requestBody: data }),
     onSuccess: () => {
-      showToast("Success!", "Producer profile updated successfully.", "success");
-      onClose();
+      showToast("Success!", "Producer profile updated successfully.", "success")
+      onClose()
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["producers"] });
-      queryClient.invalidateQueries({ queryKey: ["myProducer"] });
+      queryClient.invalidateQueries({ queryKey: ["producers"] })
+      queryClient.invalidateQueries({ queryKey: ["myProducer"] })
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<ProducerUpdate> = (data) => {
-    mutation.mutate(data);
-  };
+    mutation.mutate(data)
+  }
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} size={{ base: "sm", md: "md" }} isCentered>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size={{ base: "sm", md: "md" }}
+        isCentered
+      >
         <ModalOverlay />
         <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>Edit Producer Profile</ModalHeader>
@@ -115,9 +120,9 @@ const EditProducer = ({ producer, isOpen, onClose }: EditProducerProps) => {
             </FormControl>
           </ModalBody>
           <ModalFooter gap={3}>
-            <Button 
-              variant="primary" 
-              type="submit" 
+            <Button
+              variant="primary"
+              type="submit"
               isLoading={isSubmitting}
               isDisabled={!isDirty}
             >
@@ -128,7 +133,7 @@ const EditProducer = ({ producer, isOpen, onClose }: EditProducerProps) => {
         </ModalContent>
       </Modal>
     </>
-  );
-};
+  )
+}
 
-export default EditProducer;
+export default EditProducer

@@ -11,9 +11,9 @@ import {
 import { useMutation } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type UpdatePassword} from "../../client/types.gen"
-import { type ApiError } from "../../client/core/ApiError"
+import type { ApiError } from "../../client/core/ApiError"
 import { usersUpdatePasswordMe } from "../../client/sdk.gen"
+import type { UpdatePassword } from "../../client/types.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { confirmPasswordRules, handleError, passwordRules } from "../../utils"
 
@@ -53,13 +53,13 @@ const ChangePassword = () => {
 
   return (
     <Box w="full">
-      <Box
-        as="form"
-        onSubmit={handleSubmit(onSubmit)}
-        w="full"
-      >
+      <Box as="form" onSubmit={handleSubmit(onSubmit)} w="full">
         <VStack spacing={4} align="flex-start" w="full">
-          <FormControl w="full" isRequired isInvalid={!!errors.current_password}>
+          <FormControl
+            w="full"
+            isRequired
+            isInvalid={!!errors.current_password}
+          >
             <FormLabel color={color} htmlFor="current_password">
               Current Password
             </FormLabel>
@@ -77,7 +77,7 @@ const ChangePassword = () => {
               </FormErrorMessage>
             )}
           </FormControl>
-          
+
           <FormControl w="full" isRequired isInvalid={!!errors.new_password}>
             <FormLabel color={color} htmlFor="password">
               New Password
@@ -94,8 +94,12 @@ const ChangePassword = () => {
               <FormErrorMessage>{errors.new_password.message}</FormErrorMessage>
             )}
           </FormControl>
-          
-          <FormControl w="full" isRequired isInvalid={!!errors.confirm_password}>
+
+          <FormControl
+            w="full"
+            isRequired
+            isInvalid={!!errors.confirm_password}
+          >
             <FormLabel color={color} htmlFor="confirm_password">
               Confirm Password
             </FormLabel>
@@ -113,7 +117,7 @@ const ChangePassword = () => {
               </FormErrorMessage>
             )}
           </FormControl>
-          
+
           <Button
             variant="primary"
             type="submit"

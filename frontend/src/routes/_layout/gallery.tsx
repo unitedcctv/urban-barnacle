@@ -1,15 +1,11 @@
-import {
-  Container,
-  SkeletonText,
-  Box,
-} from "@chakra-ui/react"
-import ItemShow from "../../components/Items/ItemShow.tsx"
+import { Box, Container, SkeletonText } from "@chakra-ui/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { z } from "zod"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
+import ItemShow from "../../components/Items/ItemShow.tsx"
 
 export const Route = createFileRoute("/_layout/gallery")({
   component: Dashboard,
@@ -46,7 +42,9 @@ function ItemsTable() {
   const navigate = useNavigate({ from: Route.fullPath })
   const setPage = (page: number) =>
     // @ts-ignore: Suppress TypeScript error
-    navigate({ search: (prev: {[key: string]: string}) => ({ ...prev, page }) })
+    navigate({
+      search: (prev: { [key: string]: string }) => ({ ...prev, page }),
+    })
 
   const {
     data: items,
@@ -68,23 +66,23 @@ function ItemsTable() {
 
   return (
     <>
-        <Box>
-          {isPending ? (
-            <Box className="grid-container">
-                {new Array(5).fill(null).map((_, index) => (
-                  <Box key={index} className="grid-item">
-                    <SkeletonText noOfLines={1} paddingBlock="16px" />
-                  </Box>
-                ))}
-            </Box>
-          ) : (
-            <Box className="grid-container">
-              {items?.data.map((item) => (
-                <ItemShow key={item.id} item={item} />
-              ))}
-            </Box>
-          )}
-        </Box>
+      <Box>
+        {isPending ? (
+          <Box className="grid-container">
+            {new Array(5).fill(null).map((_, index) => (
+              <Box key={index} className="grid-item">
+                <SkeletonText noOfLines={1} paddingBlock="16px" />
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Box className="grid-container">
+            {items?.data.map((item) => (
+              <ItemShow key={item.id} item={item} />
+            ))}
+          </Box>
+        )}
+      </Box>
       <PaginationFooter
         page={page}
         onChangePage={setPage}

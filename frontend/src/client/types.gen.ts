@@ -153,14 +153,6 @@ export type NewPassword = {
   new_password: string
 }
 
-/**
- * Data for a single platform including posts and error status
- */
-export type PlatformData = {
-  posts: Array<SocialPostPublic>
-  error?: string | null
-}
-
 export type PrivateUserCreate = {
   email: string
   password: string
@@ -171,11 +163,15 @@ export type PrivateUserCreate = {
 export type ProducerCreate = {
   name: string
   location?: string | null
+  logo_url?: string | null
+  portfolio_images?: string | null
 }
 
 export type ProducerPublic = {
   name: string
   location?: string | null
+  logo_url?: string | null
+  portfolio_images?: string | null
   id: string
   created_at: string
 }
@@ -188,34 +184,8 @@ export type ProducersPublic = {
 export type ProducerUpdate = {
   name?: string | null
   location?: string | null
-}
-
-/**
- * Schema for returning social media posts to the frontend
- */
-export type SocialPostPublic = {
-  id: number
-  platform: string
-  post_id: string
-  author: string
-  author_avatar: string | null
-  content: string
-  url: string
-  created_at: string
-  likes: number
-  reposts: number
-  replies: number
-}
-
-/**
- * Response containing posts from all platforms
- */
-export type SocialPostsResponse = {
-  mastodon: PlatformData
-  bluesky: PlatformData
-  reddit: PlatformData
-  linkedin: PlatformData
-  last_updated: string
+  logo_url?: string | null
+  portfolio_images?: string | null
 }
 
 export type Token = {
@@ -606,12 +576,6 @@ export type AiDriveChangeWebhookData = {
 export type AiDriveChangeWebhookResponse = void
 
 export type BusinessPlanDownloadBusinessPlanResponse = unknown
-
-export type SocialMediaGetSocialPostsResponse = SocialPostsResponse
-
-export type SocialMediaRefreshSocialPostsResponse = {
-  [key: string]: unknown
-}
 
 export type PrivateCreateUserData = {
   requestBody: PrivateUserCreate

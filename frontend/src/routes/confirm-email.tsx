@@ -1,58 +1,63 @@
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
 import {
-  Box,
-  Container,
-  Heading,
-  Text,
   Alert,
   AlertIcon,
-  Spinner,
-  VStack,
+  Box,
   Button,
-} from '@chakra-ui/react'
-import { OpenAPI } from '../client'
+  Container,
+  Heading,
+  Spinner,
+  Text,
+  VStack,
+} from "@chakra-ui/react"
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
+import { useEffect, useState } from "react"
+import { OpenAPI } from "../client"
 
-export const Route = createFileRoute('/confirm-email')({
+export const Route = createFileRoute("/confirm-email")({
   component: ConfirmEmail,
 })
 
 function ConfirmEmail() {
   const navigate = useNavigate()
-  const search = useSearch({ from: '/confirm-email' })
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const [message, setMessage] = useState('')
+  const search = useSearch({ from: "/confirm-email" })
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading",
+  )
+  const [message, setMessage] = useState("")
 
   useEffect(() => {
     const confirmEmail = async () => {
       const token = (search as any).token
-      
+
       if (!token) {
-        setStatus('error')
-        setMessage('No confirmation token provided')
+        setStatus("error")
+        setMessage("No confirmation token provided")
         return
       }
 
       try {
-        const response = await fetch(`${OpenAPI.BASE}/api/v1/users/confirm-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${OpenAPI.BASE}/api/v1/users/confirm-email`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token }),
           },
-          body: JSON.stringify({ token })
-        })
-        
+        )
+
         const data = await response.json()
-        
+
         if (!response.ok) {
-          throw new Error(data.detail || 'Failed to confirm email')
+          throw new Error(data.detail || "Failed to confirm email")
         }
-        
-        setStatus('success')
+
+        setStatus("success")
         setMessage(data.message)
       } catch (error: any) {
-        setStatus('error')
-        setMessage(error.message || 'Failed to confirm email')
+        setStatus("error")
+        setMessage(error.message || "Failed to confirm email")
       }
     }
 
@@ -60,7 +65,7 @@ function ConfirmEmail() {
   }, [search])
 
   const handleGoToLogin = () => {
-    navigate({ to: '/' })
+    navigate({ to: "/" })
   }
 
   return (
@@ -70,14 +75,14 @@ function ConfirmEmail() {
           Email Confirmation
         </Heading>
 
-        {status === 'loading' && (
+        {status === "loading" && (
           <VStack spacing={4}>
             <Spinner size="xl" />
             <Text>Confirming your email address...</Text>
           </VStack>
         )}
 
-        {status === 'success' && (
+        {status === "success" && (
           <VStack spacing={4}>
             <Alert status="success" borderRadius="md">
               <AlertIcon />
@@ -92,7 +97,7 @@ function ConfirmEmail() {
           </VStack>
         )}
 
-        {status === 'error' && (
+        {status === "error" && (
           <VStack spacing={4}>
             <Alert status="error" borderRadius="md">
               <AlertIcon />
