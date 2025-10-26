@@ -252,7 +252,7 @@ function CreateProducer() {
           }
           role="group"
         >
-          {logoPreview ? "Change Logo" : "Select Company Logo"}
+          {logoPreview ? "Change Logo" : "Upload Logo"}
         </Button>
         {logoPreview && (
           <Box mt={2}>
@@ -300,7 +300,7 @@ function CreateProducer() {
         >
           {portfolioImages.length > 0
             ? `Add More Images (${portfolioImages.length} selected)`
-            : "Select Example Work Images"}
+            : "Upload Portfolio Images"}
         </Button>
         {portfolioPreviews.length > 0 && (
           <Box mt={2}>

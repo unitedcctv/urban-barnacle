@@ -25,7 +25,10 @@ import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
 import { UserRow } from "../../components/UserSettings/User.tsx"
 
 const usersSearchSchema = z.object({
-  page: z.number().catch(1),
+  page: z.preprocess(
+    (val) => (val ? Number(val) : 1),
+    z.number()
+  ),
 })
 
 export const Route = createFileRoute("/_layout/suadmin")({
@@ -49,8 +52,7 @@ function UsersTable() {
   const { page } = Route.useSearch() as { page: number }
   const navigate = useNavigate({ from: Route.fullPath })
   const setPage = (page: number) =>
-    // @ts-ignore: Suppress TypeScript error
-    navigate({ search: (prev) => ({ ...prev, page }) })
+    navigate({ search: { page } as any })
 
   const {
     data: users,

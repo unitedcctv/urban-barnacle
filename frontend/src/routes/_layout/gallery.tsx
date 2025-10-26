@@ -13,7 +13,10 @@ export const Route = createFileRoute("/_layout/gallery")({
 })
 
 const itemsSearchSchema = z.object({
-  page: z.number().catch(1),
+  page: z.preprocess(
+    (val) => (val ? Number(val) : 1),
+    z.number()
+  ),
 })
 
 const PER_PAGE = 20
@@ -37,13 +40,11 @@ function Dashboard() {
 }
 function ItemsTable() {
   const queryClient = useQueryClient()
-  // @ts-ignore: Suppress TypeScript error
-  const { page } = Route.useSearch()
+  const { page } = Route.useSearch() as { page: number }
   const navigate = useNavigate({ from: Route.fullPath })
   const setPage = (page: number) =>
-    // @ts-ignore: Suppress TypeScript error
     navigate({
-      search: (prev) => ({ ...prev, page }),
+      search: { page } as any,
     })
 
   const {
