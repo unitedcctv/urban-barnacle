@@ -142,10 +142,10 @@ services:
       - DRIVE_WEBHOOK_TOKEN=${DRIVE_WEBHOOK_TOKEN?Variable not set}
       - VITE_WEBHOOK_URL=${VITE_WEBHOOK_URL}
       - OPENAI_API_KEY=${OPENAI_API_KEY?Variable not set}
-      # Blockchain configuration
-      - ETHEREUM_RPC_URL=${ETHEREUM_RPC_URL?Variable not set}
-      - ETHEREUM_PRIVATE_KEY=${ETHEREUM_PRIVATE_KEY?Variable not set}
-      - BLOCKCHAIN_ENABLED=${BLOCKCHAIN_ENABLED?Variable not set}
+      # Blockchain configuration (optional - disabled by default)
+      - ETHEREUM_RPC_URL=${ETHEREUM_RPC_URL:-}
+      - ETHEREUM_PRIVATE_KEY=${ETHEREUM_PRIVATE_KEY:-}
+      - BLOCKCHAIN_ENABLED=${BLOCKCHAIN_ENABLED:-false}
 
     healthcheck:
       test: ["CMD-SHELL", "python -c 'import socket,sys; socket.create_connection((\"localhost\",8000),2).close()' || exit 1"]

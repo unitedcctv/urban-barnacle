@@ -42,6 +42,10 @@ jobs:
       # BunnyCDN Configuration
       BUNNYCDN_STORAGE_ZONE: ${{ vars.BUNNYCDN_STORAGE_ZONE }}
       BUNNYCDN_API_KEY: ${{ secrets.BUNNYCDN_API_KEY }}
+      # Blockchain Configuration (disabled)
+      ETHEREUM_RPC_URL: ""
+      ETHEREUM_PRIVATE_KEY: ""
+      BLOCKCHAIN_ENABLED: "false"
       # Social Media Links
       VITE_MASTODON_URL: ${{ vars.VITE_MASTODON_URL }}
       VITE_BLUESKY_URL: ${{ vars.VITE_BLUESKY_URL }}

@@ -52,16 +52,16 @@ jobs:
       # BunnyCDN Configuration
       BUNNYCDN_STORAGE_ZONE: ${{ vars.BUNNYCDN_STORAGE_ZONE }}
       BUNNYCDN_API_KEY: ${{ secrets.BUNNYCDN_API_KEY }}
-      # Blockchain/Ethereum Configuration
-      ETHEREUM_NETWORK: ${{ vars.ETHEREUM_NETWORK }}
-      ETHEREUM_RPC_URL: ${{ vars.ETHEREUM_RPC_URL }}
-      ETHEREUM_CHAIN_ID: ${{ vars.ETHEREUM_CHAIN_ID }}
-      ETHEREUM_PRIVATE_KEY: ${{ secrets.ETHEREUM_PRIVATE_KEY }}
-      ETHEREUM_ADDRESS: ${{ vars.ETHEREUM_ADDRESS }}
-      CONTRACT_DEPLOY_GAS_LIMIT: ${{ vars.CONTRACT_DEPLOY_GAS_LIMIT }}
-      CONTRACT_DEPLOY_GAS_PRICE: ${{ vars.CONTRACT_DEPLOY_GAS_PRICE }}
-      BLOCKCHAIN_ENABLED: ${{ vars.BLOCKCHAIN_ENABLED }}
-      BLOCKCHAIN_AUTO_DEPLOY: ${{ vars.BLOCKCHAIN_AUTO_DEPLOY }}
+      # Blockchain/Ethereum Configuration (disabled by default)
+      ETHEREUM_NETWORK: ${{ vars.ETHEREUM_NETWORK || '' }}
+      ETHEREUM_RPC_URL: ${{ vars.ETHEREUM_RPC_URL || '' }}
+      ETHEREUM_CHAIN_ID: ${{ vars.ETHEREUM_CHAIN_ID || '' }}
+      ETHEREUM_PRIVATE_KEY: ${{ secrets.ETHEREUM_PRIVATE_KEY || '' }}
+      ETHEREUM_ADDRESS: ${{ vars.ETHEREUM_ADDRESS || '' }}
+      CONTRACT_DEPLOY_GAS_LIMIT: ${{ vars.CONTRACT_DEPLOY_GAS_LIMIT || '' }}
+      CONTRACT_DEPLOY_GAS_PRICE: ${{ vars.CONTRACT_DEPLOY_GAS_PRICE || '' }}
+      BLOCKCHAIN_ENABLED: ${{ vars.BLOCKCHAIN_ENABLED || 'false' }}
+      BLOCKCHAIN_AUTO_DEPLOY: ${{ vars.BLOCKCHAIN_AUTO_DEPLOY || 'false' }}
       # Social Media Links
       VITE_MASTODON_URL: ${{ vars.VITE_MASTODON_URL }}
       VITE_BLUESKY_URL: ${{ vars.VITE_BLUESKY_URL }}
