@@ -290,7 +290,7 @@ Traefik UI: `https://traefik.ubdm.io`
 
 ### Production
 
-Frontend: `https://dashboard.ubdm.io`
+Frontend: `https://ubdm.io`
 
 Backend API docs: `https://api.ubdm.io/docs`
 
@@ -300,7 +300,7 @@ Adminer: `https://adminer.ubdm.io`
 
 ### Staging
 
-Frontend: `https://dashboard.staging.ubdm.io`
+Frontend: `https://staging.ubdm.io`
 
 Backend API docs: `https://api.staging.ubdm.io/docs`
 

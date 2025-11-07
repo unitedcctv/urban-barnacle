@@ -1,87 +1,96 @@
 # Holding Page Deployment Guide
 
 ## Overview
-A simple, elegant holding page has been created for the UBDM production site. The page displays the UBDM logo with a "Coming Soon" message.
+This guide explains how to deploy a simple holding page to production while keeping the full application running on staging.
 
-## Changes Made
+## Important Note
+**The holding page implementation has been REVERTED from the main branch.** The main branch now contains the full React application for staging. To deploy a holding page to production, you must create it separately for production releases only.
 
-### 1. Frontend Files
-- **`frontend/index.html`**: Replaced with a standalone holding page featuring:
-  - UBDM logo with smooth animations
-  - Clean, modern gradient background
-  - Responsive design for mobile and desktop
-  - "Coming Soon" badge
-  
-- **`frontend/public/logo.svg`**: Copied the UBDM logo to public directory for easy access
+## Current State
+- **Staging** (`staging.ubdm.io`): Full React application
+- **Production** (`ubdm.io`): To be determined (full app or holding page)
+- **Dashboard subdomain removed**: Both staging and production now use base domains only
 
-### 2. Dockerfile Simplification
-- **`frontend/Dockerfile`**: Simplified to skip the Node.js build process
-  - Now directly copies static files to nginx
-  - Much faster build time
-  - No dependencies on Node.js or React for the holding page
+## URLs Updated
+- ~~`dashboard.staging.ubdm.io`~~ **REMOVED**
+- `staging.ubdm.io` - Full React app (staging)
+- ~~`dashboard.ubdm.io`~~ **REMOVED**  
+- `ubdm.io` - Production site
 
-## Testing
-The holding page has been tested locally and verified to display correctly on port 8080.
+## How to Deploy Holding Page to Production Only
 
-## Deployment to Production
+Since staging deploys from the `main` branch automatically, you need to use a **production branch** or **manual deployment** approach.
 
-### Option 1: Deploy via GitHub Release (Recommended)
-1. Commit the changes:
+### Recommended Approach: Production Branch
+
+1. **Create a production branch with holding page**:
    ```bash
+   # Create a new branch from main
+   git checkout -b production-holding
+   
+   # Copy the logo
+   cp frontend/src/theme/assets/logo.svg frontend/public/logo.svg
+   
+   # Replace index.html with holding page
+   # (Use the holding page HTML from commit f37c5a8)
+   
+   # Simplify Dockerfile for static serving
+   # (Use simplified Dockerfile from commit f37c5a8)
+   
    git add frontend/index.html frontend/public/logo.svg frontend/Dockerfile
    git commit -m "Add holding page for production"
-   git push origin master
+   git push origin production-holding
    ```
 
-2. Create a GitHub Release:
-   - Go to your repository on GitHub
-   - Click "Releases" → "Create a new release"
-   - Create a new tag (e.g., `v1.0.0-holding`)
-   - Add release notes
-   - Click "Publish release"
-
-3. The GitHub Action will automatically:
-   - Build the Docker images
-   - Deploy to your production server (ubdm.io)
-   - The holding page will be live at https://dashboard.ubdm.io
-
-### Option 2: Manual Deployment
-If you have direct access to the production server:
-
-1. Commit and push changes to master
-2. SSH into your production server
-3. Navigate to your project directory
-4. Pull the latest changes:
+2. **Deploy to production server manually**:
    ```bash
-   git pull origin master
-   ```
-5. Build and deploy:
-   ```bash
-   docker compose -f docker-compose.yml --project-name <YOUR_STACK_NAME> build
-   docker compose -f docker-compose.yml --project-name <YOUR_STACK_NAME> up -d
-   ```
-
-## Reverting to Full Application
-When you're ready to deploy the full application:
-
-1. Restore the original `frontend/index.html`:
-   ```bash
-   git checkout <commit-before-holding-page> -- frontend/index.html
-   ```
-
-2. Restore the original `frontend/Dockerfile`:
-   ```bash
-   git checkout <commit-before-holding-page> -- frontend/Dockerfile
+   # SSH to production server
+   ssh user@production-server
+   
+   # Navigate to project directory
+   cd /path/to/project
+   
+   # Checkout production branch
+   git fetch
+   git checkout production-holding
+   git pull origin production-holding
+   
+   # Deploy
+   docker compose -f docker-compose.yml --project-name <PRODUCTION_STACK_NAME> build
+   docker compose -f docker-compose.yml --project-name <PRODUCTION_STACK_NAME> up -d
    ```
 
-3. Commit and deploy using one of the methods above
+### Alternative: Modify GitHub Actions
+You could modify `.github/workflows/deploy-production.yml` to use the `production-holding` branch instead of releases.
 
-## URLs
-- **Production Frontend**: https://dashboard.ubdm.io
-- **Staging Frontend**: https://dashboard.staging.ubdm.io (unchanged)
+## Holding Page HTML Template
+
+Create a simple `frontend/index.html` with:
+- UBDM logo display
+- "Coming Soon" message
+- Responsive design
+- Modern gradient background
+
+See commit `f37c5a8` for the complete holding page implementation.
+
+## Simplified Dockerfile for Holding Page
+
+```dockerfile
+FROM nginx:1
+COPY ./index.html /usr/share/nginx/html/
+COPY ./public/ /usr/share/nginx/html/
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
+```
+
+## URLs After Deployment
+- **Production Frontend**: https://ubdm.io (holding page or full app)
+- **Staging Frontend**: https://staging.ubdm.io (always full React app)
+- **Backend API**: https://api.ubdm.io (production) / https://api.staging.ubdm.io (staging)
 
 ## Notes
-- The staging environment remains unchanged with the full application
-- Only production will show the holding page after deployment
-- The backend API will still be running but won't be accessible from the holding page
-- All user data and database remain intact
+- Main branch = staging deployment (automatic on push)
+- Production = manual deployment or release-based
+- Dashboard subdomains removed (now use base domains)
+- Full application always runs on staging
+- Backend continues running even with holding page on frontend
