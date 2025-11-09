@@ -56,11 +56,8 @@ def get_navigation_items(
     ]
 
     if user:
-        # Logged-in users can create items.
-        items.append({"title": "Settings", "path": "/settings", "icon": "settings", "action": None})
-
         if user.is_active:
-            items.append({"title": "Create Item", "path": "/createitem", "icon": "add_item", "action": None})
+            items.append({"title": "Settings", "path": "/settings", "icon": "settings", "action": None})
 
         if UserPermission.SUPERUSER in user.permissions:
             items.insert(0, {"title": "SU Admin", "path": "/suadmin", "icon": "su_settings", "action": None})
@@ -69,6 +66,7 @@ def get_navigation_items(
             items.append({"title": "Business Plan", "path": "/businessplan", "icon": "business", "action": None})
 
         if user.permissions in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
+            items.append({"title": "Create Item", "path": "/createitem", "icon": "add_item", "action": None})
             # Check if user has a producer profile
             producer = session.exec(
                 select(Producer).where(Producer.user_id == user.id)
