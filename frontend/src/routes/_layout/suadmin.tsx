@@ -211,49 +211,6 @@ function SuAdmin() {
     }
   }
 
-  const refreshSocialPosts = async () => {
-    try {
-      const token = localStorage.getItem("access_token")
-      const apiBase = import.meta.env.VITE_API_URL ?? ""
-      const res = await fetch(`${apiBase}/api/v1/social/refresh`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      })
-
-      if (!res.ok) {
-        let errorMessage = "Unknown error occurred"
-        try {
-          const errorData = await res.json()
-          errorMessage = errorData.detail || errorData.message || res.statusText
-        } catch {
-          errorMessage = (await res.text()) || res.statusText
-        }
-        throw new Error(errorMessage)
-      }
-
-      const result = await res.json()
-      toast({
-        title: "Social media posts refreshed",
-        description:
-          result.message ||
-          "Successfully fetched latest posts from all platforms",
-        status: "success",
-        duration: 5000,
-      })
-    } catch (err: any) {
-      toast({
-        title: "Failed to refresh social posts",
-        description: err.message || "An unexpected error occurred",
-        status: "error",
-        duration: 8000,
-        isClosable: true,
-      })
-    }
-  }
   return (
     <Container maxW="full">
       <Flex mb={4} gap={4} direction={{ base: "column", md: "row" }}>
@@ -266,9 +223,6 @@ function SuAdmin() {
         </Button>
         <Button variant="primary" onClick={populateChunks}>
           Populate AI Chunks
-        </Button>
-        <Button variant="primary" onClick={refreshSocialPosts}>
-          Refresh Social Posts
         </Button>
         <Button as={Link} to="/logs" variant="primary">
           View Logs
