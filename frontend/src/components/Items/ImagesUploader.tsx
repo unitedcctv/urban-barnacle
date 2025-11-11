@@ -128,7 +128,7 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
           // New API returns ImagePublic object
           const response = (await imagesUploadFile({
             formData: { file },
-            itemId: _item.id,
+            id: _item.id,
           })) as ImagePublic
 
           // Extract URL from response path (for local) or use CDN URL directly
