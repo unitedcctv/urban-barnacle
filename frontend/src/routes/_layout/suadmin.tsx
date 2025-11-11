@@ -121,6 +121,7 @@ function UsersTable() {
 
 function SuAdmin() {
   const toast = useToast()
+  
   const registerWatch = async () => {
     try {
       const token = localStorage.getItem("access_token")
@@ -217,7 +218,7 @@ function SuAdmin() {
         <Navbar type={"User"} addModalAs={AddUser} />
       </Flex>
       <UsersTable />
-      <Flex gap={4} wrap="wrap">
+      <Flex gap={4} wrap="wrap" mt={4}>
         <Button variant="primary" onClick={registerWatch}>
           Register Drive Watch
         </Button>

@@ -67,14 +67,18 @@ def get_navigation_items(
 
         if user.permissions in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
             items.append({"title": "Create Item", "path": "/createitem", "icon": "add_item", "action": None})
-            # Check if user has a producer profile
-            producer = session.exec(
-                select(Producer).where(Producer.user_id == user.id)
-            ).first()
             
-            if producer:
-                items.append({"title": "Edit Producer Profile", "path": "/editproducer", "icon": "producer_edit", "action": None})
-            else:
-                items.append({"title": "Create Producer Profile", "path": "/createproducer", "icon": "producer_edit", "action": None})
+            # Only show producer profile menu items for regular producers, not superusers
+            # Superusers edit producer profiles through the user list
+            if user.permissions == UserPermission.PRODUCER:
+                # Check if user has a producer profile
+                producer = session.exec(
+                    select(Producer).where(Producer.user_id == user.id)
+                ).first()
+                
+                if producer:
+                    items.append({"title": "Edit Producer Profile", "path": "/editproducer", "icon": "producer_edit", "action": None})
+                else:
+                    items.append({"title": "Create Producer Profile", "path": "/createproducer", "icon": "producer_edit", "action": None})
 
     return items  # type: ignore

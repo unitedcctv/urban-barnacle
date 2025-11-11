@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControl,
   FormErrorMessage,
@@ -21,6 +22,7 @@ import { usersCreateUser } from "../../client/sdk.gen"
 import type { UserCreate, UserPermission } from "../../client/types.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { emailPattern, handleError } from "../../utils"
+import LoadingLogo from "../Common/LoadingLogo"
 import PermissionsSelector from "./Permissions"
 
 interface AddUserProps {
@@ -98,11 +100,29 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
         onClose={onClose}
         size={{ base: "sm", md: "md" }}
         isCentered
+        closeOnOverlayClick={!isSubmitting}
       >
         <ModalOverlay />
-        <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
+        <ModalContent as="form" onSubmit={handleSubmit(onSubmit)} position="relative">
           <ModalHeader>Add User</ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton isDisabled={isSubmitting} />
+          {isSubmitting && (
+            <Box
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              bg="rgba(255, 255, 255, 0.9)"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              zIndex={10}
+              borderRadius="md"
+            >
+              <LoadingLogo size="80px" />
+            </Box>
+          )}
           <ModalBody pb={6} w="100%">
             <FormControl isRequired isInvalid={!!errors.email}>
               <FormLabel htmlFor="email">Email</FormLabel>
@@ -114,6 +134,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 })}
                 placeholder="Email"
                 type="email"
+                isDisabled={isSubmitting}
               />
               {errors.email && (
                 <FormErrorMessage>{errors.email.message}</FormErrorMessage>
@@ -126,6 +147,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 {...register("full_name")}
                 placeholder="User Name"
                 type="text"
+                isDisabled={isSubmitting}
               />
               {errors.full_name && (
                 <FormErrorMessage>{errors.full_name.message}</FormErrorMessage>
@@ -144,6 +166,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 })}
                 placeholder="Password"
                 type="password"
+                isDisabled={isSubmitting}
               />
               {errors.password && (
                 <FormErrorMessage>{errors.password.message}</FormErrorMessage>
@@ -165,6 +188,7 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
                 })}
                 placeholder="Password"
                 type="password"
+                isDisabled={isSubmitting}
               />
               {errors.confirm_password && (
                 <FormErrorMessage>
@@ -178,10 +202,10 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
             />
           </ModalBody>
           <ModalFooter gap={3}>
-            <Button variant="primary" type="submit" isLoading={isSubmitting}>
+            <Button variant="primary" type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
               Create User
             </Button>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose} isDisabled={isSubmitting}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

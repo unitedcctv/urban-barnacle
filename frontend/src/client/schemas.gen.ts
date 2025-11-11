@@ -118,13 +118,6 @@ export const Body_models_upload_modelSchema = {
   title: "Body_models-upload_model",
 } as const
 
-export const CDNFolderSchema = {
-  type: "string",
-  enum: ["images", "uploads", "models"],
-  title: "CDNFolder",
-  description: "Enum for CDN folder types.",
-} as const
-
 export const CheckoutRequestSchema = {
   properties: {
     item_id: {
@@ -181,6 +174,13 @@ export const EmailConfirmationSchema = {
   type: "object",
   required: ["token"],
   title: "EmailConfirmation",
+} as const
+
+export const EntityTypeSchema = {
+  type: "string",
+  enum: ["item", "producer"],
+  title: "EntityType",
+  description: "Enum for entity types that can have image uploads.",
 } as const
 
 export const FundAccountResponseSchema = {
@@ -1040,6 +1040,23 @@ export const UpdatePasswordSchema = {
   type: "object",
   required: ["current_password", "new_password"],
   title: "UpdatePassword",
+} as const
+
+export const UploadResponseSchema = {
+  properties: {
+    path: {
+      type: "string",
+      title: "Path",
+    },
+    filename: {
+      type: "string",
+      title: "Filename",
+    },
+  },
+  type: "object",
+  required: ["path", "filename"],
+  title: "UploadResponse",
+  description: "Response model for file uploads.",
 } as const
 
 export const UserCreateSchema = {

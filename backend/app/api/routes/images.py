@@ -1,5 +1,6 @@
 import os
 import uuid
+from enum import Enum
 from logging import getLogger
 from pathlib import Path
 
@@ -9,7 +10,7 @@ from pydantic import BaseModel
 from sqlmodel import select
 
 from app.api.deps import SessionDep
-from app.core.config import CDNFolder, settings
+from app.core.config import CDNFolder, EntityType, settings
 from app.core.storage import delete_from_bunnycdn, save_to_bunnycdn, save_to_local
 from app.models import Image, ImageCreate, ImagePublic, ImagesPublic
 
@@ -18,36 +19,44 @@ router = APIRouter(prefix="/images", tags=["images"])
 logging = getLogger(__name__)
 logging.setLevel("INFO")
 
+class UploadResponse(BaseModel):
+    """Response model for file uploads."""
+    path: str
+    filename: str
 
-@router.post("/{item_id}")
+
+@router.post("/{id}")
 async def upload_file(
     session: SessionDep,
-    item_id: str,
+    id: str,
     file: UploadFile = File(...),
-    folder: CDNFolder = Query(CDNFolder.IMAGES, description="CDN folder to upload to")
-) -> ImagePublic:
-    """Upload an image and create a database entry."""
-    logging.info(f"Upload request: item_id={item_id}, file={file.filename}, folder={folder.value}")
+    entity_type: EntityType = Query(EntityType.ITEM, description="Type of entity: item or producer")
+) -> ImagePublic | UploadResponse:
+    """Upload an image for items or producers."""
+    # Determine folder based on entity type
+    folder = CDNFolder.IMAGES_PRODUCER if entity_type == EntityType.PRODUCER else CDNFolder.IMAGES_ITEM
+    
+    logging.info(f"Upload request: id={id}, file={file.filename}, entity_type={entity_type.value}, folder={folder.value}")
     logging.info(f"Environment: {settings.ENVIRONMENT}, BunnyCDN enabled: {settings.bunnycdn_enabled}")
     
-    # Parse item_id as UUID
+    # Parse id as UUID
     try:
-        item_uuid = uuid.UUID(item_id)
+        entity_uuid = uuid.UUID(id)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid item_id format")
+        raise HTTPException(status_code=400, detail="Invalid id format")
     
-    # Generate unique image ID
-    image_id = uuid.uuid4()
+    # Generate unique file ID
+    file_id = uuid.uuid4()
     
     try:
         if settings.bunnycdn_enabled:
             # Save to BunnyCDN if configured
             logging.info(f"Uploading to BunnyCDN with zone: {settings.BUNNYCDN_STORAGE_ZONE}")
-            image_path = await save_to_bunnycdn(file, folder, image_id)
+            image_path = await save_to_bunnycdn(file, folder, file_id)
         else:
             # Save to local folder if BunnyCDN not configured
             logging.info(f"Uploading to local storage: {settings.UPLOAD_DIR}")
-            image_path = await save_to_local(file, folder, image_id)
+            image_path = await save_to_local(file, folder, file_id)
     except HTTPException:
         # Re-raise HTTP exceptions
         raise
@@ -56,17 +65,21 @@ async def upload_file(
         logging.error(error_msg, exc_info=True)
         raise HTTPException(status_code=500, detail=error_msg)
     
-    # Extract filename without extension
-    filename = file.filename or "image"
-    name_without_ext = Path(filename).stem
+    # Extract filename
+    filename = file.filename or "file"
     
-    # Create database entry
+    # For producer images, just return the path
+    if entity_type == EntityType.PRODUCER:
+        return UploadResponse(path=image_path, filename=filename)
+    
+    # For item images, create database entry
+    name_without_ext = Path(filename).stem
     image_create = ImageCreate(
         path=image_path,
         name=name_without_ext,
-        item_id=item_uuid
+        item_id=entity_uuid
     )
-    db_image = Image.model_validate(image_create, update={"id": image_id})
+    db_image = Image.model_validate(image_create, update={"id": file_id})
     session.add(db_image)
     session.commit()
     session.refresh(db_image)

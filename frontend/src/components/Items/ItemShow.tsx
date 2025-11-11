@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react"
+import { Box, Text } from "@chakra-ui/react"
 import { useNavigate } from "@tanstack/react-router"
 import React from "react"
 import type { ItemPublic } from "../../client"
@@ -27,13 +27,27 @@ const ItemShow = ({ item }: { item: ItemPublic }) => {
       key={item.id}
       onClick={() => handleEditItem(item)}
     >
-      {imageSrc && (
-        <img
-          src={imageSrc}
-          alt={item.title}
-          style={{ maxWidth: "200px", maxHeight: "200px" }}
-        />
-      )}
+      <Box className="grid-item-image">
+        {imageSrc && (
+          <img
+            src={imageSrc}
+            alt={item.title}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        )}
+      </Box>
+      <Box className="grid-item-content">
+        <Text fontWeight="bold" fontSize="lg" mb={2} noOfLines={1}>
+          {item.title}
+        </Text>
+        <Text fontSize="sm" color="gray.600" noOfLines={2}>
+          {item.description || "No description available"}
+        </Text>
+      </Box>
     </Box>
   )
 }

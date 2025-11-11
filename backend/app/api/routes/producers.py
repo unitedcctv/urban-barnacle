@@ -47,6 +47,24 @@ def read_producers(
     return ProducersPublic(data=producers, count=count)
 
 
+@router.get("/by-user/{user_id}", response_model=ProducerPublic | None)
+def read_producer_by_user(
+    session: SessionDep, current_user: CurrentUser, user_id: uuid.UUID
+) -> Any:
+    """
+    Get producer by user ID.
+    Only superusers can access this endpoint.
+    """
+    if current_user.permissions != UserPermission.SUPERUSER:
+        raise HTTPException(
+            status_code=403, detail="Not enough permissions"
+        )
+    
+    statement = select(Producer).where(Producer.user_id == user_id)
+    producer = session.exec(statement).first()
+    return producer
+
+
 @router.get("/{id}", response_model=ProducerPublic)
 def read_producer(session: SessionDep, id: uuid.UUID) -> Any:
     """
@@ -55,6 +73,39 @@ def read_producer(session: SessionDep, id: uuid.UUID) -> Any:
     producer = session.get(Producer, id)
     if not producer:
         raise HTTPException(status_code=404, detail="Producer not found")
+    return producer
+
+
+@router.post("/for-user/{user_id}", response_model=ProducerPublic)
+def create_producer_for_user(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    user_id: uuid.UUID,
+    producer_in: ProducerCreate
+) -> Any:
+    """
+    Create new producer for a specific user.
+    Only superusers can create producers for other users.
+    """
+    if current_user.permissions != UserPermission.SUPERUSER:
+        raise HTTPException(
+            status_code=403, detail="Not enough permissions"
+        )
+    
+    # Check if user already has a producer profile
+    existing = session.exec(
+        select(Producer).where(Producer.user_id == user_id)
+    ).first()
+    if existing:
+        raise HTTPException(
+            status_code=400, detail="User already has a producer profile"
+        )
+    
+    producer = Producer.model_validate(producer_in, update={"user_id": user_id})
+    session.add(producer)
+    session.commit()
+    session.refresh(producer)
     return producer
 
 

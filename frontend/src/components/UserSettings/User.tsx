@@ -1,9 +1,12 @@
-import { Badge, Box, Flex, Td, Text, Tr } from "@chakra-ui/react"
+import { Badge, Box, Flex, Td, Text, Tr, useToast } from "@chakra-ui/react"
 import { useDisclosure } from "@chakra-ui/react"
-import type { UserPublic } from "../../client/types.gen"
+import { useState } from "react"
+import type { ProducerPublic, UserPublic } from "../../client/types.gen"
+import { producersReadProducerByUser } from "../../client/sdk.gen"
 import deleteIcon from "../../theme/assets/icons/delete.svg"
 import editIcon from "../../theme/assets/icons/edit.svg"
 import EditUser from "../Admin/EditUser"
+import EditProducer from "../Producers/EditProducer"
 import Delete from "../Common/DeleteAlert"
 
 type UserRowProps = {
@@ -14,6 +17,41 @@ type UserRowProps = {
 export function UserRow({ user, currentUserId }: UserRowProps) {
   const deleteModal = useDisclosure()
   const editUserModal = useDisclosure()
+  const editProducerModal = useDisclosure()
+  const [producer, setProducer] = useState<ProducerPublic | null>(null)
+  const toast = useToast()
+
+  const handleEditClick = async () => {
+    // Check if user has producer permissions
+    if (user.permissions?.includes("producer")) {
+      try {
+        const producerData = await producersReadProducerByUser({ userId: user.id })
+        if (producerData) {
+          setProducer(producerData)
+          editProducerModal.onOpen()
+        } else {
+          toast({
+            title: "No producer profile found",
+            description: "This user doesn't have a producer profile yet.",
+            status: "info",
+            duration: 3000,
+          })
+          editUserModal.onOpen()
+        }
+      } catch (error) {
+        console.error("Error fetching producer:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load producer profile.",
+          status: "error",
+          duration: 3000,
+        })
+        editUserModal.onOpen()
+      }
+    } else {
+      editUserModal.onOpen()
+    }
+  }
 
   const renderPermissions = (permissions: string | null | undefined) => {
     if (!permissions) return <Text color="gray.500">No permissions</Text>
@@ -99,7 +137,7 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
         </Flex>
       </Td>
       <Td>
-        <Flex cursor="pointer" onClick={editUserModal.onOpen} w="24px" h="24px">
+        <Flex cursor="pointer" onClick={handleEditClick} w="24px" h="24px">
           <img
             src={editIcon}
             alt="edit"
@@ -137,6 +175,13 @@ export function UserRow({ user, currentUserId }: UserRowProps) {
           isOpen={editUserModal.isOpen}
           onClose={editUserModal.onClose}
         />
+        {producer && (
+          <EditProducer
+            producer={producer}
+            isOpen={editProducerModal.isOpen}
+            onClose={editProducerModal.onClose}
+          />
+        )}
         <Delete
           type="User"
           id={user.id}

@@ -4,110 +4,114 @@ import type { CancelablePromise } from "./core/CancelablePromise"
 import { OpenAPI } from "./core/OpenAPI"
 import { request as __request } from "./core/request"
 import type {
-  AiChatResponse,
-  AiDriveChangeWebhookData,
-  AiDriveChangeWebhookResponse,
-  AiPopulateChunksEndpointResponse,
-  AiRegisterWatchEndpointResponse,
-  BlockchainCheckEthBalanceResponse,
-  BlockchainFundAccountResponse,
-  BlockchainGetBlockchainStatusResponse,
-  BusinessPlanDownloadBusinessPlanResponse,
-  ImagesDeleteFileData,
-  ImagesDeleteFileResponse,
-  ImagesDeleteItemImagesData,
-  ImagesDeleteItemImagesResponse,
-  ImagesDownloadImageData,
-  ImagesDownloadImageResponse,
-  ImagesGetImageData,
-  ImagesGetImageResponse,
-  ImagesGetItemImagesData,
-  ImagesGetItemImagesResponse,
-  ImagesUploadFileData,
-  ImagesUploadFileResponse,
+  LoginLoginAccessTokenData,
+  LoginLoginAccessTokenResponse,
+  LoginTestTokenResponse,
+  LoginRecoverPasswordData,
+  LoginRecoverPasswordResponse,
+  LoginResetPasswordData,
+  LoginResetPasswordResponse,
+  LoginRecoverPasswordHtmlContentData,
+  LoginRecoverPasswordHtmlContentResponse,
+  UsersReadUsersData,
+  UsersReadUsersResponse,
+  UsersCreateUserData,
+  UsersCreateUserResponse,
+  UsersReadUserMeResponse,
+  UsersDeleteUserMeResponse,
+  UsersUpdateUserMeData,
+  UsersUpdateUserMeResponse,
+  UsersUpdatePasswordMeData,
+  UsersUpdatePasswordMeResponse,
+  UsersRegisterUserData,
+  UsersRegisterUserResponse,
+  UsersConfirmEmailData,
+  UsersConfirmEmailResponse,
+  UsersReadUserByIdData,
+  UsersReadUserByIdResponse,
+  UsersUpdateUserData,
+  UsersUpdateUserResponse,
+  UsersDeleteUserData,
+  UsersDeleteUserResponse,
+  UtilsTestEmailData,
+  UtilsTestEmailResponse,
+  UtilsListPermissionsResponse,
+  ItemsReadItemsData,
+  ItemsReadItemsResponse,
   ItemsCreateItemData,
   ItemsCreateItemResponse,
+  ItemsReadMyItemsData,
+  ItemsReadMyItemsResponse,
+  ItemsReadItemData,
+  ItemsReadItemResponse,
+  ItemsUpdateItemData,
+  ItemsUpdateItemResponse,
   ItemsDeleteItemData,
   ItemsDeleteItemResponse,
   ItemsMintItemNftData,
   ItemsMintItemNftResponse,
-  ItemsReadItemData,
-  ItemsReadItemResponse,
-  ItemsReadItemsData,
-  ItemsReadItemsResponse,
-  ItemsReadMyItemsData,
-  ItemsReadMyItemsResponse,
-  ItemsUpdateItemData,
-  ItemsUpdateItemResponse,
-  LoginLoginAccessTokenData,
-  LoginLoginAccessTokenResponse,
-  LoginRecoverPasswordData,
-  LoginRecoverPasswordHtmlContentData,
-  LoginRecoverPasswordHtmlContentResponse,
-  LoginRecoverPasswordResponse,
-  LoginResetPasswordData,
-  LoginResetPasswordResponse,
-  LoginTestTokenResponse,
-  LogsClearLogsResponse,
-  LogsGetLogStatsResponse,
+  ImagesUploadFileData,
+  ImagesUploadFileResponse,
+  ImagesDeleteFileData,
+  ImagesDeleteFileResponse,
+  ImagesGetImageData,
+  ImagesGetImageResponse,
+  ImagesDeleteItemImagesData,
+  ImagesDeleteItemImagesResponse,
+  ImagesGetItemImagesData,
+  ImagesGetItemImagesResponse,
+  ImagesDownloadImageData,
+  ImagesDownloadImageResponse,
   LogsGetRecentLogsData,
   LogsGetRecentLogsResponse,
-  ModelsDeleteItemModelData,
-  ModelsDeleteItemModelResponse,
+  LogsClearLogsResponse,
+  LogsGetLogStatsResponse,
+  ModelsUploadModelData,
+  ModelsUploadModelResponse,
+  ModelsGetModelData,
+  ModelsGetModelResponse,
   ModelsDeleteModelData,
   ModelsDeleteModelResponse,
   ModelsDownloadModelData,
   ModelsDownloadModelResponse,
-  ModelsGetModelData,
-  ModelsGetModelResponse,
-  ModelsUploadModelData,
-  ModelsUploadModelResponse,
-  NavigationGetNavigationItemsData,
-  NavigationGetNavigationItemsResponse,
+  ModelsDeleteItemModelData,
+  ModelsDeleteItemModelResponse,
   PaymentsCreateCheckoutSessionData,
   PaymentsCreateCheckoutSessionResponse,
-  PaymentsGetStripeConfigResponse,
-  PaymentsPaymentCancelResponse,
   PaymentsPaymentSuccessData,
   PaymentsPaymentSuccessResponse,
+  PaymentsPaymentCancelResponse,
   PaymentsStripeWebhookResponse,
-  PrivateCreateUserData,
-  PrivateCreateUserResponse,
-  ProducersCreateProducerData,
-  ProducersCreateProducerResponse,
-  ProducersDeleteProducerData,
-  ProducersDeleteProducerResponse,
+  PaymentsGetStripeConfigResponse,
   ProducersReadMyProducerResponse,
-  ProducersReadProducerData,
-  ProducersReadProducerResponse,
   ProducersReadProducersData,
   ProducersReadProducersResponse,
+  ProducersCreateProducerData,
+  ProducersCreateProducerResponse,
+  ProducersReadProducerByUserData,
+  ProducersReadProducerByUserResponse,
+  ProducersReadProducerData,
+  ProducersReadProducerResponse,
   ProducersUpdateProducerData,
   ProducersUpdateProducerResponse,
+  ProducersDeleteProducerData,
+  ProducersDeleteProducerResponse,
+  ProducersCreateProducerForUserData,
+  ProducersCreateProducerForUserResponse,
+  BlockchainCheckEthBalanceResponse,
+  BlockchainFundAccountResponse,
+  BlockchainGetBlockchainStatusResponse,
+  NavigationGetNavigationItemsData,
+  NavigationGetNavigationItemsResponse,
+  AiChatResponse,
+  AiRegisterWatchEndpointResponse,
+  AiPopulateChunksEndpointResponse,
+  AiDriveChangeWebhookData,
+  AiDriveChangeWebhookResponse,
+  BusinessPlanDownloadBusinessPlanResponse,
+  PrivateCreateUserData,
+  PrivateCreateUserResponse,
   UsersApiCurrentUserResponse,
-  UsersConfirmEmailData,
-  UsersConfirmEmailResponse,
-  UsersCreateUserData,
-  UsersCreateUserResponse,
-  UsersDeleteUserData,
-  UsersDeleteUserMeResponse,
-  UsersDeleteUserResponse,
-  UsersReadUserByIdData,
-  UsersReadUserByIdResponse,
-  UsersReadUserMeResponse,
-  UsersReadUsersData,
-  UsersReadUsersResponse,
-  UsersRegisterUserData,
-  UsersRegisterUserResponse,
-  UsersUpdatePasswordMeData,
-  UsersUpdatePasswordMeResponse,
-  UsersUpdateUserData,
-  UsersUpdateUserMeData,
-  UsersUpdateUserMeResponse,
-  UsersUpdateUserResponse,
-  UtilsListPermissionsResponse,
-  UtilsTestEmailData,
-  UtilsTestEmailResponse,
 } from "./types.gen"
 
 /**
@@ -654,12 +658,12 @@ export const itemsMintItemNft = (
 
 /**
  * Upload File
- * Upload an image and create a database entry.
+ * Upload an image for items or producers.
  * @param data The data for the request.
- * @param data.itemId
+ * @param data.id
  * @param data.formData
- * @param data.folder CDN folder to upload to
- * @returns ImagePublic Successful Response
+ * @param data.entityType Type of entity: item or producer
+ * @returns unknown Successful Response
  * @throws ApiError
  */
 export const imagesUploadFile = (
@@ -667,12 +671,12 @@ export const imagesUploadFile = (
 ): CancelablePromise<ImagesUploadFileResponse> => {
   return __request(OpenAPI, {
     method: "POST",
-    url: "/api/v1/images/{item_id}",
+    url: "/api/v1/images/{id}",
     path: {
-      item_id: data.itemId,
+      id: data.id,
     },
     query: {
-      folder: data.folder,
+      entity_type: data.entityType,
     },
     formData: data.formData,
     mediaType: "multipart/form-data",
@@ -1133,6 +1137,30 @@ export const producersCreateProducer = (
 }
 
 /**
+ * Read Producer By User
+ * Get producer by user ID.
+ * Only superusers can access this endpoint.
+ * @param data The data for the request.
+ * @param data.userId
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const producersReadProducerByUser = (
+  data: ProducersReadProducerByUserData,
+): CancelablePromise<ProducersReadProducerByUserResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/producers/by-user/{user_id}",
+    path: {
+      user_id: data.userId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
  * Read Producer
  * Get producer by ID.
  * @param data The data for the request.
@@ -1200,6 +1228,33 @@ export const producersDeleteProducer = (
     path: {
       id: data.id,
     },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Create Producer For User
+ * Create new producer for a specific user.
+ * Only superusers can create producers for other users.
+ * @param data The data for the request.
+ * @param data.userId
+ * @param data.requestBody
+ * @returns ProducerPublic Successful Response
+ * @throws ApiError
+ */
+export const producersCreateProducerForUser = (
+  data: ProducersCreateProducerForUserData,
+): CancelablePromise<ProducersCreateProducerForUserResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/producers/for-user/{user_id}",
+    path: {
+      user_id: data.userId,
+    },
+    body: data.requestBody,
+    mediaType: "application/json",
     errors: {
       422: "Validation Error",
     },

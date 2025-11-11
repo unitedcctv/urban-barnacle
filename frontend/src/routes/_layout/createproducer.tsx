@@ -64,8 +64,10 @@ function CreateProducer() {
           const formData = new FormData()
           formData.append("file", logoInput.files[0])
           try {
+            // Use a temporary UUID for the upload since we don't have a producer ID yet
+            const tempId = crypto.randomUUID()
             const response = await fetch(
-              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/upload`,
+              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${tempId}?entity_type=producer`,
               {
                 method: "POST",
                 body: formData,
@@ -93,8 +95,10 @@ function CreateProducer() {
           const formData = new FormData()
           formData.append("file", file)
           try {
+            // Use a temporary UUID for each upload since we don't have a producer ID yet
+            const tempId = crypto.randomUUID()
             const response = await fetch(
-              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/upload`,
+              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${tempId}?entity_type=producer`,
               {
                 method: "POST",
                 body: formData,

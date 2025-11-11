@@ -17,6 +17,8 @@ from app.models import (
     EmailConfirmation,
     Item,
     Message,
+    Producer,
+    Review,
     UpdatePassword,
     User,
     UserCreate,
@@ -290,8 +292,34 @@ def delete_user(
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
+    # Get user's producer profile if exists
+    producer = session.exec(
+        select(Producer).where(Producer.user_id == user_id)
+    ).first()
+    
+    # If user has a producer profile, clean up related data
+    if producer:
+        from sqlmodel import update
+        # Nullify producer_id in items that reference this producer
+        update_items_statement = (
+            update(Item)
+            .where(col(Item.producer_id) == producer.id)
+            .values(producer_id=None)
+        )
+        session.exec(update_items_statement)  # type: ignore
+        
+        # Delete all reviews for this producer
+        delete_reviews_statement = delete(Review).where(col(Review.producer_id) == producer.id)
+        session.exec(delete_reviews_statement)  # type: ignore
+    
+    # Delete user's items
     statement = delete(Item).where(col(Item.owner_id) == user_id)
     session.exec(statement)  # type: ignore
+    
+    # Delete user's producer profile if exists
+    if producer:
+        session.delete(producer)
+    
     session.delete(user)
     session.commit()
     return Message(message="User deleted successfully")

@@ -28,11 +28,6 @@ export type Body_models_upload_model = {
   file: Blob | File
 }
 
-/**
- * Enum for CDN folder types.
- */
-export type CDNFolder = "images" | "uploads" | "models"
-
 export type CheckoutRequest = {
   item_id: string
   success_url?: string | null
@@ -46,6 +41,11 @@ export type CheckoutResponse = {
 export type EmailConfirmation = {
   token: string
 }
+
+/**
+ * Enum for entity types that can have image uploads.
+ */
+export type EntityType = "item" | "producer"
 
 /**
  * Response model for account funding
@@ -196,6 +196,14 @@ export type Token = {
 export type UpdatePassword = {
   current_password: string
   new_password: string
+}
+
+/**
+ * Response model for file uploads.
+ */
+export type UploadResponse = {
+  path: string
+  filename: string
 }
 
 export type UserCreate = {
@@ -393,14 +401,14 @@ export type ItemsMintItemNftResponse = ItemPublic
 
 export type ImagesUploadFileData = {
   /**
-   * CDN folder to upload to
+   * Type of entity: item or producer
    */
-  folder?: CDNFolder
+  entityType?: EntityType
   formData: Body_images_upload_file
-  itemId: string
+  id: string
 }
 
-export type ImagesUploadFileResponse = ImagePublic
+export type ImagesUploadFileResponse = ImagePublic | UploadResponse
 
 export type ImagesDeleteFileData = {
   imageId: string
@@ -531,6 +539,12 @@ export type ProducersCreateProducerData = {
 
 export type ProducersCreateProducerResponse = ProducerPublic
 
+export type ProducersReadProducerByUserData = {
+  userId: string
+}
+
+export type ProducersReadProducerByUserResponse = ProducerPublic | null
+
 export type ProducersReadProducerData = {
   id: string
 }
@@ -549,6 +563,13 @@ export type ProducersDeleteProducerData = {
 }
 
 export type ProducersDeleteProducerResponse = Message
+
+export type ProducersCreateProducerForUserData = {
+  requestBody: ProducerCreate
+  userId: string
+}
+
+export type ProducersCreateProducerForUserResponse = ProducerPublic
 
 export type BlockchainCheckEthBalanceResponse = BalanceResponse
 
