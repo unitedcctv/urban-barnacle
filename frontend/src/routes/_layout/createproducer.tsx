@@ -55,7 +55,10 @@ function CreateProducer() {
 
   const mutation = useMutation({
     mutationFn: async (data: ProducerCreate) => {
-      // Upload logo if provided
+      // Step 1: Create the producer first
+      const createdProducer = await producersCreateProducer({ requestBody: data })
+      
+      // Step 2: Upload logo if provided
       if (logoPreview) {
         const logoInput = document.getElementById(
           "logo-upload",
@@ -64,10 +67,8 @@ function CreateProducer() {
           const formData = new FormData()
           formData.append("file", logoInput.files[0])
           try {
-            // Use a temporary UUID for the upload since we don't have a producer ID yet
-            const tempId = crypto.randomUUID()
             const response = await fetch(
-              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${tempId}?entity_type=producer`,
+              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${createdProducer.id}?entity_type=producer&image_type=logo`,
               {
                 method: "POST",
                 body: formData,
@@ -78,9 +79,8 @@ function CreateProducer() {
                 },
               },
             )
-            if (response.ok) {
-              const imageData = await response.json()
-              data.logo_url = imageData.path
+            if (!response.ok) {
+              console.error("Failed to upload logo")
             }
           } catch (error) {
             console.error("Error uploading logo:", error)
@@ -88,17 +88,14 @@ function CreateProducer() {
         }
       }
 
-      // Upload portfolio images if provided
+      // Step 3: Upload portfolio images if provided
       if (portfolioImages.length > 0) {
-        const uploadedUrls: string[] = []
         for (const file of portfolioImages) {
           const formData = new FormData()
           formData.append("file", file)
           try {
-            // Use a temporary UUID for each upload since we don't have a producer ID yet
-            const tempId = crypto.randomUUID()
             const response = await fetch(
-              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${tempId}?entity_type=producer`,
+              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${createdProducer.id}?entity_type=producer&image_type=portfolio`,
               {
                 method: "POST",
                 body: formData,
@@ -109,20 +106,16 @@ function CreateProducer() {
                 },
               },
             )
-            if (response.ok) {
-              const imageData = await response.json()
-              uploadedUrls.push(imageData.path)
+            if (!response.ok) {
+              console.error("Failed to upload portfolio image")
             }
           } catch (error) {
             console.error("Error uploading portfolio image:", error)
           }
         }
-        if (uploadedUrls.length > 0) {
-          data.portfolio_images = uploadedUrls.join(",")
-        }
       }
 
-      return producersCreateProducer({ requestBody: data })
+      return createdProducer
     },
     onSuccess: () => {
       showToast("Success!", "Producer profile created successfully.", "success")

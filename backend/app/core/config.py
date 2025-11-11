@@ -36,6 +36,12 @@ class EntityType(str, Enum):
     PRODUCER = "producer"
 
 
+class ProducerImageType(str, Enum):
+    """Enum for producer image types."""
+    LOGO = "logo"
+    PORTFOLIO = "portfolio"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         # Use top level .env file (one level above ./backend/)

@@ -874,6 +874,51 @@ export const ProducerCreateSchema = {
   title: "ProducerCreate",
 } as const
 
+export const ProducerImagePublicSchema = {
+  properties: {
+    path: {
+      type: "string",
+      maxLength: 500,
+      title: "Path",
+    },
+    name: {
+      type: "string",
+      maxLength: 255,
+      title: "Name",
+    },
+    image_type: {
+      type: "string",
+      maxLength: 50,
+      title: "Image Type",
+    },
+    producer_id: {
+      type: "string",
+      format: "uuid",
+      title: "Producer Id",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+  },
+  type: "object",
+  required: ["path", "name", "image_type", "producer_id", "id", "created_at"],
+  title: "ProducerImagePublic",
+} as const
+
+export const ProducerImageTypeSchema = {
+  type: "string",
+  enum: ["logo", "portfolio"],
+  title: "ProducerImageType",
+  description: "Enum for producer image types.",
+} as const
+
 export const ProducerPublicSchema = {
   properties: {
     name: {
@@ -1040,23 +1085,6 @@ export const UpdatePasswordSchema = {
   type: "object",
   required: ["current_password", "new_password"],
   title: "UpdatePassword",
-} as const
-
-export const UploadResponseSchema = {
-  properties: {
-    path: {
-      type: "string",
-      title: "Path",
-    },
-    filename: {
-      type: "string",
-      title: "Filename",
-    },
-  },
-  type: "object",
-  required: ["path", "filename"],
-  title: "UploadResponse",
-  description: "Response model for file uploads.",
 } as const
 
 export const UserCreateSchema = {

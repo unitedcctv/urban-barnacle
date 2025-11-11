@@ -62,6 +62,8 @@ import type {
   ImagesGetItemImagesResponse,
   ImagesDownloadImageData,
   ImagesDownloadImageResponse,
+  ImagesGetProducerImagesData,
+  ImagesGetProducerImagesResponse,
   LogsGetRecentLogsData,
   LogsGetRecentLogsResponse,
   LogsClearLogsResponse,
@@ -663,6 +665,7 @@ export const itemsMintItemNft = (
  * @param data.id
  * @param data.formData
  * @param data.entityType Type of entity: item or producer
+ * @param data.imageType Type of producer image: logo or portfolio
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -677,6 +680,7 @@ export const imagesUploadFile = (
     },
     query: {
       entity_type: data.entityType,
+      image_type: data.imageType,
     },
     formData: data.formData,
     mediaType: "multipart/form-data",
@@ -794,6 +798,33 @@ export const imagesDownloadImage = (
     url: "/api/v1/images/download/{image_id}",
     path: {
       image_id: data.imageId,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Get Producer Images
+ * Get all images for a producer, optionally filtered by type.
+ * @param data The data for the request.
+ * @param data.producerId
+ * @param data.imageType Filter by image type: logo or portfolio
+ * @returns ProducerImagePublic Successful Response
+ * @throws ApiError
+ */
+export const imagesGetProducerImages = (
+  data: ImagesGetProducerImagesData,
+): CancelablePromise<ImagesGetProducerImagesResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/images/producer/{producer_id}",
+    path: {
+      producer_id: data.producerId,
+    },
+    query: {
+      image_type: data.imageType,
     },
     errors: {
       422: "Validation Error",

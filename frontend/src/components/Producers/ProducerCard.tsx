@@ -1,6 +1,7 @@
 import { Box, Heading, Stack, Text, useColorModeValue } from "@chakra-ui/react"
 import React from "react"
 import type { ProducerPublic } from "../../client"
+import { imagesGetProducerImages } from "../../client/sdk.gen"
 
 interface ProducerCardProps {
   producer: ProducerPublic
@@ -12,10 +13,24 @@ export default function ProducerCard({ producer }: ProducerCardProps) {
   const [imageSrc, setImageSrc] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    if (producer.logo_url) {
-      setImageSrc(producer.logo_url)
+    // Fetch portfolio images for this producer
+    const fetchPortfolioImage = async () => {
+      try {
+        const portfolioImages = await imagesGetProducerImages({
+          producerId: producer.id,
+          imageType: "portfolio"
+        })
+        // Use the first portfolio image if available
+        if (portfolioImages && portfolioImages.length > 0) {
+          setImageSrc(portfolioImages[0].path)
+        }
+      } catch (error) {
+        console.error("Failed to fetch portfolio images:", error)
+      }
     }
-  }, [producer.logo_url])
+
+    fetchPortfolioImage()
+  }, [producer.id])
 
   return (
     <Box className="grid-item">

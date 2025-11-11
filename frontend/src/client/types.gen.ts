@@ -167,6 +167,20 @@ export type ProducerCreate = {
   portfolio_images?: string | null
 }
 
+export type ProducerImagePublic = {
+  path: string
+  name: string
+  image_type: string
+  producer_id: string
+  id: string
+  created_at: string
+}
+
+/**
+ * Enum for producer image types.
+ */
+export type ProducerImageType = "logo" | "portfolio"
+
 export type ProducerPublic = {
   name: string
   location?: string | null
@@ -196,14 +210,6 @@ export type Token = {
 export type UpdatePassword = {
   current_password: string
   new_password: string
-}
-
-/**
- * Response model for file uploads.
- */
-export type UploadResponse = {
-  path: string
-  filename: string
 }
 
 export type UserCreate = {
@@ -406,9 +412,13 @@ export type ImagesUploadFileData = {
   entityType?: EntityType
   formData: Body_images_upload_file
   id: string
+  /**
+   * Type of producer image: logo or portfolio
+   */
+  imageType?: ProducerImageType | null
 }
 
-export type ImagesUploadFileResponse = ImagePublic | UploadResponse
+export type ImagesUploadFileResponse = ImagePublic | ProducerImagePublic
 
 export type ImagesDeleteFileData = {
   imageId: string
@@ -443,6 +453,16 @@ export type ImagesDownloadImageData = {
 }
 
 export type ImagesDownloadImageResponse = unknown
+
+export type ImagesGetProducerImagesData = {
+  /**
+   * Filter by image type: logo or portfolio
+   */
+  imageType?: ProducerImageType | null
+  producerId: string
+}
+
+export type ImagesGetProducerImagesResponse = Array<ProducerImagePublic>
 
 export type LogsGetRecentLogsData = {
   level?: string | null

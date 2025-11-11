@@ -244,6 +244,47 @@ class ImagesPublic(SQLModel):
     count: int
 
 
+# Shared properties for ProducerImage
+class ProducerImageBase(SQLModel):
+    path: str = Field(max_length=500)  # Full path or URL to the image
+    name: str = Field(max_length=255)  # Filename without extension
+    image_type: str = Field(max_length=50)  # "logo" or "portfolio"
+    producer_id: uuid.UUID = Field(foreign_key="producer.id", nullable=False, ondelete="CASCADE")
+
+
+# Properties to receive on producer image creation
+class ProducerImageCreate(ProducerImageBase):
+    pass
+
+
+# Properties to receive on producer image update
+class ProducerImageUpdate(SQLModel):
+    path: Optional[str] = Field(default=None, max_length=500)
+    name: Optional[str] = Field(default=None, max_length=255)
+    image_type: Optional[str] = Field(default=None, max_length=50)
+
+
+# Database model, database table inferred from class name
+class ProducerImage(ProducerImageBase, table=True):  # type: ignore[call-arg]
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column=Column(DateTime, nullable=False)
+    )
+    producer: Optional["Producer"] = Relationship(back_populates="producer_images")
+
+
+# Properties to return via API, id is always required
+class ProducerImagePublic(ProducerImageBase):
+    id: uuid.UUID
+    created_at: datetime
+
+
+class ProducerImagesPublic(SQLModel):
+    data: list[ProducerImagePublic]
+    count: int
+
+
 # Shared properties for Producer
 class ProducerBase(SQLModel):
     name: str = Field(min_length=1, max_length=255)
@@ -276,6 +317,8 @@ class Producer(ProducerBase, table=True):  # type: ignore[call-arg]
     produced_items: list["Item"] = Relationship(back_populates="producer")
     # Relationship to reviews for this producer
     reviews: list["Review"] = Relationship(back_populates="producer")
+    # Relationship to producer images (logos and portfolio)
+    producer_images: list["ProducerImage"] = Relationship(back_populates="producer")
 
 
 # Properties to return via API, id is always required
