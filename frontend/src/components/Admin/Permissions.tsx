@@ -31,7 +31,7 @@ const PermissionsSelector = ({
 
   return (
     <>
-      <Text mt={4} fontWeight="bold">
+      <Text mt={4}>
         Permission
       </Text>
       <RadioGroup onChange={onPermissionChange} value={initialPermission}>

@@ -15,7 +15,6 @@ const NotFound = () => {
         <Text
           fontSize="8xl"
           color="ui.main"
-          fontWeight="bold"
           lineHeight="1"
           mb={4}
         >

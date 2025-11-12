@@ -53,7 +53,7 @@ const components = {
       py: 1,
       textTransform: "uppercase",
       fontSize: "sm",
-      fontWeight: "bold",
+      fontWeight: "normal",
     },
     variants: {
       solid: {

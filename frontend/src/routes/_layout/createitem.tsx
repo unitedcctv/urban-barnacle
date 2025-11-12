@@ -592,28 +592,28 @@ function CreateItem() {
           <ModalBody pb={6}>
             <VStack spacing={4} align="stretch">
               <Box>
-                <Text fontWeight="bold" mb={2}>Token ID</Text>
+                <Text mb={2}>Token ID</Text>
                 <Badge colorScheme="gray" fontSize="md" p={2}>
                   {watch("nft_token_id") || "Not available"}
                 </Badge>
               </Box>
               
               <Box>
-                <Text fontWeight="bold" mb={2}>Contract Address</Text>
+                <Text mb={2}>Contract Address</Text>
                 <Text fontFamily="mono" fontSize="sm" bg="gray.100" p={2} borderRadius="md">
                   {watch("nft_contract_address") || "Not available"}
                 </Text>
               </Box>
               
               <Box>
-                <Text fontWeight="bold" mb={2}>Transaction Hash</Text>
+                <Text mb={2}>Transaction Hash</Text>
                 <Text fontFamily="mono" fontSize="sm" bg="gray.100" p={2} borderRadius="md" wordBreak="break-all">
                   {watch("nft_transaction_hash") || "Not available"}
                 </Text>
               </Box>
               
               <Box>
-                <Text fontWeight="bold" mb={2}>Metadata URI</Text>
+                <Text mb={2}>Metadata URI</Text>
                 <Text fontFamily="mono" fontSize="sm" bg="gray.100" p={2} borderRadius="md" wordBreak="break-all">
                   {watch("nft_metadata_uri") || "Not available"}
                 </Text>

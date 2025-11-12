@@ -112,7 +112,6 @@ const Navigation = () => {
                   onClick={handleLogout}
                   p={2}
                   color="ui.danger"
-                  fontWeight="bold"
                   alignItems="center"
                   _hover={{ bg: secBgHover }}
                 >

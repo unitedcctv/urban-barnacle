@@ -190,15 +190,15 @@ function Admin() {
               currentProducer && (
                 <Stack spacing={3}>
                   <Box>
-                    <Text fontWeight="bold">Name:</Text>
+                    <Text>Name:</Text>
                     <Text>{currentProducer.name}</Text>
                   </Box>
                   <Box>
-                    <Text fontWeight="bold">Location:</Text>
+                    <Text>Location:</Text>
                     <Text>{currentProducer.location || "Not specified"}</Text>
                   </Box>
                   <Box>
-                    <Text fontWeight="bold">Created:</Text>
+                    <Text>Created:</Text>
                     <Text>
                       {new Date(
                         currentProducer.created_at,

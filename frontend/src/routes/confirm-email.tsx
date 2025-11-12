@@ -87,7 +87,7 @@ function ConfirmEmail() {
             <Alert status="success" borderRadius="md">
               <AlertIcon />
               <Box>
-                <Text fontWeight="bold">Email Confirmed!</Text>
+                <Text>Email Confirmed!</Text>
                 <Text>{message}</Text>
               </Box>
             </Alert>
@@ -102,7 +102,7 @@ function ConfirmEmail() {
             <Alert status="error" borderRadius="md">
               <AlertIcon />
               <Box>
-                <Text fontWeight="bold">Confirmation Failed</Text>
+                <Text>Confirmation Failed</Text>
                 <Text>{message}</Text>
               </Box>
             </Alert>

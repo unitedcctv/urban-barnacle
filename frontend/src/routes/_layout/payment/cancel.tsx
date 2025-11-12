@@ -33,7 +33,7 @@ function PaymentCancel() {
         </Alert>
 
         <Box textAlign="center">
-          <Text fontSize="2xl" fontWeight="bold" mb={2}>
+          <Text fontSize="2xl" mb={2}>
             Payment was canceled
           </Text>
           <Text fontSize="lg" color="gray.600" mb={4}>

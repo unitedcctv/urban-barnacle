@@ -9,7 +9,7 @@ export default function ErrorPage({
 }: ErrorPageProps) {
   return (
     <Flex w="100%" h="80vh" direction="column" align="center" justify="center">
-      <Text fontSize="3xl" fontWeight="bold" mb={2}>
+      <Text fontSize="3xl" mb={2}>
         Error
       </Text>
       <Text>{message}</Text>

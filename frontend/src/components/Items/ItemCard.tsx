@@ -41,7 +41,7 @@ const ItemCard = ({ item }: { item: ItemPublic }) => {
         )}
       </Box>
       <Box className="grid-item-content">
-        <Text fontWeight="bold" fontSize="lg" mb={2} noOfLines={1}>
+        <Text fontSize="lg" mb={2} noOfLines={1}>
           {item.title}
         </Text>
         <Text fontSize="sm" color="gray.600" noOfLines={2}>

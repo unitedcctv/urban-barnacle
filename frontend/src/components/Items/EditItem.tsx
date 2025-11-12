@@ -409,7 +409,7 @@ const EditItem = ({
             <VStack spacing={4} align="stretch">
               {item?.nft_token_id && (
                 <Box>
-                  <Text fontWeight="bold" mb={2}>Token Information</Text>
+                  <Text mb={2}>Token Information</Text>
                   <VStack spacing={2} align="stretch">
                     <HStack justify="space-between">
                       <Text>Token ID:</Text>
@@ -459,7 +459,7 @@ const EditItem = ({
               )}
               
               <Box>
-                <Text fontWeight="bold" mb={2}>Item Information</Text>
+                <Text mb={2}>Item Information</Text>
                 <VStack spacing={2} align="stretch">
                   <HStack justify="space-between">
                     <Text>Title:</Text>

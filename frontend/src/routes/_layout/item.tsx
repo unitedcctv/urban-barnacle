@@ -171,7 +171,7 @@ function Item({ item: propItem }: { item: ItemPublic }) {
     <Container maxW="container.md" centerContent py={8}>
       <VStack spacing={6} w="full">
         {/* Title, Description */}
-        <Text fontSize="2xl" fontWeight="bold" textAlign="center">
+        <Text fontSize="2xl" textAlign="center">
           {currentItem?.title}
         </Text>
         <Text textAlign="center">{currentItem?.description}</Text>
