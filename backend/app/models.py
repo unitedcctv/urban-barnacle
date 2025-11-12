@@ -120,7 +120,10 @@ class Item(ItemBase, table=True):  # type: ignore[call-arg]
     producer_id: Optional[uuid.UUID] = Field(default=None, foreign_key="producer.id")
     owner: Optional[User] = Relationship(back_populates="items")
     producer: Optional["Producer"] = Relationship(back_populates="produced_items")
-    item_images: list["Image"] = Relationship(back_populates="item")
+    item_images: list["ItemImage"] = Relationship(
+        back_populates="item",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 
 # Properties to return via API, id is always required
@@ -224,7 +227,8 @@ class ImageUpdate(SQLModel):
 
 
 # Database model, database table inferred from class name
-class Image(ImageBase, table=True):  # type: ignore[call-arg]
+class ItemImage(ImageBase, table=True):  # type: ignore[call-arg]
+    __tablename__ = "image"  # Keep existing table name for backward compatibility
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     created_at: datetime = Field(
         default_factory=datetime.utcnow,

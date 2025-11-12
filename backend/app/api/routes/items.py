@@ -1,3 +1,4 @@
+import os
 import uuid
 from typing import Any
 import logging
@@ -7,7 +8,9 @@ from sqlmodel import func, select
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
-from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message
+from app.core.config import settings
+from app.core.storage import delete_from_bunnycdn
+from app.models import Item, ItemCreate, ItemImage, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message
 from app.blockchain.blockchain_service import blockchain_service
 
 router = APIRouter(prefix="/items", tags=["items"])
@@ -233,11 +236,11 @@ def update_item(
 
 
 @router.delete("/{id}")
-def delete_item(
+async def delete_item(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     """
-    Delete an item.
+    Delete an item and its associated images.
     """
     item = session.get(Item, id)
     if not item:
@@ -246,6 +249,34 @@ def delete_item(
         item.owner_id != current_user.id
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
+    
+    # Delete physical image files before deleting item
+    statement = select(ItemImage).where(ItemImage.item_id == id)
+    item_images = session.exec(statement).all()
+    
+    for image in item_images:
+        if settings.bunnycdn_enabled:
+            try:
+                await delete_from_bunnycdn(image.path)
+            except Exception as e:
+                logging.error(f"Failed to delete from BunnyCDN: {e}")
+        else:
+            # Delete from local folder
+            try:
+                base_url = str(settings.BACKEND_HOST)
+                relative_path = image.path.replace(base_url, "")
+                # Remove leading slash and 'uploads/' prefix since UPLOAD_DIR already points to uploads folder
+                relative_path = relative_path.lstrip("/").replace("uploads/", "", 1)
+                file_path = settings.UPLOAD_DIR / relative_path
+                if file_path.exists():
+                    os.remove(file_path)
+                    logging.info(f"Deleted file: {file_path}")
+                else:
+                    logging.warning(f"File not found: {file_path}")
+            except Exception as e:
+                logging.error(f"Failed to delete file {image.path}: {e}")
+    
+    # Delete item (cascade will handle database records)
     session.delete(item)
     session.commit()
     return Message(message="Item deleted successfully")

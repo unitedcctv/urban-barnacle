@@ -13,7 +13,7 @@ from app.api.deps import SessionDep
 from app.core.config import CDNFolder, EntityType, ProducerImageType, settings
 from app.core.storage import delete_from_bunnycdn, save_to_bunnycdn, save_to_local
 from app.models import (
-    Image,
+    ItemImage,
     ImageCreate,
     ImagePublic,
     ImagesPublic,
@@ -102,7 +102,7 @@ async def upload_file(
         name=name_without_ext,
         item_id=entity_uuid
     )
-    db_image = Image.model_validate(image_create, update={"id": file_id})
+    db_image = ItemImage.model_validate(image_create, update={"id": file_id})
     session.add(db_image)
     session.commit()
     session.refresh(db_image)
@@ -119,7 +119,7 @@ async def delete_file(session: SessionDep, image_id: str) -> dict[str, str]:
         raise HTTPException(status_code=400, detail="Invalid image_id format")
     
     # Get image from database
-    db_image = session.get(Image, img_uuid)
+    db_image = session.get(ItemImage, img_uuid)
     if not db_image:
         raise HTTPException(status_code=404, detail="Image not found")
     
@@ -167,7 +167,7 @@ async def delete_item_images(session: SessionDep, item_id: str) -> dict[str, str
         raise HTTPException(status_code=400, detail="Invalid item_id format")
     
     # Get all images for this item
-    statement = select(Image).where(Image.item_id == item_uuid)
+    statement = select(ItemImage).where(ItemImage.item_id == item_uuid)
     images = session.exec(statement).all()
     
     deleted_count = 0
@@ -219,7 +219,7 @@ async def get_item_images(session: SessionDep, item_id: str) -> ImagesPublic:
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid item_id format")
     
-    statement = select(Image).where(Image.item_id == item_uuid)
+    statement = select(ItemImage).where(ItemImage.item_id == item_uuid)
     images = session.exec(statement).all()
     
     return ImagesPublic(
@@ -236,7 +236,7 @@ async def get_image(session: SessionDep, image_id: str) -> ImagePublic:
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid image_id format")
     
-    db_image = session.get(Image, img_uuid)
+    db_image = session.get(ItemImage, img_uuid)
     if not db_image:
         raise HTTPException(status_code=404, detail="Image not found")
     
@@ -251,7 +251,7 @@ async def download_image(session: SessionDep, image_id: str) -> FileResponse:
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid image_id format")
     
-    db_image = session.get(Image, img_uuid)
+    db_image = session.get(ItemImage, img_uuid)
     if not db_image:
         raise HTTPException(status_code=404, detail="Image not found")
     

@@ -1,3 +1,5 @@
+import logging
+import os
 import uuid
 from datetime import datetime
 from typing import Any
@@ -13,11 +15,14 @@ from app.api.deps import (
 )
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
+from app.core.storage import delete_from_bunnycdn
 from app.models import (
     EmailConfirmation,
     Item,
+    ItemImage,
     Message,
     Producer,
+    ProducerImage,
     Review,
     UpdatePassword,
     User,
@@ -279,7 +284,7 @@ def update_user(
 
 
 @router.delete("/{user_id}", dependencies=[Depends(get_current_active_superuser)])
-def delete_user(
+async def delete_user(
     session: SessionDep, current_user: CurrentUser, user_id: uuid.UUID
 ) -> Message:
     """
@@ -312,12 +317,80 @@ def delete_user(
         delete_reviews_statement = delete(Review).where(col(Review.producer_id) == producer.id)
         session.exec(delete_reviews_statement)  # type: ignore
     
-    # Delete user's items
+    # Delete user's items and their images
+    # First get all items owned by this user
+    user_items_statement = select(Item).where(Item.owner_id == user_id)
+    user_items = session.exec(user_items_statement).all()
+    
+    logging.info(f"Found {len(user_items)} items to delete for user {user_id}")
+    
+    # Delete images for each item
+    for item in user_items:
+        item_images_statement = select(ItemImage).where(ItemImage.item_id == item.id)
+        item_images = session.exec(item_images_statement).all()
+        
+        logging.info(f"Found {len(item_images)} images for item {item.id}")
+        
+        for image in item_images:
+            if settings.bunnycdn_enabled:
+                try:
+                    await delete_from_bunnycdn(image.path)
+                    logging.info(f"Deleted from BunnyCDN: {image.path}")
+                except Exception as e:
+                    logging.error(f"Failed to delete from BunnyCDN: {e}")
+            else:
+                # Delete from local folder
+                try:
+                    base_url = str(settings.BACKEND_HOST)
+                    relative_path = image.path.replace(base_url, "")
+                    # Remove leading slash and 'uploads/' prefix since UPLOAD_DIR already points to uploads folder
+                    relative_path = relative_path.lstrip("/").replace("uploads/", "", 1)
+                    file_path = settings.UPLOAD_DIR / relative_path
+                    
+                    if file_path.exists():
+                        os.remove(file_path)
+                        logging.info(f"✓ Deleted item image file: {file_path}")
+                    else:
+                        logging.warning(f"✗ Item image file not found: {file_path}")
+                except Exception as e:
+                    logging.error(f"Failed to delete item image file {image.path}: {e}")
+    
+    # Now delete all items (cascade will handle database records)
     statement = delete(Item).where(col(Item.owner_id) == user_id)
     session.exec(statement)  # type: ignore
     
     # Delete user's producer profile if exists
     if producer:
+        # Delete physical producer image files before deleting producer
+        producer_images_statement = select(ProducerImage).where(ProducerImage.producer_id == producer.id)
+        producer_images = session.exec(producer_images_statement).all()
+        
+        logging.info(f"Found {len(producer_images)} producer images to delete for user {user_id}")
+        
+        for image in producer_images:
+            if settings.bunnycdn_enabled:
+                try:
+                    await delete_from_bunnycdn(image.path)
+                    logging.info(f"Deleted from BunnyCDN: {image.path}")
+                except Exception as e:
+                    logging.error(f"Failed to delete from BunnyCDN: {e}")
+            else:
+                # Delete from local folder
+                try:
+                    base_url = str(settings.BACKEND_HOST)
+                    relative_path = image.path.replace(base_url, "")
+                    # Remove leading slash and 'uploads/' prefix since UPLOAD_DIR already points to uploads folder
+                    relative_path = relative_path.lstrip("/").replace("uploads/", "", 1)
+                    file_path = settings.UPLOAD_DIR / relative_path
+                    
+                    if file_path.exists():
+                        os.remove(file_path)
+                        logging.info(f"✓ Deleted producer image file: {file_path}")
+                    else:
+                        logging.warning(f"✗ Producer image file not found: {file_path}")
+                except Exception as e:
+                    logging.error(f"Failed to delete producer image file {image.path}: {e}")
+        
         session.delete(producer)
     
     session.delete(user)

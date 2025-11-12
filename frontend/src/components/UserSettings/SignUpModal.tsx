@@ -5,7 +5,7 @@ import {
   ModalContent,
   ModalOverlay,
 } from "@chakra-ui/react"
-import SignUp from "./signup.tsx"
+import SignUp from "./Signup.tsx"
 
 interface SignUpModalProps {
   isOpen: boolean

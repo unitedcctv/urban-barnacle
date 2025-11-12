@@ -205,20 +205,38 @@ async def delete_producer(
     statement = select(ProducerImage).where(ProducerImage.producer_id == id)
     producer_images = session.exec(statement).all()
     
+    logging.info(f"Found {len(producer_images)} images to delete for producer {id}")
+    
     for image in producer_images:
+        logging.info(f"Processing image: path={image.path}, type={image.image_type}")
+        
         if settings.bunnycdn_enabled:
             try:
                 await delete_from_bunnycdn(image.path)
+                logging.info(f"Deleted from BunnyCDN: {image.path}")
             except Exception as e:
                 logging.error(f"Failed to delete from BunnyCDN: {e}")
         else:
             # Delete from local folder
             try:
-                base_url = str(settings.server_host)
+                base_url = str(settings.BACKEND_HOST)
+                logging.info(f"Base URL: {base_url}")
+                logging.info(f"Image path: {image.path}")
+                
                 relative_path = image.path.replace(base_url, "")
-                file_path = settings.upload_dir / relative_path.lstrip("/")
+                logging.info(f"Relative path: {relative_path}")
+                
+                # Remove leading slash and 'uploads/' prefix since UPLOAD_DIR already points to uploads folder
+                relative_path = relative_path.lstrip("/").replace("uploads/", "", 1)
+                file_path = settings.UPLOAD_DIR / relative_path
+                logging.info(f"Full file path: {file_path}")
+                logging.info(f"File exists: {file_path.exists()}")
+                
                 if file_path.exists():
                     os.remove(file_path)
+                    logging.info(f"✓ Successfully deleted file: {file_path}")
+                else:
+                    logging.warning(f"✗ File not found at: {file_path}")
             except Exception as e:
                 logging.error(f"Failed to delete file {image.path}: {e}")
     
