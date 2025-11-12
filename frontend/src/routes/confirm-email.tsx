@@ -71,7 +71,7 @@ function ConfirmEmail() {
   return (
     <Container maxW="md" py={12}>
       <VStack spacing={8}>
-        <Heading size="lg" textAlign="center">
+        <Heading size="md" textAlign="center">
           Email Confirmation
         </Heading>
 

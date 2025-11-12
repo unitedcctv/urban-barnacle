@@ -82,7 +82,7 @@ export default function Home() {
               position="absolute"
               left={0}
             >
-              <Heading size="lg" mb={2}>
+              <Heading size="md" mb={2}>
                 {item.title ?? "Parallax Title"}
               </Heading>
               <Text>{item.description}</Text>

@@ -98,7 +98,7 @@ const Navigation = () => {
                   <UBLogo />
                   <Text
                     ml={2}
-                    fontWeight="200"
+                    fontWeight="300"
                     color={textColor}
                     whiteSpace="nowrap"
                     noOfLines={1}
@@ -168,7 +168,7 @@ const Navigation = () => {
           _hover={{ textDecoration: "none", bg: secBgHover }}
         >
           <UBLogo />
-          <Text ml={3} fontWeight="200" noOfLines={1}>
+          <Text ml={3} fontWeight="300" noOfLines={1}>
             UBDM
           </Text>
         </ChakraFlex>

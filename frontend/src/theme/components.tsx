@@ -1,6 +1,18 @@
 import disabledStyles from "./disabled-styles"
 
 const components = {
+  Heading: {
+    baseStyle: {
+      fontWeight: "400",
+    },
+  },
+  Modal: {
+    baseStyle: {
+      header: {
+        fontWeight: "400",
+      },
+    },
+  },
   Button: {
     variants: {
       primary: {

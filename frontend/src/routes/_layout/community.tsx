@@ -30,7 +30,7 @@ function Community() {
   return (
     <Container maxW="full" py={8}>
       <Box textAlign="center">
-        <Heading size="lg" mb={4}>
+        <Heading size="md" mb={4}>
           Community
         </Heading>
         <Text color="gray.600" mb={8}>

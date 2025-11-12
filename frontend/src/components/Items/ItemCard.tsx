@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react"
+import { Box, Heading, Text } from "@chakra-ui/react"
 import { useNavigate } from "@tanstack/react-router"
 import React from "react"
 import type { ItemPublic } from "../../client"
@@ -41,9 +41,9 @@ const ItemCard = ({ item }: { item: ItemPublic }) => {
         )}
       </Box>
       <Box className="grid-item-content">
-        <Text fontSize="lg" mb={2} noOfLines={1}>
+        <Heading size="md" noOfLines={1}>
           {item.title}
-        </Text>
+        </Heading>
         <Text fontSize="sm" color="gray.600" noOfLines={2}>
           {item.description || "No description available"}
         </Text>

@@ -65,7 +65,7 @@ function RecoverPassword() {
       gap={4}
       centerContent
     >
-      <Heading size="xl" color="ui.main" textAlign="center" mb={2}>
+      <Heading size="md" color="ui.main" textAlign="center" mb={2}>
         Password Recovery
       </Heading>
       <Text align="center">

@@ -63,7 +63,7 @@ function ProducerConsole() {
 
   return (
     <Box>
-      <Heading size="lg" mb={6}>
+      <Heading size="md" mb={6}>
         Producer Console
       </Heading>
 

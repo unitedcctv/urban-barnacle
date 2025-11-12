@@ -75,7 +75,7 @@ function ResetPassword() {
       gap={4}
       centerContent
     >
-      <Heading size="xl" color="ui.main" textAlign="center" mb={2}>
+      <Heading size="md" color="ui.main" textAlign="center" mb={2}>
         Reset Password
       </Heading>
       <Text textAlign="center">

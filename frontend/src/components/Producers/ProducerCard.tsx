@@ -49,7 +49,7 @@ export default function ProducerCard({ producer }: ProducerCardProps) {
       </Box>
       <Box className="grid-item-content" bg={cardBg}>
         <Stack spacing={2}>
-          <Heading size="sm" noOfLines={1}>{producer.name}</Heading>
+          <Heading size="md" noOfLines={1}>{producer.name}</Heading>
           {producer.location && (
             <Text fontSize="sm" color={subtle} noOfLines={1}>
               {producer.location}
