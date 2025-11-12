@@ -2,15 +2,15 @@ import {
   Box,
   Button,
   Flex,
+  IconButton,
   Image,
   Input,
-  ListItem,
   Text,
-  UnorderedList,
+  VStack,
   useToast,
 } from "@chakra-ui/react"
+import { DeleteIcon } from "@chakra-ui/icons"
 import React from "react"
-import deleteIcon from "../../theme/assets/icons/delete.svg"
 import uploadIcon from "../../theme/assets/icons/upload.svg"
 
 import {
@@ -369,7 +369,7 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
             <Text fontSize="sm" color="green.500" mb={2}>
               ✓ {files.length} {imageType === "logo" ? "logo" : "image"}
               {files.length > 1 ? "s" : ""} uploaded
-              {imageType !== "logo" && " (Drag to Reorder)"}:
+              {imageType !== "logo" && " (Drag to Reorder)"}
             </Text>
             <DndContext
               sensors={sensors}
@@ -380,16 +380,15 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
                 items={files.map((file) => file.id)}
                 strategy={verticalListSortingStrategy}
               >
-                <UnorderedList styleType="disc">
+                <VStack align="stretch" spacing={2}>
                   {files.map((file) => (
                     <SortableItem
                       key={file.id}
                       file={file}
                       onDelete={handleDeleteFile}
-                      showPreview={imageType === "logo"}
                     />
                   ))}
-                </UnorderedList>
+                </VStack>
               </SortableContext>
             </DndContext>
           </Box>
@@ -404,13 +403,11 @@ export default ImagesUploader
 interface SortableItemProps {
   file: UploadedFile
   onDelete: (file: UploadedFile) => void
-  showPreview?: boolean
 }
 
 const SortableItem: React.FC<SortableItemProps> = ({
   file,
   onDelete,
-  showPreview = false,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: file.id })
@@ -418,66 +415,41 @@ const SortableItem: React.FC<SortableItemProps> = ({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    border: "1px solid #ccc",
-    padding: "8px",
-    marginBottom: "4px",
-    backgroundColor: "white",
-    borderRadius: "4px",
-    cursor: "grab",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
   }
 
   return (
-    <ListItem ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Flex align="center" gap={2}>
-        {showPreview && (
-          <Image
-            src={file.url}
-            alt={file.name}
-            boxSize="50px"
-            objectFit="cover"
-            borderRadius="md"
-          />
-        )}
-        <Box>{file.name}</Box>
-      </Flex>
-      <Flex
-        ml={4}
-        cursor="pointer"
+    <Flex
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      align="center"
+      justify="space-between"
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="md"
+      p={2}
+      cursor="grab"
+      _active={{ cursor: "grabbing" }}
+    >
+      <Image
+        src={file.url}
+        alt={file.name}
+        maxH="80px"
+        borderRadius="md"
+      />
+      <IconButton
+        aria-label="Remove image"
+        icon={<DeleteIcon />}
+        size="lg"
+        fontSize="2xl"
+        colorScheme="red"
+        variant="ghost"
         onClick={(e) => {
           e.stopPropagation()
           onDelete(file)
         }}
-        w="24px"
-        h="24px"
-      >
-        <img
-          src={deleteIcon}
-          alt="delete"
-          className="hover-icon"
-          style={{
-            width: "24px",
-            height: "24px",
-            display: "block",
-            opacity: "0.6",
-            transition: "all 0.2s ease",
-            filter:
-              "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "1"
-            e.currentTarget.style.transform = "scale(1.15)"
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "0.6"
-            e.currentTarget.style.transform = "scale(1)"
-          }}
-          onMouseDown={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1.15)")}
-        />
-      </Flex>
-    </ListItem>
+      />
+    </Flex>
   )
 }
