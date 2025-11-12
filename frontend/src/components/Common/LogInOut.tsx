@@ -18,7 +18,7 @@ import useAuth, { isLoggedIn } from "../../hooks/useAuth"
 import loginIcon from "../../theme/assets/icons/login.svg"
 import logoutIcon from "../../theme/assets/icons/logout.svg"
 import SignUpModal from "../UserSettings/SignUpModal.tsx"
-import Login from "./Login"
+import Login from "./Login.tsx"
 
 async function fetchCurrentUser(): Promise<UserPublic | null> {
   const apiBase = import.meta.env.VITE_API_URL ?? ""
