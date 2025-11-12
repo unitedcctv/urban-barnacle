@@ -50,7 +50,7 @@ def get_navigation_items(
     user = _get_user_optional(session, authorization)
 
     items: list[NavigationItem] = [
-        {"title": "Gallery", "path": "/gallery", "icon": "gallery", "action": None},
+        {"title": "Items", "path": "/items", "icon": "gallery", "action": None},
         {"title": "Producers", "path": "/producers", "icon": "producers", "action": None},
         {"title": "Community", "path": "/community", "icon": "community", "action": None},
     ]

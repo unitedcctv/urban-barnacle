@@ -16,12 +16,12 @@ export const Route = createFileRoute("/_layout/payment/cancel")({
 function PaymentCancel() {
   const navigate = useNavigate()
 
-  const handleBackToGallery = () => {
-    navigate({ to: "/gallery" })
+  const handleBackToItems = () => {
+    navigate({ to: "/items" })
   }
 
   const handleTryAgain = () => {
-    navigate({ to: "/gallery" })
+    navigate({ to: "/items" })
   }
 
   return (
@@ -41,7 +41,7 @@ function PaymentCancel() {
           </Text>
           <Text color="gray.500">
             You can try purchasing the model again or continue browsing our
-            gallery.
+            items.
           </Text>
         </Box>
 
@@ -50,8 +50,8 @@ function PaymentCancel() {
             Try Again
           </Button>
 
-          <Button variant="outline" onClick={handleBackToGallery}>
-            Back to Gallery
+          <Button variant="outline" onClick={handleBackToItems}>
+            Back to Items
           </Button>
         </VStack>
       </VStack>

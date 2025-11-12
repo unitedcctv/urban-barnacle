@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router"
 import React from "react"
 import type { ItemPublic } from "../../client"
 
-const ItemShow = ({ item }: { item: ItemPublic }) => {
+const ItemCard = ({ item }: { item: ItemPublic }) => {
   const navigate = useNavigate()
   const [imageSrc, setImageSrc] = React.useState<string | null>(null)
 
@@ -52,4 +52,4 @@ const ItemShow = ({ item }: { item: ItemPublic }) => {
   )
 }
 
-export default ItemShow
+export default ItemCard

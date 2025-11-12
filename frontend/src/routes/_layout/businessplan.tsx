@@ -1,7 +1,7 @@
 import { DownloadIcon } from "@chakra-ui/icons"
 import { Box, Button, HStack, Text, useToast } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
-import AskBusinessPlan from "../../components/Common/ask"
+import AskBusinessPlan from "../../components/Common/Ask"
 
 export const Route = createFileRoute("/_layout/businessplan")({
   component: BusinessPlan,

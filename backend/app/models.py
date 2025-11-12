@@ -318,7 +318,10 @@ class Producer(ProducerBase, table=True):  # type: ignore[call-arg]
     # Relationship to reviews for this producer
     reviews: list["Review"] = Relationship(back_populates="producer")
     # Relationship to producer images (logos and portfolio)
-    producer_images: list["ProducerImage"] = Relationship(back_populates="producer")
+    producer_images: list["ProducerImage"] = Relationship(
+        back_populates="producer",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 
 # Properties to return via API, id is always required

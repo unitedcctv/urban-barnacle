@@ -429,7 +429,7 @@ function CreateItem() {
             reset()
             setIsItemStarted(false)
             setCreatedItemId("")
-            navigate({ to: "/gallery" })
+            navigate({ to: "/items" })
           },
         },
       )

@@ -1,3 +1,5 @@
+import logging
+import os
 import uuid
 from typing import Any
 
@@ -5,10 +7,13 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.core.config import settings
+from app.core.storage import delete_from_bunnycdn
 from app.models import (
     Message,
     Producer,
     ProducerCreate,
+    ProducerImage,
     ProducerPublic,
     ProducersPublic,
     ProducerUpdate,
@@ -174,7 +179,7 @@ def update_producer(
 
 
 @router.delete("/{id}")
-def delete_producer(
+async def delete_producer(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     """
@@ -196,6 +201,28 @@ def delete_producer(
             status_code=403, detail="Not authorized to delete this producer profile"
         )
     
+    # Delete physical image files before deleting producer
+    statement = select(ProducerImage).where(ProducerImage.producer_id == id)
+    producer_images = session.exec(statement).all()
+    
+    for image in producer_images:
+        if settings.bunnycdn_enabled:
+            try:
+                await delete_from_bunnycdn(image.path)
+            except Exception as e:
+                logging.error(f"Failed to delete from BunnyCDN: {e}")
+        else:
+            # Delete from local folder
+            try:
+                base_url = str(settings.server_host)
+                relative_path = image.path.replace(base_url, "")
+                file_path = settings.upload_dir / relative_path.lstrip("/")
+                if file_path.exists():
+                    os.remove(file_path)
+            except Exception as e:
+                logging.error(f"Failed to delete file {image.path}: {e}")
+    
+    # Delete producer (cascade will handle database records)
     session.delete(producer)
     session.commit()
     return Message(message="Producer deleted successfully")

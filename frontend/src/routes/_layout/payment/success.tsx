@@ -85,8 +85,8 @@ function PaymentSuccess() {
     }
   }
 
-  const handleBackToGallery = () => {
-    navigate({ to: "/gallery" })
+  const handleBackToItems = () => {
+    navigate({ to: "/items" })
   }
 
   if (loading) {
@@ -108,7 +108,7 @@ function PaymentSuccess() {
             <AlertIcon />
             {error}
           </Alert>
-          <Button onClick={handleBackToGallery}>Back to Gallery</Button>
+          <Button onClick={handleBackToItems}>Back to Items</Button>
         </VStack>
       </Container>
     )
@@ -145,8 +145,8 @@ function PaymentSuccess() {
               Download 3D Model
             </Button>
 
-            <Button variant="outline" onClick={handleBackToGallery}>
-              Back to Gallery
+            <Button variant="outline" onClick={handleBackToItems}>
+              Back to Items
             </Button>
           </VStack>
         </Box>

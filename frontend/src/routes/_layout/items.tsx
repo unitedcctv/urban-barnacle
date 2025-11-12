@@ -5,9 +5,9 @@ import { useEffect } from "react"
 import { z } from "zod"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
-import ItemShow from "../../components/Items/ItemShow.tsx"
+import ItemCard from "../../components/Items/ItemCard.tsx"
 
-export const Route = createFileRoute("/_layout/gallery")({
+export const Route = createFileRoute("/_layout/items")({
   component: Dashboard,
   validateSearch: (search) => itemsSearchSchema.parse(search),
 })
@@ -79,7 +79,7 @@ function ItemsTable() {
         ) : (
           <Box className="grid-container">
             {items?.data.map((item) => (
-              <ItemShow key={item.id} item={item} />
+              <ItemCard key={item.id} item={item} />
             ))}
           </Box>
         )}

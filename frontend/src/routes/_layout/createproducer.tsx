@@ -23,7 +23,6 @@ import { producersCreateProducer } from "../../client/sdk.gen"
 import type { ProducerCreate } from "../../client/types.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
-import uploadIcon from "../../theme/assets/icons/upload.svg"
 
 export const Route = createFileRoute("/_layout/createproducer")({
   component: CreateProducer,
@@ -33,8 +32,9 @@ function CreateProducer() {
   const queryClient = useQueryClient()
   const showToast = useCustomToast()
   const navigate = useNavigate()
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [portfolioFiles, setPortfolioFiles] = useState<File[]>([])
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
-  const [portfolioImages, setPortfolioImages] = useState<File[]>([])
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([])
 
   const {
@@ -55,73 +55,55 @@ function CreateProducer() {
 
   const mutation = useMutation({
     mutationFn: async (data: ProducerCreate) => {
-      // Step 1: Create the producer first
+      // Step 1: Create the producer profile
       const createdProducer = await producersCreateProducer({ requestBody: data })
       
       // Step 2: Upload logo if provided
-      if (logoPreview) {
-        const logoInput = document.getElementById(
-          "logo-upload",
-        ) as HTMLInputElement
-        if (logoInput?.files?.[0]) {
-          const formData = new FormData()
-          formData.append("file", logoInput.files[0])
-          try {
-            const response = await fetch(
-              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${createdProducer.id}?entity_type=producer&image_type=logo`,
-              {
-                method: "POST",
-                body: formData,
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem(
-                    "access_token",
-                  )}`,
-                },
-              },
-            )
-            if (!response.ok) {
-              console.error("Failed to upload logo")
-            }
-          } catch (error) {
-            console.error("Error uploading logo:", error)
-          }
+      if (logoFile) {
+        const formData = new FormData()
+        formData.append("file", logoFile)
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${createdProducer.id}?entity_type=producer&image_type=logo`,
+          {
+            method: "POST",
+            body: formData,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          },
+        )
+        if (!response.ok) {
+          throw new Error("Failed to upload logo")
         }
       }
-
+      
       // Step 3: Upload portfolio images if provided
-      if (portfolioImages.length > 0) {
-        for (const file of portfolioImages) {
-          const formData = new FormData()
-          formData.append("file", file)
-          try {
-            const response = await fetch(
-              `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${createdProducer.id}?entity_type=producer&image_type=portfolio`,
-              {
-                method: "POST",
-                body: formData,
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem(
-                    "access_token",
-                  )}`,
-                },
-              },
-            )
-            if (!response.ok) {
-              console.error("Failed to upload portfolio image")
-            }
-          } catch (error) {
-            console.error("Error uploading portfolio image:", error)
-          }
+      for (const file of portfolioFiles) {
+        const formData = new FormData()
+        formData.append("file", file)
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL ?? ""}/api/v1/images/${createdProducer.id}?entity_type=producer&image_type=portfolio`,
+          {
+            method: "POST",
+            body: formData,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          },
+        )
+        if (!response.ok) {
+          throw new Error("Failed to upload portfolio image")
         }
       }
-
+      
       return createdProducer
     },
     onSuccess: () => {
       showToast("Success!", "Producer profile created successfully.", "success")
       reset()
+      setLogoFile(null)
+      setPortfolioFiles([])
       setLogoPreview(null)
-      setPortfolioImages([])
       setPortfolioPreviews([])
       queryClient.invalidateQueries({ queryKey: ["producers"] })
       queryClient.invalidateQueries({ queryKey: ["myProducer"] })
@@ -139,8 +121,9 @@ function CreateProducer() {
 
   const handleCancel = () => {
     reset()
+    setLogoFile(null)
+    setPortfolioFiles([])
     setLogoPreview(null)
-    setPortfolioImages([])
     setPortfolioPreviews([])
     navigate({ to: "/producers" })
   }
@@ -148,6 +131,7 @@ function CreateProducer() {
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setLogoFile(file)
       const reader = new FileReader()
       reader.onloadend = () => {
         setLogoPreview(reader.result as string)
@@ -159,8 +143,7 @@ function CreateProducer() {
   const handlePortfolioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     if (files.length > 0) {
-      setPortfolioImages((prev) => [...prev, ...files])
-
+      setPortfolioFiles((prev) => [...prev, ...files])
       files.forEach((file) => {
         const reader = new FileReader()
         reader.onloadend = () => {
@@ -172,7 +155,7 @@ function CreateProducer() {
   }
 
   const removePortfolioImage = (index: number) => {
-    setPortfolioImages((prev) => prev.filter((_, i) => i !== index))
+    setPortfolioFiles((prev) => prev.filter((_, i) => i !== index))
     setPortfolioPreviews((prev) => prev.filter((_, i) => i !== index))
   }
 
@@ -234,20 +217,6 @@ function CreateProducer() {
         <Button
           variant="primary"
           onClick={() => document.getElementById("logo-upload")?.click()}
-          leftIcon={
-            <Image
-              src={uploadIcon}
-              alt="upload"
-              boxSize="20px"
-              sx={{
-                transition: "filter 0.2s ease",
-                _groupHover: {
-                  filter: "brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1787%) hue-rotate(197deg) brightness(98%) contrast(101%)",
-                },
-              }}
-            />
-          }
-          role="group"
         >
           {logoPreview ? "Change Logo" : "Upload Logo"}
         </Button>
@@ -280,23 +249,9 @@ function CreateProducer() {
         <Button
           variant="primary"
           onClick={() => document.getElementById("portfolio-upload")?.click()}
-          leftIcon={
-            <Image
-              src={uploadIcon}
-              alt="upload"
-              boxSize="20px"
-              sx={{
-                transition: "filter 0.2s ease",
-                _groupHover: {
-                  filter: "brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(1787%) hue-rotate(197deg) brightness(98%) contrast(101%)",
-                },
-              }}
-            />
-          }
-          role="group"
         >
-          {portfolioImages.length > 0
-            ? `Add More Images (${portfolioImages.length} selected)`
+          {portfolioFiles.length > 0
+            ? `Add More Images (${portfolioFiles.length} selected)`
             : "Upload Portfolio Images"}
         </Button>
         {portfolioPreviews.length > 0 && (

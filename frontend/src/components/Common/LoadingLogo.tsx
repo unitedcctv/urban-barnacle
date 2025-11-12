@@ -1,21 +1,35 @@
-import { Box } from "@chakra-ui/react"
+import { Box, keyframes } from "@chakra-ui/react"
 import LogoSvg from "../../theme/assets/logo.svg"
-import "./LoadingLogo.css"
 
 interface LoadingLogoProps {
   size?: string
 }
 
+const blurAnimation = keyframes`
+  0% {
+    filter: blur(20px);
+  }
+  100% {
+    filter: blur(0px);
+  }
+`
+
 const LoadingLogo = ({ size = "120px" }: LoadingLogoProps) => {
   return (
-    <Box className="loading-logo-container">
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      width="100%"
+      height="100%"
+    >
       <Box
         as="img"
         src={LogoSvg}
         alt="Loading..."
         width={size}
         height={size}
-        className="loading-logo"
+        animation={`${blurAnimation} 5s ease-out infinite`}
       />
     </Box>
   )

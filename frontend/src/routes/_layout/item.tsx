@@ -82,7 +82,7 @@ function Item({ item: propItem }: { item: ItemPublic }) {
           onSuccess: () => {
             // Invalidate the items query to refetch the items list
             queryClient.invalidateQueries({ queryKey: ["items"] })
-            navigate({ to: "/gallery" })
+            navigate({ to: "/items" })
           },
         })
       }

@@ -21,8 +21,8 @@ import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutProducersImport } from './routes/_layout/producers'
 import { Route as LayoutProducerImport } from './routes/_layout/producer'
 import { Route as LayoutLogsImport } from './routes/_layout/logs'
+import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutItemImport } from './routes/_layout/item'
-import { Route as LayoutGalleryImport } from './routes/_layout/gallery'
 import { Route as LayoutEditproducerImport } from './routes/_layout/editproducer'
 import { Route as LayoutCreateproducerImport } from './routes/_layout/createproducer'
 import { Route as LayoutCreateitemImport } from './routes/_layout/createitem'
@@ -83,13 +83,13 @@ const LayoutLogsRoute = LayoutLogsImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutItemRoute = LayoutItemImport.update({
-  path: '/item',
+const LayoutItemsRoute = LayoutItemsImport.update({
+  path: '/items',
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutGalleryRoute = LayoutGalleryImport.update({
-  path: '/gallery',
+const LayoutItemRoute = LayoutItemImport.update({
+  path: '/item',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -168,12 +168,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutEditproducerImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/gallery': {
-      preLoaderRoute: typeof LayoutGalleryImport
-      parentRoute: typeof LayoutImport
-    }
     '/_layout/item': {
       preLoaderRoute: typeof LayoutItemImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/items': {
+      preLoaderRoute: typeof LayoutItemsImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/logs': {
@@ -220,8 +220,8 @@ export const routeTree = rootRoute.addChildren([
     LayoutCreateitemRoute,
     LayoutCreateproducerRoute,
     LayoutEditproducerRoute,
-    LayoutGalleryRoute,
     LayoutItemRoute,
+    LayoutItemsRoute,
     LayoutLogsRoute,
     LayoutProducerRoute,
     LayoutProducersRoute,
