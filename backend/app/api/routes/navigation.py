@@ -77,7 +77,7 @@ def get_navigation_items(
                 ).first()
                 
                 if producer:
-                    items.append({"title": "Edit Producer Profile", "path": "/editproducer", "icon": "producer_edit", "action": None})
+                    items.append({"title": "Producer Console", "path": "/producerconsole", "icon": "producer_edit", "action": None})
                 else:
                     items.append({"title": "Create Producer Profile", "path": "/createproducer", "icon": "producer_edit", "action": None})
 

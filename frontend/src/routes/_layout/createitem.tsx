@@ -43,7 +43,7 @@ import {
 import type { ItemCreate } from "../../client/types.gen"
 import ImagesUploader, {
   type ImagesUploaderRef,
-} from "../../components/Items/ImagesUploader"
+} from "../../components/Common/ImagesUploader"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
 import uploadIcon from "../../theme/assets/icons/upload.svg"
@@ -153,7 +153,9 @@ function CreateItem() {
   //   },
   // });
 
-  const handleImagesChange = (commaSeparatedUrls: string) => {
+  const handleImagesChange = (urls: string | string[]) => {
+    // Convert array to string if needed (for backward compatibility)
+    const commaSeparatedUrls = Array.isArray(urls) ? urls.join(",") : urls
     setValue("images", commaSeparatedUrls, { shouldDirty: true })
   }
 
@@ -516,14 +518,10 @@ function CreateItem() {
         >
           <ImagesUploader
             ref={imagesUploaderRef}
+            itemId={createdItemId}
+            imageType="item"
+            entityType="item"
             onImagesChange={handleImagesChange}
-            _item={
-              {
-                id: createdItemId,
-                images: "",
-                owner_id: currentUser?.id || 0,
-              } as any
-            }
           />
         </Box>
       </FormControl>

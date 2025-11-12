@@ -22,13 +22,14 @@ import {
   // Badge,
   // Link,
 } from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import type { ItemPublic } from "../../client"
 import type { UserPublic } from "../../client"
 import type { ApiError } from "../../client/core/ApiError"
 import {
+  imagesGetItemImages,
   itemsUpdateItem,
   modelsDeleteModel,
   modelsUploadModel,
@@ -39,7 +40,7 @@ import deleteIcon from "../../theme/assets/icons/delete.svg"
 import uploadIcon from "../../theme/assets/icons/upload.svg"
 import { handleError } from "../../utils"
 
-import ImagesUploader from "./ImagesUploader"
+import ImagesUploader from "../Common/ImagesUploader"
 
 const EditItem = ({
   item,
@@ -57,6 +58,20 @@ const EditItem = ({
   const showToast = useCustomToast()
   // TODO: Blockchain/NFT certificate functionality temporarily disabled
   // const { isOpen: isNFTModalOpen, onOpen: onNFTModalOpen, onClose: onNFTModalClose } = useDisclosure();
+
+  // Fetch existing images with proper IDs for deletion
+  const { data: existingImages = [] } = useQuery({
+    queryKey: ["itemImages", item.id],
+    queryFn: async () => {
+      const response = await imagesGetItemImages({ itemId: item.id })
+      return response.data.map((img) => ({
+        id: img.id,
+        name: img.name,
+        url: img.path,
+      }))
+    },
+    enabled: !!item.id,
+  })
 
   // Store original values for comparison
   // Convert image_urls array to comma-separated string for backward compatibility
@@ -143,6 +158,7 @@ const EditItem = ({
       showToast("Success!", "Item updated successfully.", "success")
       reset()
       queryClient.invalidateQueries({ queryKey: ["items"] }) // Ensure item list refreshes
+      queryClient.invalidateQueries({ queryKey: ["itemImages", item.id] }) // Refresh images
       onSuccess()
     },
     onError: (err: ApiError) => {
@@ -150,12 +166,14 @@ const EditItem = ({
     },
   })
 
-  const handleImagesChange = (urls: string) => {
-    setCurrentImages(urls)
-    setValue("images", urls, { shouldDirty: true })
+  const handleImagesChange = (urls: string | string[]) => {
+    // Convert array to string if needed (for backward compatibility)
+    const urlsString = Array.isArray(urls) ? urls.join(",") : urls
+    setCurrentImages(urlsString)
+    setValue("images", urlsString, { shouldDirty: true })
     // Track if images were deleted
-    if (urls !== originalImages) {
-      setImagesDeleted(originalImages !== "" && urls === "")
+    if (urlsString !== originalImages) {
+      setImagesDeleted(originalImages !== "" && urlsString === "")
     }
   }
 
@@ -352,8 +370,11 @@ const EditItem = ({
       <FormControl mt={4}>
         <FormLabel>Images</FormLabel>
         <ImagesUploader
+          itemId={item?.id}
+          imageType="item"
+          entityType="item"
+          existingImages={existingImages}
           onImagesChange={handleImagesChange}
-          _item={item ?? {}}
         />
       </FormControl>
       <HStack spacing={4} mt={4}>

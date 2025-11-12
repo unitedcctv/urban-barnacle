@@ -112,14 +112,17 @@ async def upload_file(
 
 @router.delete("/{image_id}")
 async def delete_file(session: SessionDep, image_id: str) -> dict[str, str]:
-    """Delete an image by its ID."""
+    """Delete an image by its ID (supports both item and producer images)."""
     try:
         img_uuid = uuid.UUID(image_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid image_id format")
     
-    # Get image from database
+    # Try to get image from database (check both ItemImage and ProducerImage)
     db_image = session.get(ItemImage, img_uuid)
+    if not db_image:
+        db_image = session.get(ProducerImage, img_uuid)
+    
     if not db_image:
         raise HTTPException(status_code=404, detail="Image not found")
     
