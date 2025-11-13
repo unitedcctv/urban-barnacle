@@ -377,3 +377,34 @@ class ReviewPublic(ReviewBase):
 class ReviewsPublic(SQLModel):
     data: list[ReviewPublic]
     count: int
+
+
+# Email Log for tracking email sends
+class EmailLogBase(SQLModel):
+    email_to: str = Field(max_length=255)
+    email_type: str = Field(max_length=50)  # e.g., "welcome", "confirmation", "password_reset"
+    subject: str = Field(max_length=255)
+    status: str = Field(max_length=20)  # "pending", "sent", "failed"
+    error_message: Optional[str] = Field(default=None, max_length=1000)
+
+
+# Database model
+class EmailLog(EmailLogBase, table=True):  # type: ignore[call-arg]
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="user.id")
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column=Column(DateTime, nullable=False)
+    )
+    sent_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime, nullable=True)
+    )
+
+
+# Properties to return via API
+class EmailLogPublic(EmailLogBase):
+    id: uuid.UUID
+    user_id: Optional[uuid.UUID]
+    created_at: datetime
+    sent_at: Optional[datetime]

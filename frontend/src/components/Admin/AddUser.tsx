@@ -73,8 +73,50 @@ const AddUser = ({ isOpen, onClose }: AddUserProps) => {
 
   const mutation = useMutation({
     mutationFn: (data: UserCreate) => usersCreateUser({ requestBody: data }),
-    onSuccess: () => {
+    onSuccess: async (newUser) => {
       showToast("Success!", "User created successfully.", "success")
+      
+      // Poll for email status
+      let attempts = 0
+      const maxAttempts = 10
+      const checkEmailStatus = async () => {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_API_URL ?? ""}/api/v1/users/${newUser.id}/email-status`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              },
+            }
+          )
+          
+          if (response.ok) {
+            const emailLog = await response.json()
+            if (emailLog) {
+              if (emailLog.status === "sent") {
+                showToast("Email Sent!", `Welcome email sent to ${emailLog.email_to}`, "success")
+                return true
+              } else if (emailLog.status === "failed") {
+                showToast("Email Failed", `Failed to send email: ${emailLog.error_message}`, "error")
+                return true
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error checking email status:", error)
+        }
+        return false
+      }
+      
+      // Poll every 500ms for up to 5 seconds
+      const pollInterval = setInterval(async () => {
+        attempts++
+        const done = await checkEmailStatus()
+        if (done || attempts >= maxAttempts) {
+          clearInterval(pollInterval)
+        }
+      }, 500)
+      
       reset()
       onClose()
     },

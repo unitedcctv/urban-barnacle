@@ -111,7 +111,13 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
       )
 
       const textElement = (
-        <Text ml={2} fontWeight={isActive ? "normal" : "300"}>
+        <Text 
+          ml={2} 
+          fontWeight={isActive ? "normal" : "300"}
+          whiteSpace="nowrap"
+          overflow="hidden"
+          textOverflow="ellipsis"
+        >
           {title}
         </Text>
       )

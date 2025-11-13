@@ -1,13 +1,15 @@
 import logging
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import emails  # type: ignore
 import jwt
 from jinja2 import Template
 from jwt.exceptions import InvalidTokenError
+from sqlmodel import Session
 
 from app.core import security
 from app.core.config import settings
@@ -53,6 +55,57 @@ def send_email(
         smtp_options["password"] = settings.SMTP_PASSWORD
     response = message.send(to=email_to, smtp=smtp_options)
     logger.info(f"send email result: {response}")
+
+
+def send_email_with_logging(
+    *,
+    session: Session,
+    email_to: str,
+    subject: str,
+    html_content: str,
+    email_type: str,
+    user_id: Optional[uuid.UUID] = None,
+) -> None:
+    """
+    Send email and log the result to database.
+    This function is designed to be used in background tasks.
+    """
+    from app.models import EmailLog
+    
+    # Create initial log entry
+    email_log = EmailLog(
+        email_to=email_to,
+        email_type=email_type,
+        subject=subject,
+        status="pending",
+        user_id=user_id,
+    )
+    session.add(email_log)
+    session.commit()
+    
+    try:
+        # Send the email
+        send_email(
+            email_to=email_to,
+            subject=subject,
+            html_content=html_content,
+        )
+        
+        # Update log with success
+        email_log.status = "sent"
+        email_log.sent_at = datetime.utcnow()
+        session.add(email_log)
+        session.commit()
+        logger.info(f"✓ Email sent successfully to {email_to} (type: {email_type})")
+        
+    except Exception as e:
+        # Log the error
+        error_msg = str(e)
+        email_log.status = "failed"
+        email_log.error_message = error_msg[:1000]  # Truncate to max length
+        session.add(email_log)
+        session.commit()
+        logger.error(f"✗ Failed to send email to {email_to} (type: {email_type}): {error_msg}")
 
 
 def generate_test_email(email_to: str) -> EmailData:

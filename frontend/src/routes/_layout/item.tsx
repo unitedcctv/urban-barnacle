@@ -12,6 +12,9 @@ import {
   ModalOverlay,
   Text,
   VStack,
+  Heading,
+  Stack,
+  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -167,69 +170,100 @@ function Item({ item: propItem }: { item: ItemPublic }) {
   // Get the actual item data
   const currentItem = itemData?.item || itemData
 
+  // Color mode values
+  const cardBg = useColorModeValue("ui.white", "ui.dark")
+  const subtle = useColorModeValue("gray.600", "gray.400")
+
   return (
-    <Container maxW="container.md" centerContent py={8}>
-      <VStack spacing={6} w="full">
-        {/* Title, Description */}
-        <Text fontSize="2xl" textAlign="center">
-          {currentItem?.title}
-        </Text>
-        <Text textAlign="center">{currentItem?.description}</Text>
-
-        {/* Main Image */}
+    <Container maxW="container.lg" py={8}>
+      <VStack spacing={8} w="full">
+        {/* Item Images Carousel */}
         {imagesArray.length > 0 && (
-          <Box w="full" maxW="400px">
-            <Image
-              src={imagesArray[currentIndex]}
-              alt={`Image ${currentIndex + 1}`}
-              boxSize="400px"
-              objectFit="cover"
-              borderRadius="md"
-              mx="auto"
-              mb={4}
-            />
+          <Box w="full">
+            <Heading size="lg" mb={4}>
+              Item Gallery
+            </Heading>
+            <Box maxW="800px" mx="auto">
+              {/* Main Image */}
+              <Image
+                src={imagesArray[currentIndex]}
+                alt={`Image ${currentIndex + 1}`}
+                w="full"
+                h="500px"
+                objectFit="cover"
+                borderRadius="md"
+                mb={4}
+              />
 
-            {/* Thumbnails */}
-            <HStack justify="center" spacing={2}>
-              {imagesArray.map((image: string, index: number) => (
-                <Image
-                  key={index}
-                  src={image}
-                  alt={`Thumbnail ${index + 1}`}
-                  boxSize="60px"
-                  objectFit="cover"
-                  borderRadius="md"
-                  cursor="pointer"
-                  borderWidth={index === currentIndex ? "2px" : "1px"}
-                  borderColor={index === currentIndex ? "blue.400" : "gray.300"}
-                  onClick={() => handleThumbnailClick(index)}
-                />
-              ))}
-            </HStack>
+              {/* Thumbnails */}
+              {imagesArray.length > 1 && (
+                <HStack justify="center" spacing={2} flexWrap="wrap">
+                  {imagesArray.map((image: string, index: number) => (
+                    <Image
+                      key={index}
+                      src={image}
+                      alt={`Thumbnail ${index + 1}`}
+                      boxSize="80px"
+                      objectFit="cover"
+                      borderRadius="md"
+                      cursor="pointer"
+                      borderWidth={index === currentIndex ? "3px" : "1px"}
+                      borderColor={
+                        index === currentIndex ? "blue.400" : "gray.300"
+                      }
+                      onClick={() => handleThumbnailClick(index)}
+                      _hover={{ borderColor: "blue.300" }}
+                    />
+                  ))}
+                </HStack>
+              )}
+            </Box>
           </Box>
         )}
 
-        {/* Purchase Model Button - Only show if item has a model */}
-        {currentItem?.model && !canEdit && (
-          <Button
-            variant="primary"
-            onClick={handlePurchaseModel}
-            isDisabled={buttonsDisabled}
-          >
-            Purchase 3D Model - $10.00
-          </Button>
-        )}
+        {/* Item Information */}
+        <Box w="full" bg={cardBg} p={8} borderRadius="lg" shadow="md">
+          <VStack spacing={6} align="stretch">
+            {/* Title and Description Section */}
+            <VStack align="start" spacing={4}>
+              <Heading size="xl">{currentItem?.title}</Heading>
+              {currentItem?.description && (
+                <Text fontSize="md" color={subtle}>
+                  {currentItem.description}
+                </Text>
+              )}
+            </VStack>
 
-        {/* Button for Edit - Only visible to superusers or item owners */}
-        {canEdit && (
-          <Button
-            variant="primary"
-            onClick={onOpen}
-            isDisabled={buttonsDisabled}
-          >
-            Edit Item
-          </Button>
-        )}
+            {/* Actions Section */}
+            <Stack spacing={3} pt={4} borderTopWidth="1px">
+              <HStack spacing={4} flexWrap="wrap">
+                {/* Purchase Model Button - Only show if item has a model */}
+                {currentItem?.model && !canEdit && (
+                  <Button
+                    variant="primary"
+                    onClick={handlePurchaseModel}
+                    isDisabled={buttonsDisabled}
+                    size="lg"
+                  >
+                    Purchase 3D Model - $10.00
+                  </Button>
+                )}
+
+                {/* Button for Edit - Only visible to superusers or item owners */}
+                {canEdit && (
+                  <Button
+                    variant="primary"
+                    onClick={onOpen}
+                    isDisabled={buttonsDisabled}
+                    size="lg"
+                  >
+                    Edit Item
+                  </Button>
+                )}
+              </HStack>
+            </Stack>
+          </VStack>
+        </Box>
       </VStack>
 
       {/* Edit Modal */}

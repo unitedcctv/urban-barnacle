@@ -1,4 +1,5 @@
 import { Box, Heading, Stack, Text, useColorModeValue } from "@chakra-ui/react"
+import { useNavigate } from "@tanstack/react-router"
 import React from "react"
 import type { ProducerPublic } from "../../client"
 import { imagesGetProducerImages } from "../../client/sdk.gen"
@@ -8,6 +9,7 @@ interface ProducerCardProps {
 }
 
 export default function ProducerCard({ producer }: ProducerCardProps) {
+  const navigate = useNavigate()
   const cardBg = useColorModeValue("ui.white", "ui.dark")
   const subtle = useColorModeValue("gray.600", "gray.300")
   const [imageSrc, setImageSrc] = React.useState<string | null>(null)
@@ -32,8 +34,19 @@ export default function ProducerCard({ producer }: ProducerCardProps) {
     fetchPortfolioImage()
   }, [producer.id])
 
+  const handleProducerClick = () => {
+    navigate({
+      to: "/producer-detail",
+      search: { id: producer.id },
+    })
+  }
+
   return (
-    <Box className="grid-item">
+    <Box 
+      className="grid-item"
+      onClick={handleProducerClick}
+      cursor="pointer"
+    >
       <Box className="grid-item-image">
         {imageSrc && (
           <img

@@ -2,10 +2,10 @@ import logging
 import os
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import col, delete, func, select
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from sqlmodel import col, delete, func, select, Session, create_engine
 
 from app import crud
 from app.api.deps import (
@@ -16,8 +16,11 @@ from app.api.deps import (
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.core.storage import delete_from_bunnycdn
+from app.core.db import engine
 from app.models import (
     EmailConfirmation,
+    EmailLog,
+    EmailLogPublic,
     Item,
     ItemImage,
     Message,
@@ -33,9 +36,31 @@ from app.models import (
     UserUpdate,
     UserUpdateMe,
 )
-from app.utils import generate_new_account_email, send_email, generate_email_confirmation_token, generate_email_confirmation_email, verify_email_confirmation_token
+from app.utils import generate_new_account_email, send_email, send_email_with_logging, generate_email_confirmation_token, generate_email_confirmation_email, verify_email_confirmation_token
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+def _send_email_background(
+    user_id: uuid.UUID,
+    email_to: str,
+    subject: str,
+    html_content: str,
+    email_type: str,
+) -> None:
+    """
+    Helper function for background email sending.
+    Creates its own database session for logging.
+    """
+    with Session(engine) as session:
+        send_email_with_logging(
+            session=session,
+            email_to=email_to,
+            subject=subject,
+            html_content=html_content,
+            email_type=email_type,
+            user_id=user_id,
+        )
 
 
 @router.get(
@@ -60,7 +85,12 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
 @router.post(
     "/", dependencies=[Depends(get_current_active_superuser)], response_model=UserPublic
 )
-def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
+def create_user(
+    *, 
+    session: SessionDep, 
+    user_in: UserCreate, 
+    background_tasks: BackgroundTasks
+) -> Any:
     """
     Create new user.
     """
@@ -75,14 +105,20 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     # When superuser creates a user, set them as active by default
     user_in.is_active = True
     user = crud.create_user(session=session, user_create=user_in)
+    
+    # Send welcome email in background with logging
     if settings.emails_enabled and user_in.email:
         email_data = generate_new_account_email(
             email_to=user_in.email, username=user_in.email, password=user_in.password
         )
-        send_email(
+        # Use a lambda to get a fresh session in the background task
+        background_tasks.add_task(
+            _send_email_background,
+            user_id=user.id,
             email_to=user_in.email,
             subject=email_data.subject,
             html_content=email_data.html_content,
+            email_type="welcome",
         )
     return user
 
@@ -154,7 +190,11 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
 
 
 @router.post("/signup", response_model=UserPublic)
-def register_user(session: SessionDep, user_in: UserRegister) -> Any:
+def register_user(
+    session: SessionDep, 
+    user_in: UserRegister, 
+    background_tasks: BackgroundTasks
+) -> Any:
     """
     Create new user without the need to be logged in.
     """
@@ -175,23 +215,26 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     
     user = crud.create_user(session=session, user_create=user_create)
     
-    # Send confirmation email
+    # Send confirmation email in background with logging
     print(f"DEBUG: emails_enabled = {settings.emails_enabled}")
     print(f"DEBUG: SMTP_HOST = {settings.SMTP_HOST}")
     print(f"DEBUG: EMAILS_FROM_EMAIL = {settings.EMAILS_FROM_EMAIL}")
     
     if settings.emails_enabled:
-        print(f"DEBUG: Sending confirmation email to {user.email}")
+        print(f"DEBUG: Scheduling confirmation email to {user.email}")
         email_data = generate_email_confirmation_email(
             email_to=user.email, token=confirmation_token
         )
         print(f"DEBUG: Email subject: {email_data.subject}")
-        send_email(
+        background_tasks.add_task(
+            _send_email_background,
+            user_id=user.id,
             email_to=user.email,
             subject=email_data.subject,
             html_content=email_data.html_content,
+            email_type="confirmation",
         )
-        print(f"DEBUG: Confirmation email sent successfully")
+        print(f"DEBUG: Confirmation email scheduled to send in background")
     else:
         print(f"DEBUG: Emails disabled - confirmation email NOT sent")
     
@@ -249,6 +292,28 @@ def read_user_by_id(
             detail="The user doesn't have enough privileges",
         )
     return user
+
+
+@router.get(
+    "/{user_id}/email-status",
+    dependencies=[Depends(get_current_active_superuser)],
+    response_model=EmailLogPublic | None,
+)
+def get_user_email_status(
+    user_id: uuid.UUID, session: SessionDep
+) -> Any:
+    """
+    Get the most recent email log for a user.
+    Returns None if no emails have been sent.
+    """
+    statement = (
+        select(EmailLog)
+        .where(EmailLog.user_id == user_id)
+        .order_by(EmailLog.created_at.desc())
+        .limit(1)
+    )
+    email_log = session.exec(statement).first()
+    return email_log
 
 
 @router.patch(
