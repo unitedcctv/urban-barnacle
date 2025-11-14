@@ -66,8 +66,6 @@ def get_navigation_items(
             items.append({"title": "Business Plan", "path": "/businessplan", "icon": "business", "action": None})
 
         if user.permissions in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
-            items.append({"title": "Create Item", "path": "/createitem", "icon": "add_item", "action": None})
-            
             # Only show producer profile menu items for regular producers, not superusers
             # Superusers edit producer profiles through the user list
             if user.permissions == UserPermission.PRODUCER:

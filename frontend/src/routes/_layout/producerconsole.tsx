@@ -12,6 +12,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { createFileRoute } from "@tanstack/react-router"
 import { producersReadMyProducer } from "../../client/sdk.gen"
 import EditProducer from "../../components/Producers/EditProducer"
+import CreateItemModal from "../../components/Items/CreateItemModal"
 
 export const Route = createFileRoute("/_layout/producerconsole")({
   component: ProducerConsole,
@@ -19,7 +20,16 @@ export const Route = createFileRoute("/_layout/producerconsole")({
 
 function ProducerConsole() {
   const navigate = useNavigate()
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure()
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure()
 
   // Fetch the current user's producer profile
   const {
@@ -62,36 +72,64 @@ function ProducerConsole() {
   }
 
   return (
-    <Box>
-      <Heading size="md" mb={6}>
+    <Box maxW="800px" mx="auto" p={6}>
+      <Heading size="lg" mb={8}>
         Producer Console
       </Heading>
 
-      <VStack spacing={6} align="stretch">
-        <Box>
+      <VStack spacing={8} align="stretch">
+        {/* Producer Profile Section */}
+        <Box
+          p={6}
+          borderWidth="1px"
+          borderRadius="lg"
+          bg="white"
+          shadow="sm"
+        >
           <Heading size="md" mb={2}>
             {producer.name}
           </Heading>
           {producer.location && (
-            <Text color="gray.600">{producer.location}</Text>
+            <Text color="gray.600">
+              {producer.location}
+            </Text>
           )}
         </Box>
 
-        <Button variant="primary" onClick={onOpen} maxW="300px">
-          Edit Producer Profile
-        </Button>
+        {/* Actions Section */}
+        <Box
+          p={6}
+          borderWidth="1px"
+          borderRadius="lg"
+          bg="white"
+          shadow="sm"
+        >
+          <Heading size="sm" mb={4}>
+            Actions
+          </Heading>
+          <VStack spacing={3} align="stretch">
+            <Button variant="primary" onClick={onEditOpen}>
+              Edit Producer Profile
+            </Button>
 
-        {/* Additional console features can be added here */}
+            <Button variant="primary" onClick={onCreateOpen}>
+              Create Item
+            </Button>
+          </VStack>
+        </Box>
       </VStack>
 
       {/* Edit Producer Modal */}
       {producer && (
         <EditProducer
           producer={producer}
-          isOpen={isOpen}
-          onClose={onClose}
+          isOpen={isEditOpen}
+          onClose={onEditClose}
         />
       )}
+
+      {/* Create Item Modal */}
+      <CreateItemModal isOpen={isCreateOpen} onClose={onCreateClose} />
     </Box>
   )
 }
