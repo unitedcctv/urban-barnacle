@@ -131,11 +131,14 @@ class ItemPublic(ItemBase):
     id: uuid.UUID
     owner_id: uuid.UUID
     producer_id: Optional[uuid.UUID] = None
+    producer_name: Optional[str] = None
+    producer_location: Optional[str] = None
+    producer_logo_url: Optional[str] = None
     image_urls: list[str] = []  # URLs/paths to images from Image table
     
     @classmethod
     def from_item(cls, item: "Item", base_url: str = "") -> "ItemPublic":
-        """Create ItemPublic from Item with image URLs."""
+        """Create ItemPublic from Item with image URLs and producer info."""
         from app.core.config import settings
         import logging
         
@@ -152,10 +155,22 @@ class ItemPublic(ItemBase):
                 logger.info(f"Image {img.id}: using path={img.path}")
                 image_urls.append(img.path)
         
+        # Get producer info if available
+        producer_name = None
+        producer_location = None
+        producer_logo_url = None
+        if hasattr(item, 'producer') and item.producer:
+            producer_name = item.producer.name
+            producer_location = item.producer.location
+            producer_logo_url = item.producer.logo_url
+        
         return cls(
             id=item.id,
             owner_id=item.owner_id,
             producer_id=item.producer_id,
+            producer_name=producer_name,
+            producer_location=producer_location,
+            producer_logo_url=producer_logo_url,
             title=item.title,
             description=item.description,
             images=item.images,

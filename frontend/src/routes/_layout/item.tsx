@@ -180,9 +180,6 @@ function Item({ item: propItem }: { item: ItemPublic }) {
         {/* Item Images Carousel */}
         {imagesArray.length > 0 && (
           <Box w="full">
-            <Heading size="lg" mb={4}>
-              Item Gallery
-            </Heading>
             <Box maxW="800px" mx="auto">
               {/* Main Image */}
               <Image
@@ -233,6 +230,29 @@ function Item({ item: propItem }: { item: ItemPublic }) {
                 </Text>
               )}
             </VStack>
+
+            {/* Producer Information */}
+            {currentItem?.producer_name && (
+              <HStack spacing={4} pt={4} borderTopWidth="1px">
+                {currentItem.producer_logo_url && (
+                  <Image
+                    src={currentItem.producer_logo_url}
+                    alt={currentItem.producer_name}
+                    boxSize="60px"
+                    objectFit="cover"
+                    borderRadius="md"
+                  />
+                )}
+                <VStack align="start" spacing={0}>
+                  <Text fontWeight="bold">{currentItem.producer_name}</Text>
+                  {currentItem.producer_location && (
+                    <Text fontSize="sm" color={subtle}>
+                      {currentItem.producer_location}
+                    </Text>
+                  )}
+                </VStack>
+              </HStack>
+            )}
 
             {/* Actions Section */}
             <Stack spacing={3} pt={4} borderTopWidth="1px">

@@ -1,153 +1,131 @@
 import {
-  Box,
   Flex as ChakraFlex,
   Drawer,
   DrawerBody,
-  DrawerCloseButton,
   DrawerContent,
   DrawerOverlay,
   Flex,
-  Icon,
   IconButton,
   Text,
   useColorModeValue,
   useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react"
-import { useQueryClient } from "@tanstack/react-query"
-import logoutIcon from "../../theme/assets/icons/logout.svg"
-import menuIcon from "../../theme/assets/icons/menu.svg"
+import leftPanelCloseIcon from "../../theme/assets/icons/left_panel_close.svg"
+import leftPanelOpenIcon from "../../theme/assets/icons/left_panel_open.svg"
 
 import { Link } from "@tanstack/react-router"
-import { useState } from "react"
-import type { ElementType } from "react"
-import type { UserPublic } from "../../client"
-import useAuth from "../../hooks/useAuth"
+import { useMemo, useState } from "react"
 import UBLogoSvg from "../../theme/assets/logo.svg"
 import colors from "../../theme/colors"
 import LogInOut from "./LogInOut"
 import NavigationItems from "./NavigationItems"
 
 const Navigation = () => {
-  const logoColor = useColorModeValue(colors.ui.dark, colors.ui.light)
   const UBLogo = () =>
-    typeof UBLogoSvg === "string" ? (
       <img
         src={UBLogoSvg}
         alt="Urban Barnacle"
         style={{ width: "52px", height: "52px", padding: "4px" }}
       />
-    ) : (
-      <Icon
-        as={UBLogoSvg as unknown as ElementType}
-        boxSize={16}
-        color={logoColor}
-      />
-    )
-  const queryClient = useQueryClient()
   const textColor = useColorModeValue(colors.ui.dark, colors.ui.light)
   const secBgColor = useColorModeValue(colors.ui.light, colors.ui.dark)
   const secBgHover = useColorModeValue(
     colors.ui.hoverLight,
     colors.ui.hoverDark,
   )
-  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { logout } = useAuth()
 
   // Track number of navigation items to decide alignment
   const [itemCount, setItemCount] = useState(0)
 
-  const handleLogout = async () => {
-    logout()
-  }
+  // Calculate breakpoint based on item count
+  // Estimate: logo ~150px, each nav item with text ~120px, login/logout ~100px, padding ~50px
+  const minWidthForText = useMemo(() => {
+    const logoWidth = 150
+    const itemWidthWithText = 120
+    const loginWidth = 100
+    const padding = 50
+    return logoWidth + (itemCount * itemWidthWithText) + loginWidth + padding
+  }, [itemCount])
+
+  const [showText] = useMediaQuery(`(min-width: ${minWidthForText}px)`)
 
   return (
     <>
-      {/* Mobile */}
+      {/* Phone - Drawer */}
       <IconButton
         onClick={onOpen}
-        display={{ base: "flex", md: "none" }}
+        display={{ base: "flex", sm: "none" }}
         aria-label="Open Menu"
         position="absolute"
         fontSize="20px"
         m={4}
         icon={
-          <Icon
-            as={menuIcon as unknown as ElementType}
-            boxSize={16}
-            color={logoColor}
+          <img
+            src={leftPanelOpenIcon}
+            alt="Open Menu"
+            style={{ width: "32px", height: "32px" }}
           />
         }
       />
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent maxW="250px">
-          <DrawerCloseButton />
-          <DrawerBody py={8}>
-            <Flex flexDir="column" justify="space-between">
-              <Box>
-                <ChakraFlex
-                  as={Link}
-                  to="/"
-                  align="center"
-                  mb={4}
-                  p={2}
-                  _hover={{ textDecoration: "none", bg: secBgHover }}
-                  onClick={onClose}
+        <DrawerContent maxW="120px">
+          <IconButton
+            aria-label="Close Menu"
+            position="absolute"
+            right={2}
+            top={2}
+            size="sm"
+            variant="ghost"
+            bg="transparent"
+            _hover={{ bg: "transparent" }}
+            onClick={onClose}
+            icon={
+              <img
+                src={leftPanelCloseIcon}
+                alt="Close Menu"
+                style={{ width: "24px", height: "24px" }}
+              />
+            }
+          />
+          <DrawerBody py={4}>
+            <Flex flexDir="column" align="center">
+              <ChakraFlex
+                as={Link}
+                to="/"
+                flexDir="column"
+                align="center"
+                mb={4}
+                p={2}
+                _hover={{ textDecoration: "none", bg: secBgHover }}
+                onClick={onClose}
+              >
+                <img
+                  src={UBLogoSvg}
+                  alt="Urban Barnacle"
+                  style={{ width: "80px", height: "80px" }}
+                />
+                <Text
+                  mt={1}
+                  fontWeight="300"
+                  color={textColor}
+                  whiteSpace="nowrap"
                 >
-                  <UBLogo />
-                  <Text
-                    ml={2}
-                    fontWeight="300"
-                    color={textColor}
-                    whiteSpace="nowrap"
-                    noOfLines={1}
-                  >
-                    Urban Barnacle
-                  </Text>
-                </ChakraFlex>
-                <NavigationItems onClose={onClose} onCount={setItemCount} />
-                <Flex
-                  as="button"
-                  onClick={handleLogout}
-                  p={2}
-                  color="ui.danger"
-                  alignItems="center"
-                  _hover={{ bg: secBgHover }}
-                >
-                  <img
-                    src={logoutIcon}
-                    alt="Logout"
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      opacity: "0.6",
-                      transition: "opacity 0.2s",
-                      filter:
-                        "brightness(0) saturate(100%) invert(58%) sepia(96%) saturate(1174%) hue-rotate(170deg) brightness(101%) contrast(101%)",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.opacity = "0.6")
-                    }
-                  />
-                  <Text ml={2}>Log out</Text>
-                </Flex>
-              </Box>
-              {currentUser?.email && (
-                <Flex p={2} bg={secBgColor} _hover={{ bg: secBgHover }}>
-                  <Text color={textColor} noOfLines={2} fontSize="sm">
-                    Logged in as: {currentUser.email}
-                  </Text>
-                </Flex>
-              )}
+                  UBDM
+                </Text>
+              </ChakraFlex>
+              <NavigationItems onClose={onClose} onCount={setItemCount} direction="column" />
+              <LogInOut showText={true} />
             </Flex>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
 
-      {/* Desktop */}
+      {/* Tablet & Desktop - Top Navigation */}
       <Flex
+        display={{ base: "none", sm: "flex" }}
         flexDir="row"
         justify="space-between"
         align="center"
@@ -181,16 +159,7 @@ const Navigation = () => {
           <NavigationItems onCount={setItemCount} />
         </Flex>
 
-        <Flex align="center" gap={2}>
-          {currentUser?.email && (
-            <Flex p={2} bg={secBgColor}>
-              <Text color={textColor} noOfLines={1}>
-                {currentUser.full_name}
-              </Text>
-            </Flex>
-          )}
-          <LogInOut />
-        </Flex>
+        <LogInOut showText={showText} />
       </Flex>
     </>
   )

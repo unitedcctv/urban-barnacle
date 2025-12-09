@@ -1,33 +1,15 @@
-import { Box, Container, SkeletonText } from "@chakra-ui/react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useEffect } from "react"
-import { z } from "zod"
+import { Box, Container, Flex, SkeletonText, Spinner } from "@chakra-ui/react"
+import { useInfiniteQuery } from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
+import { useEffect, useRef, useCallback } from "react"
 import { producersReadProducers } from "../../client/sdk.gen"
-import { PaginationFooter } from "../../components/Common/PaginationFooter"
 import ProducerCard from "../../components/Producers/ProducerCard"
-
-const producersSearchSchema = z.object({
-  page: z.preprocess(
-    (val) => (val ? Number(val) : 1),
-    z.number()
-  ),
-})
 
 export const Route = createFileRoute("/_layout/producers")({
   component: ProducersPage,
-  validateSearch: (search) => producersSearchSchema.parse(search),
 })
 
 const PER_PAGE = 20
-
-function getProducersQueryOptions({ page }: { page: number }) {
-  return {
-    queryFn: () =>
-      producersReadProducers({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
-    queryKey: ["producers", { page }],
-  } as const
-}
 
 function ProducersPage() {
   return (
@@ -38,31 +20,49 @@ function ProducersPage() {
 }
 
 function ProducersGrid() {
-  const queryClient = useQueryClient()
-  const { page } = Route.useSearch() as { page: number }
-  const navigate = useNavigate({ from: Route.fullPath })
-  const setPage = (page: number) =>
-    navigate({
-      search: { page } as any,
-    })
+  const loadMoreRef = useRef<HTMLDivElement>(null)
 
   const {
-    data: producers,
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isPending,
-    isPlaceholderData,
-  } = useQuery({
-    ...getProducersQueryOptions({ page }),
-    placeholderData: (prevData) => prevData,
+  } = useInfiniteQuery({
+    queryKey: ["producers"],
+    queryFn: ({ pageParam = 0 }) =>
+      producersReadProducers({ skip: pageParam, limit: PER_PAGE }),
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage?.data || lastPage.data.length < PER_PAGE) return undefined
+      return allPages.length * PER_PAGE
+    },
+    initialPageParam: 0,
   })
 
-  const hasNextPage = !isPlaceholderData && producers?.data.length === PER_PAGE
-  const hasPreviousPage = page > 1
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage()
+      }
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage]
+  )
 
   useEffect(() => {
-    if (hasNextPage) {
-      queryClient.prefetchQuery(getProducersQueryOptions({ page: page + 1 }))
-    }
-  }, [page, queryClient, hasNextPage])
+    const element = loadMoreRef.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(handleObserver, {
+      threshold: 0.1,
+      rootMargin: "100px",
+    })
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [handleObserver])
+
+  const allProducers = data?.pages.flatMap((page) => page.data) ?? []
 
   return (
     <>
@@ -77,18 +77,15 @@ function ProducersGrid() {
           </Box>
         ) : (
           <Box className="grid-container">
-            {producers?.data.map((producer) => (
+            {allProducers.map((producer) => (
               <ProducerCard key={producer.id} producer={producer} />
             ))}
           </Box>
         )}
       </Box>
-      <PaginationFooter
-        page={page}
-        onChangePage={setPage}
-        hasNextPage={hasNextPage}
-        hasPreviousPage={hasPreviousPage}
-      />
+      <Flex ref={loadMoreRef} justify="center" py={4}>
+        {isFetchingNextPage && <Spinner size="lg" />}
+      </Flex>
     </>
   )
 }

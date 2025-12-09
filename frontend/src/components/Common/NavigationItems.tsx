@@ -1,7 +1,7 @@
-import { Flex, Skeleton, Text, useColorModeValue } from "@chakra-ui/react"
+import { Flex, Skeleton, Text, useColorModeValue, useMediaQuery } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { Link, useLocation } from "@tanstack/react-router"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 
 import addItemIcon from "../../theme/assets/icons/add_item.svg"
 import businessIcon from "../../theme/assets/icons/business.svg"
@@ -16,9 +16,10 @@ import suSettingsIcon from "../../theme/assets/icons/su_settings.svg"
 interface NavigationItemsProps {
   onClose?: () => void
   onCount?: (n: number) => void
+  direction?: "row" | "column"
 }
 
-const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
+const NavigationItems = ({ onClose, onCount, direction = "row" }: NavigationItemsProps) => {
   interface NavigationItem {
     title: string
     path: string
@@ -52,8 +53,20 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
 
   // notify parent when item count changes
   useEffect(() => {
-    onCount?.(items.length)
-  }, [items.length, onCount])
+    onCount?.(items?.length ?? 0)
+  }, [items?.length, onCount])
+
+  // Calculate breakpoint based on item count
+  // Estimate: logo ~150px, each nav item with text ~120px, login/logout ~100px, padding ~50px
+  const minWidthForText = useMemo(() => {
+    const logoWidth = 150
+    const itemWidthWithText = 120
+    const loginWidth = 100
+    const padding = 50
+    return logoWidth + ((items?.length ?? 0) * itemWidthWithText) + loginWidth + padding
+  }, [items?.length])
+
+  const [showText] = useMediaQuery(`(min-width: ${minWidthForText}px)`)
 
   // Lighter text color and hover color.
   const textColor = useColorModeValue("ui.dark", "ui.light")
@@ -110,7 +123,7 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
         />
       )
 
-      const textElement = (
+      const textElement = showText ? (
         <Text 
           ml={2} 
           fontWeight={isActive ? "normal" : "300"}
@@ -120,7 +133,7 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
         >
           {title}
         </Text>
-      )
+      ) : null
 
       const mouseHandlers = {
         onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => {
@@ -158,17 +171,18 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
         <Flex
           as={Link}
           to={path}
-          px={4}
-          py={0}
+          px={direction === "column" ? 2 : 4}
+          py={direction === "column" ? 2 : 0}
           key={title}
-          bg={isActive ? activeBg : "transparent"}
+          bg={direction === "column" ? "transparent" : (isActive ? activeBg : "transparent")}
           color={isActive ? activeText : textColor}
-          _hover={isActive ? {} : { bg: bgHover }}
+          _hover={isActive ? {} : (direction === "column" ? {} : { bg: bgHover })}
           onClick={handleClick}
           align="center"
+          justify={direction === "column" ? "center" : "flex-start"}
           cursor={isActive ? "default" : "pointer"}
           pointerEvents={isActive ? "none" : "auto"}
-          h="52px"
+          h={direction === "column" ? "auto" : "52px"}
           {...mouseHandlers}
         >
           {iconElement}
@@ -180,7 +194,13 @@ const NavigationItems = ({ onClose, onCount }: NavigationItemsProps) => {
 
   // Use a lighter background in both modes:
   return (
-    <Flex flexDir="row" gap={4} w="100%" alignContent="center" bg={containerBg}>
+    <Flex 
+      flexDir={direction} 
+      gap={direction === "column" ? 2 : 4} 
+      w="100%" 
+      align={direction === "column" ? "center" : "stretch"}
+      bg={direction === "column" ? "transparent" : containerBg}
+    >
       {listItems}
     </Flex>
   )

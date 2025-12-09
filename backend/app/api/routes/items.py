@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
 from app.core.config import settings
 from app.core.storage import delete_from_bunnycdn
-from app.models import Item, ItemCreate, ItemImage, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message
+from app.models import Item, ItemCreate, ItemImage, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message, Producer
 from app.blockchain.blockchain_service import blockchain_service
 
 router = APIRouter(prefix="/items", tags=["items"])
@@ -25,7 +25,10 @@ def read_items(
     """
     count_statement = select(func.count()).select_from(Item)
     count = session.exec(count_statement).one()
-    statement = select(Item).options(selectinload(Item.item_images)).offset(skip).limit(limit)
+    statement = select(Item).options(
+        selectinload(Item.item_images),
+        selectinload(Item.producer)
+    ).offset(skip).limit(limit)
     items = session.exec(statement).all()
     
     # Get base URL from request
@@ -50,7 +53,10 @@ def read_my_items(
     count = session.exec(count_statement).one()
     statement = (
         select(Item)
-        .options(selectinload(Item.item_images))
+        .options(
+            selectinload(Item.item_images),
+            selectinload(Item.producer)
+        )
         .where(Item.owner_id == current_user.id)
         .offset(skip)
         .limit(limit)
@@ -69,7 +75,10 @@ def read_item(request: Request, session: SessionDep, current_user: OptionalCurre
     """
     Get item by ID with edit permissions.
     """
-    statement = select(Item).options(selectinload(Item.item_images)).where(Item.id == id)
+    statement = select(Item).options(
+        selectinload(Item.item_images),
+        selectinload(Item.producer)
+    ).where(Item.id == id)
     item = session.exec(statement).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -102,11 +111,27 @@ def create_item(
     """
     Create new item.
     """
+    # Check if user has a producer profile and set producer_id
+    producer = session.exec(
+        select(Producer).where(Producer.user_id == current_user.id)
+    ).first()
+    
+    update_data = {"owner_id": current_user.id}
+    if producer:
+        update_data["producer_id"] = producer.id
+    
     # Create the item
-    item = Item.model_validate(item_in, update={"owner_id": current_user.id})
+    item = Item.model_validate(item_in, update=update_data)
     session.add(item)
     session.commit()
     session.refresh(item)
+    
+    # Reload item with producer relationship for response
+    statement = select(Item).options(
+        selectinload(Item.item_images),
+        selectinload(Item.producer)
+    ).where(Item.id == item.id)
+    item = session.exec(statement).first()
     
     # Get base URL and return with image URLs
     base_url = str(request.base_url).rstrip('/')
@@ -122,8 +147,11 @@ def mint_item_nft(
     """
     logger = logging.getLogger(__name__)
     
-    # Get the item with images
-    statement = select(Item).options(selectinload(Item.item_images)).where(Item.id == id)
+    # Get the item with images and producer
+    statement = select(Item).options(
+        selectinload(Item.item_images),
+        selectinload(Item.producer)
+    ).where(Item.id == id)
     item = session.exec(statement).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -210,7 +238,10 @@ def update_item(
     """
     Update an item.
     """
-    statement = select(Item).options(selectinload(Item.item_images)).where(Item.id == id)
+    statement = select(Item).options(
+        selectinload(Item.item_images),
+        selectinload(Item.producer)
+    ).where(Item.id == id)
     item = session.exec(statement).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")

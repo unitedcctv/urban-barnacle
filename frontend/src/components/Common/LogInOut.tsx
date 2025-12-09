@@ -7,6 +7,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
+  Tooltip,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react"
@@ -27,7 +28,11 @@ async function fetchCurrentUser(): Promise<UserPublic | null> {
   return response.json()
 }
 
-const LogInOut = () => {
+interface LogInOutProps {
+  showText?: boolean
+}
+
+const LogInOut = ({ showText = true }: LogInOutProps) => {
   const { isOpen, onClose, onOpen } = useDisclosure()
   const signUp = useDisclosure()
   const queryClient = useQueryClient()
@@ -87,37 +92,40 @@ const LogInOut = () => {
   return (
     <>
       {currentUser?.is_active ? (
-        <Flex
-          px={4}
-          py={0}
-          h="52px"
-          onClick={handleLogout}
-          align="center"
-          cursor="pointer"
-          _hover={{ bg: bgHover }}
-          onMouseEnter={(e) => mouseHandlers(e, true)}
-          onMouseLeave={(e) => mouseHandlers(e, false)}
-          onMouseDown={(e) => mouseHandlers(e, true, "down")}
-          onMouseUp={(e) => mouseHandlers(e, true, "up")}
-        >
-          <Text>Logout</Text>
-          <img
-            src={logoutIcon}
-            alt="Logout"
-            style={{
-              width: "20px",
-              height: "20px",
-              marginLeft: "8px",
-              opacity: "0.6",
-              transition: "all 0.2s ease",
-              filter: "brightness(0) saturate(0%) invert(60%)",
-              pointerEvents: "none",
-            }}
-          />
-        </Flex>
+        <Tooltip label={currentUser.full_name || currentUser.email} placement="bottom">
+          <Flex
+            pl={0}
+            pr={4}
+            py={0}
+            h="52px"
+            onClick={handleLogout}
+            align="center"
+            cursor="pointer"
+            _hover={{ bg: bgHover }}
+            onMouseEnter={(e) => mouseHandlers(e, true)}
+            onMouseLeave={(e) => mouseHandlers(e, false)}
+            onMouseDown={(e) => mouseHandlers(e, true, "down")}
+            onMouseUp={(e) => mouseHandlers(e, true, "up")}
+          >
+            <img
+              src={logoutIcon}
+              alt="Logout"
+              style={{
+                width: "20px",
+                height: "20px",
+                opacity: "0.6",
+                transition: "all 0.2s ease",
+                filter: "brightness(0) saturate(0%) invert(60%)",
+                pointerEvents: "none",
+              }}
+            />
+            {showText && <Text ml={2}>Logout</Text>}
+          </Flex>
+        </Tooltip>
       ) : (
         <Flex
-          px={4}
+          pl={0}
+          pr={4}
           py={0}
           h="52px"
           onClick={onOpen}
@@ -141,7 +149,7 @@ const LogInOut = () => {
               pointerEvents: "none",
             }}
           />
-          <Text ml={2}>Login</Text>
+          {showText && <Text ml={2}>Login</Text>}
         </Flex>
       )}
 
