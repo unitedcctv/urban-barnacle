@@ -15,7 +15,7 @@ const ITEM_COUNT = 5
 function getItemsQueryOptions() {
   return {
     queryFn: () => itemsReadItems({ skip: 0, limit: ITEM_COUNT }),
-    queryKey: ["items"],
+    queryKey: ["items", "home", ITEM_COUNT],
   }
 }
 
@@ -31,6 +31,8 @@ export default function Home() {
       typeof window !== "undefined" &&
       localStorage.getItem("access_token") !== null,
   })
+
+  const itemsList = items?.data ?? []
 
   if (isLoading) {
     return (
@@ -51,13 +53,13 @@ export default function Home() {
     )
   }
 
-  if (!items || items.data.length === 0) {
+  if (!items || itemsList.length === 0) {
     return <HoldingPage />
   }
 
   return (
     <Box>
-      {items.data.map((item: any) => {
+      {itemsList.map((item: any) => {
         if (!item?.image_urls || item.image_urls.length === 0) return null
         const image_url = item.image_urls[0]
 

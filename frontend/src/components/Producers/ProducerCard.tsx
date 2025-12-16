@@ -15,23 +15,44 @@ export default function ProducerCard({ producer }: ProducerCardProps) {
   const [imageSrc, setImageSrc] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    // Fetch portfolio images for this producer
-    const fetchPortfolioImage = async () => {
+    let cancelled = false
+
+    const fetchCardImage = async () => {
       try {
         const portfolioImages = await imagesGetProducerImages({
           producerId: producer.id,
           imageType: "portfolio"
         })
-        // Use the first portfolio image if available
-        if (portfolioImages && portfolioImages.length > 0) {
+        if (!cancelled && Array.isArray(portfolioImages) && portfolioImages.length > 0) {
           setImageSrc(portfolioImages[0].path)
+          return
+        }
+
+        const logoImages = await imagesGetProducerImages({
+          producerId: producer.id,
+          imageType: "logo",
+        })
+        if (!cancelled && Array.isArray(logoImages) && logoImages.length > 0) {
+          setImageSrc(logoImages[0].path)
+          return
+        }
+
+        if (!cancelled) {
+          setImageSrc(null)
         }
       } catch (error) {
         console.error("Failed to fetch portfolio images:", error)
+        if (!cancelled) {
+          setImageSrc(null)
+        }
       }
     }
 
-    fetchPortfolioImage()
+    fetchCardImage()
+
+    return () => {
+      cancelled = true
+    }
   }, [producer.id])
 
   const handleProducerClick = () => {

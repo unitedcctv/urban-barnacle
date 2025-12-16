@@ -29,12 +29,14 @@ function ItemsGrid() {
     isFetchingNextPage,
     isPending,
   } = useInfiniteQuery({
-    queryKey: ["items"],
+    queryKey: ["items", "infinite", PER_PAGE],
     queryFn: ({ pageParam = 0 }) =>
       itemsReadItems({ skip: pageParam, limit: PER_PAGE }),
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage?.data || lastPage.data.length < PER_PAGE) return undefined
-      return allPages.length * PER_PAGE
+      const lastPageData = Array.isArray(lastPage?.data) ? lastPage.data : []
+      if (lastPageData.length < PER_PAGE) return undefined
+      const pagesCount = Array.isArray(allPages) ? allPages.length : 0
+      return pagesCount * PER_PAGE
     },
     initialPageParam: 0,
   })
