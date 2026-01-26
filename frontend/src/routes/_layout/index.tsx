@@ -65,8 +65,9 @@ export default function Home() {
           <Flex
             key={item.id}
             bgImage={`url(${image_url})`}
-            bgAttachment="fixed"
-            bgSize="cover"
+            bgAttachment={{ base: "scroll", sm: "fixed" }}
+            bgSize={{ base: "contain", sm: "cover" }}
+            bgRepeat="no-repeat"
             bgPosition="center"
             h={{ base: "100dvh", sm: "100vh" }}
             mb={0}
