@@ -27,9 +27,7 @@ export default function Home() {
     error,
   } = useQuery({
     ...getItemsQueryOptions(),
-    enabled:
-      typeof window !== "undefined" &&
-      localStorage.getItem("access_token") !== null,
+    enabled: typeof window !== "undefined",
   })
 
   const itemsList = items?.data ?? []
@@ -58,7 +56,7 @@ export default function Home() {
   }
 
   return (
-    <Box>
+    <Box bg="black">
       {itemsList.map((item: any) => {
         if (!item?.image_urls || item.image_urls.length === 0) return null
         const image_url = item.image_urls[0]
@@ -70,8 +68,8 @@ export default function Home() {
             bgAttachment="fixed"
             bgSize="cover"
             bgPosition="center"
-            h="72rem"
-            mb="2rem"
+            h={{ base: "100dvh", sm: "100vh" }}
+            mb={0}
             align="center"
             justify="center"
             direction="column"
