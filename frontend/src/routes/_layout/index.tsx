@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Text } from "@chakra-ui/react"
+import { Box, Flex, Heading, Text, useMediaQuery } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
@@ -20,6 +20,8 @@ function getItemsQueryOptions() {
 }
 
 export default function Home() {
+  const [isSmUp] = useMediaQuery("(min-width: 30em)")
+
   const {
     data: items,
     isLoading,
@@ -27,10 +29,14 @@ export default function Home() {
     error,
   } = useQuery({
     ...getItemsQueryOptions(),
-    enabled: typeof window !== "undefined",
+    enabled: typeof window !== "undefined" && isSmUp,
   })
 
   const itemsList = items?.data ?? []
+
+  if (!isSmUp) {
+    return <HoldingPage />
+  }
 
   if (isLoading) {
     return (
