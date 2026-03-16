@@ -32,11 +32,11 @@ Frontend docs: [frontend/README.md](./frontend/README.md).
 
 ## Deployment
 
-Deployment docs: [deployment.md](./_DEPLOYMENT.md).
+Deployment docs: [deployment.md](./_DEPLOYMENT.MD).
 
 ## Development
 
-General development docs: [development.md](./_DEVELOPMENT.md).
+General development docs: [development.md](./_DEVELOPMENT.MD).
 
 This includes using Docker Compose, custom local domains, `.env` configurations, etc.
 
