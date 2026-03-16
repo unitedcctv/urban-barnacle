@@ -1,4 +1,4 @@
-# Urban Barnacle
+LOYMENT# Urban Barnacle
 
 ## Built on [Full Stack FastAPI Template](https://github.com/fastapi/full-stack-fastapi-template)
 
@@ -32,11 +32,11 @@ Frontend docs: [frontend/README.md](./frontend/README.md).
 
 ## Deployment
 
-Deployment docs: [deployment.md](./deployment.md).
+Deployment docs: [deployment.md](./_DEPLOYMENT.md).
 
 ## Development
 
-General development docs: [development.md](./development.md).
+General development docs: [development.md](./_DEVELOPMENT.md).
 
 This includes using Docker Compose, custom local domains, `.env` configurations, etc.
 
