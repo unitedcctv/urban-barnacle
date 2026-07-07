@@ -1,28 +1,35 @@
 import {
+  Box,
   Button,
   Container,
   Flex,
+  Heading,
+  Skeleton,
   SkeletonText,
   Table,
   TableContainer,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
-  useToast,
+  VStack,
+  useDisclosure,
 } from "@chakra-ui/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { z } from "zod"
 
-import { usersReadUsers } from "../../client/sdk.gen.ts"
+import { usersReadUsers, producersReadMyProducer } from "../../client/sdk.gen.ts"
 import type { UserPublic } from "../../client/types.gen.ts"
 import AddUser from "../../components/Admin/AddUser.tsx"
 import Navbar from "../../components/Common/Navbar.tsx"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
 import { UserRow } from "../../components/UserSettings/User.tsx"
+import EditProducer from "../../components/Producers/EditProducer.tsx"
+import CreateItemModal from "../../components/Items/CreateItemModal.tsx"
 
 const usersSearchSchema = z.object({
   page: z.preprocess(
@@ -119,112 +126,87 @@ function UsersTable() {
   )
 }
 
+function ProducerSection() {
+  const navigate = useNavigate()
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure()
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure()
+
+  const { data: producer, isLoading, error } = useQuery({
+    queryKey: ["myProducer"],
+    queryFn: () => producersReadMyProducer(),
+  })
+
+  if (isLoading) {
+    return (
+      <Box mt={8}>
+        <Skeleton height="40px" mb={4} />
+        <Skeleton height="120px" />
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box mt={8}>
+        <Text color="red.500">Error loading producer profile.</Text>
+      </Box>
+    )
+  }
+
+  return (
+    <Box mt={8}>
+      <Heading size="md" mb={4}>
+        Producer Console
+      </Heading>
+      <VStack spacing={4} align="stretch">
+        {producer ? (
+          <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+            <Heading size="sm" mb={1}>{producer.name}</Heading>
+            {producer.location && <Text color="gray.600">{producer.location}</Text>}
+            <Flex gap={3} mt={4}>
+              <Button variant="primary" onClick={onEditOpen}>
+                Edit Producer Profile
+              </Button>
+              <Button variant="primary" onClick={onCreateOpen}>
+                Create Item
+              </Button>
+            </Flex>
+          </Box>
+        ) : (
+          <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
+            <Text mb={3}>No producer profile found.</Text>
+            <Button variant="primary" onClick={() => navigate({ to: "/createproducer" })}>
+              Create Producer Profile
+            </Button>
+          </Box>
+        )}
+      </VStack>
+
+      {producer && (
+        <EditProducer producer={producer} isOpen={isEditOpen} onClose={onEditClose} />
+      )}
+      <CreateItemModal isOpen={isCreateOpen} onClose={onCreateClose} />
+    </Box>
+  )
+}
+
 function SuAdmin() {
-  const toast = useToast()
-  
-  const registerWatch = async () => {
-    try {
-      const token = localStorage.getItem("access_token")
-      const apiBase = import.meta.env.VITE_API_URL ?? ""
-      const res = await fetch(`${apiBase}/api/v1/drive/register-watch`, {
-        method: "POST",
-        credentials: "include", // send cookies if present
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      })
-
-      if (!res.ok) {
-        let errorMessage = "Unknown error occurred"
-        try {
-          // Try to parse JSON error response
-          const errorData = await res.json()
-          errorMessage = errorData.detail || errorData.message || res.statusText
-        } catch {
-          // Fallback to text if JSON parsing fails
-          errorMessage = (await res.text()) || res.statusText
-        }
-        throw new Error(errorMessage)
-      }
-
-      const result = await res.json()
-      toast({
-        title: "Google Drive watch registered successfully",
-        description: result.message || "Drive watch is now active",
-        status: "success",
-        duration: 5000,
-      })
-    } catch (err: any) {
-      toast({
-        title: "Failed to register Drive watch",
-        description: err.message || "An unexpected error occurred",
-        status: "error",
-        duration: 8000,
-        isClosable: true,
-      })
-    }
-  }
-
-  const populateChunks = async () => {
-    try {
-      const token = localStorage.getItem("access_token")
-      const apiBase = import.meta.env.VITE_API_URL ?? ""
-      const res = await fetch(`${apiBase}/api/v1/drive/populate-chunks`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      })
-
-      if (!res.ok) {
-        let errorMessage = "Unknown error occurred"
-        try {
-          // Try to parse JSON error response
-          const errorData = await res.json()
-          errorMessage = errorData.detail || errorData.message || res.statusText
-        } catch {
-          // Fallback to text if JSON parsing fails
-          errorMessage = (await res.text()) || res.statusText
-        }
-        throw new Error(errorMessage)
-      }
-
-      const result = await res.json()
-      toast({
-        title: "AI chunks populated successfully",
-        description:
-          result.message ||
-          "Business plan content is now available for AI chat",
-        status: "success",
-        duration: 5000,
-      })
-    } catch (err: any) {
-      toast({
-        title: "Failed to populate AI chunks",
-        description: err.message || "An unexpected error occurred",
-        status: "error",
-        duration: 8000,
-        isClosable: true,
-      })
-    }
-  }
-
   return (
     <Container maxW="full">
       <Flex mb={4} gap={4} direction={{ base: "column", md: "row" }}>
         <Navbar type={"User"} addModalAs={AddUser} />
       </Flex>
       <UsersTable />
+      <ProducerSection />
       <Flex gap={4} wrap="wrap" mt={4}>
-        <Button variant="primary" onClick={registerWatch}>
-          Register Drive Watch
-        </Button>
-        <Button variant="primary" onClick={populateChunks}>
-          Populate AI Chunks
-        </Button>
         <Button as={Link} to="/logs" variant="primary">
           View Logs
         </Button>

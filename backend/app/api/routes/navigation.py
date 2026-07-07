@@ -1,12 +1,12 @@
 from typing import Annotated, List, TypedDict
 
 from fastapi import APIRouter, Depends, Header
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from app.api.deps import SessionDep, get_current_user
 from app.core import security
 from app.core.config import settings
-from app.models import TokenPayload, User, Producer
+from app.models import TokenPayload, User
 import jwt
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
@@ -51,7 +51,6 @@ def get_navigation_items(
 
     items: list[NavigationItem] = [
         {"title": "Items", "path": "/items", "icon": "gallery", "action": None},
-        {"title": "Producers", "path": "/producers", "icon": "producers", "action": None},
         {"title": "Community", "path": "/community", "icon": "community", "action": None},
     ]
 
@@ -61,18 +60,5 @@ def get_navigation_items(
 
         if UserPermission.SUPERUSER in user.permissions:
             items.insert(0, {"title": "SU Admin", "path": "/suadmin", "icon": "su_settings", "action": None})
-
-        if user.permissions in [UserPermission.INVESTOR, UserPermission.SUPERUSER]:
-            items.append({"title": "Business Plan", "path": "/businessplan", "icon": "business", "action": None})
-
-        if user.permissions in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
-            producer = session.exec(
-                select(Producer).where(Producer.user_id == user.id)
-            ).first()
-            
-            if producer:
-                items.append({"title": "Producer Console", "path": "/producerconsole", "icon": "producer_edit", "action": None})
-            else:
-                items.append({"title": "Create Producer Profile", "path": "/createproducer", "icon": "producer_edit", "action": None})
 
     return items  # type: ignore

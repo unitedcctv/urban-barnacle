@@ -28,7 +28,7 @@ def read_my_producer(session: SessionDep, current_user: CurrentUser) -> Any:
     """
     Get current user's producer profile.
     """
-    if current_user.permissions not in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
+    if current_user.permissions != UserPermission.SUPERUSER:
         raise HTTPException(
             status_code=403, detail="Not enough permissions"
         )
@@ -120,9 +120,9 @@ def create_producer(
 ) -> Any:
     """
     Create new producer.
-    Only users with producer permissions can create producers.
+    Only superusers can create producers.
     """
-    if current_user.permissions not in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
+    if current_user.permissions != UserPermission.SUPERUSER:
         raise HTTPException(
             status_code=403, detail="Not enough permissions"
         )
@@ -153,9 +153,9 @@ def update_producer(
 ) -> Any:
     """
     Update a producer.
-    Only users with producer permissions can update their own producer profile.
+    Only superusers can update producer profiles.
     """
-    if current_user.permissions not in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
+    if current_user.permissions != UserPermission.SUPERUSER:
         raise HTTPException(
             status_code=403, detail="Not enough permissions"
         )
@@ -184,9 +184,9 @@ async def delete_producer(
 ) -> Message:
     """
     Delete a producer.
-    Only users can delete their own producer profile.
+    Only superusers can delete producer profiles.
     """
-    if current_user.permissions not in [UserPermission.PRODUCER, UserPermission.SUPERUSER]:
+    if current_user.permissions != UserPermission.SUPERUSER:
         raise HTTPException(
             status_code=403, detail="Not enough permissions"
         )

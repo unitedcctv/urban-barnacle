@@ -19,7 +19,6 @@ import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutSuadminImport } from './routes/_layout/suadmin'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutProducersImport } from './routes/_layout/producers'
-import { Route as LayoutProducerconsoleImport } from './routes/_layout/producerconsole'
 import { Route as LayoutProducerDetailImport } from './routes/_layout/producer-detail'
 import { Route as LayoutProducerImport } from './routes/_layout/producer'
 import { Route as LayoutLogsImport } from './routes/_layout/logs'
@@ -27,7 +26,6 @@ import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutCreateproducerImport } from './routes/_layout/createproducer'
 import { Route as LayoutCommunityImport } from './routes/_layout/community'
-import { Route as LayoutBusinessplanImport } from './routes/_layout/businessplan'
 import { Route as LayoutPaymentSuccessImport } from './routes/_layout/payment/success'
 import { Route as LayoutPaymentCancelImport } from './routes/_layout/payment/cancel'
 
@@ -73,11 +71,6 @@ const LayoutProducersRoute = LayoutProducersImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutProducerconsoleRoute = LayoutProducerconsoleImport.update({
-  path: '/producerconsole',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
 const LayoutProducerDetailRoute = LayoutProducerDetailImport.update({
   path: '/producer-detail',
   getParentRoute: () => LayoutRoute,
@@ -113,11 +106,6 @@ const LayoutCommunityRoute = LayoutCommunityImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutBusinessplanRoute = LayoutBusinessplanImport.update({
-  path: '/businessplan',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
 const LayoutPaymentSuccessRoute = LayoutPaymentSuccessImport.update({
   path: '/payment/success',
   getParentRoute: () => LayoutRoute,
@@ -148,10 +136,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordImport
       parentRoute: typeof rootRoute
     }
-    '/_layout/businessplan': {
-      preLoaderRoute: typeof LayoutBusinessplanImport
-      parentRoute: typeof LayoutImport
-    }
     '/_layout/community': {
       preLoaderRoute: typeof LayoutCommunityImport
       parentRoute: typeof LayoutImport
@@ -178,10 +162,6 @@ declare module '@tanstack/react-router' {
     }
     '/_layout/producer-detail': {
       preLoaderRoute: typeof LayoutProducerDetailImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/producerconsole': {
-      preLoaderRoute: typeof LayoutProducerconsoleImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/producers': {
@@ -215,7 +195,6 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
-    LayoutBusinessplanRoute,
     LayoutCommunityRoute,
     LayoutCreateproducerRoute,
     LayoutItemRoute,
@@ -223,7 +202,6 @@ export const routeTree = rootRoute.addChildren([
     LayoutLogsRoute,
     LayoutProducerRoute,
     LayoutProducerDetailRoute,
-    LayoutProducerconsoleRoute,
     LayoutProducersRoute,
     LayoutSettingsRoute,
     LayoutSuadminRoute,

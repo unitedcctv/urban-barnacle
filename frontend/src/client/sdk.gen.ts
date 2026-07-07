@@ -105,12 +105,6 @@ import type {
   BlockchainGetBlockchainStatusResponse,
   NavigationGetNavigationItemsData,
   NavigationGetNavigationItemsResponse,
-  AiChatResponse,
-  AiRegisterWatchEndpointResponse,
-  AiPopulateChunksEndpointResponse,
-  AiDriveChangeWebhookData,
-  AiDriveChangeWebhookResponse,
-  BusinessPlanDownloadBusinessPlanResponse,
   PrivateCreateUserData,
   PrivateCreateUserResponse,
   UsersApiCurrentUserResponse,
@@ -1358,87 +1352,7 @@ export const navigationGetNavigationItems = (
   })
 }
 
-/**
- * Chat
- * AI chat endpoint with comprehensive error handling.
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const aiChat = (): CancelablePromise<AiChatResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/api/v1/ai/chat",
-  })
-}
 
-/**
- * Register Watch Endpoint
- * Manually trigger creation of a Drive watch channel.
- * Requires SUPERUSER permission.
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const aiRegisterWatchEndpoint =
-  (): CancelablePromise<AiRegisterWatchEndpointResponse> => {
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/drive/register-watch",
-    })
-  }
-
-/**
- * Populate Chunks Endpoint
- * Manually populate chunks table with business plan content.
- * Requires SUPERUSER permission.
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const aiPopulateChunksEndpoint =
-  (): CancelablePromise<AiPopulateChunksEndpointResponse> => {
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/drive/populate-chunks",
-    })
-  }
-
-/**
- * Drive Change Webhook
- * @param data The data for the request.
- * @param data.xGoogResourceState
- * @param data.xGoogChannelToken
- * @returns void Successful Response
- * @throws ApiError
- */
-export const aiDriveChangeWebhook = (
-  data: AiDriveChangeWebhookData = {},
-): CancelablePromise<AiDriveChangeWebhookResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/api/v1/drive/webhook",
-    headers: {
-      "x-goog-resource-state": data.xGoogResourceState,
-      "x-goog-channel-token": data.xGoogChannelToken,
-    },
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Download Business Plan
- * Download the business plan PDF directly from Google Drive.
- * Requires authentication.
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const businessPlanDownloadBusinessPlan =
-  (): CancelablePromise<BusinessPlanDownloadBusinessPlanResponse> => {
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/business-plan/download",
-    })
-  }
 
 /**
  * Create User

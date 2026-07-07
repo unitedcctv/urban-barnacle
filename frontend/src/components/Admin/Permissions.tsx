@@ -22,7 +22,7 @@ const PermissionsSelector = ({
       } catch (error) {
         console.error("Failed to fetch permissions:", error)
         // Fallback to hardcoded permissions if API fails
-        setPermissions(["guest", "investor", "producer", "superuser"])
+        setPermissions(["superuser", "guest", "collector"])
       }
     }
 

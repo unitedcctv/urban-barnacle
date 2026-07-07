@@ -220,13 +220,7 @@ export type UserCreate = {
   password: string
 }
 
-export type UserPermission =
-  | "superuser"
-  | "guest"
-  | "collector"
-  | "customer"
-  | "investor"
-  | "producer"
+export type UserPermission = "superuser" | "guest" | "collector"
 
 export type UserPublic = {
   email: string
@@ -603,20 +597,6 @@ export type NavigationGetNavigationItemsData = {
 
 export type NavigationGetNavigationItemsResponse = Array<NavigationItem>
 
-export type AiChatResponse = unknown
-
-export type AiRegisterWatchEndpointResponse = unknown
-
-export type AiPopulateChunksEndpointResponse = unknown
-
-export type AiDriveChangeWebhookData = {
-  xGoogChannelToken?: string | null
-  xGoogResourceState?: string
-}
-
-export type AiDriveChangeWebhookResponse = void
-
-export type BusinessPlanDownloadBusinessPlanResponse = unknown
 
 export type PrivateCreateUserData = {
   requestBody: PrivateUserCreate

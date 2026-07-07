@@ -13,9 +13,6 @@ from app.api.routes import (
     users,
     utils,
     navigation,
-    ai_chat,
-    drive_webhook,
-    business_plan,
 )
 from app.core.config import settings
 
@@ -31,9 +28,6 @@ api_router.include_router(payments.router)
 api_router.include_router(producers.router)
 api_router.include_router(blockchain.router, prefix="/blockchain", tags=["blockchain"])
 api_router.include_router(navigation.router)
-api_router.include_router(ai_chat.router)
-api_router.include_router(drive_webhook.router)
-api_router.include_router(business_plan.router)
 
 
 # Temporarily disabled to test signup endpoint
