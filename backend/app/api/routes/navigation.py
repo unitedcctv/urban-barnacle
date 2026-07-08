@@ -51,7 +51,6 @@ def get_navigation_items(
 
     items: list[NavigationItem] = [
         {"title": "Items", "path": "/items", "icon": "gallery", "action": None},
-        {"title": "Community", "path": "/community", "icon": "community", "action": None},
     ]
 
     if user:

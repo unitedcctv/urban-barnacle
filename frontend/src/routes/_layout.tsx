@@ -1,6 +1,7 @@
 import { Box, Flex } from "@chakra-ui/react"
 import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router"
 
+import Footer from "../components/Common/Footer"
 import Navigation from "../components/Common/Navigation"
 
 export const Route = createFileRoute("/_layout")({
@@ -19,9 +20,11 @@ function Layout() {
         flex="1"
         w="100%"
         pt={{ base: 0, sm: isHome ? 0 : "62px" }}
+        pb="50px"
       >
         <Outlet />
       </Box>
+      <Footer />
     </Flex>
   )
 }

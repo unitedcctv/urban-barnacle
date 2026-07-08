@@ -5,7 +5,6 @@ import { useEffect, useMemo } from "react"
 
 import addItemIcon from "../../theme/assets/icons/add_item.svg"
 import businessIcon from "../../theme/assets/icons/business.svg"
-import communityIcon from "../../theme/assets/icons/community.svg"
 // Import custom SVG icons
 import galleryIcon from "../../theme/assets/icons/gallery.svg"
 import producerEditIcon from "../../theme/assets/icons/producer_edit.svg"
@@ -78,7 +77,6 @@ const NavigationItems = ({ onClose, onCount, direction = "row" }: NavigationItem
   // Map icon names to SVG file paths
   const iconMap: Record<string, string> = {
     gallery: galleryIcon,
-    community: communityIcon,
     producers: producersIcon,
     settings: settingsIcon,
     su_settings: suSettingsIcon,
