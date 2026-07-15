@@ -8,22 +8,36 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks(id: string) {
+          if (!id.includes("node_modules")) return
+
           // React core
-          'react-vendor': ['react', 'react-dom', 'react/jsx-runtime'],
-          
+          if (/node_modules\/(react|react-dom)\//.test(id)) {
+            return "react-vendor"
+          }
+
           // Chakra UI - split into smaller chunks
-          'chakra-ui': ['@chakra-ui/react', '@chakra-ui/icons'],
-          'emotion': ['@emotion/react', '@emotion/styled', 'framer-motion'],
-          
+          if (id.includes("@chakra-ui")) {
+            return "chakra-ui"
+          }
+          if (/node_modules\/(@emotion|framer-motion)\//.test(id)) {
+            return "emotion"
+          }
+
           // TanStack libraries
-          'tanstack': ['@tanstack/react-query', '@tanstack/react-router'],
-          
+          if (id.includes("@tanstack/react-query") || id.includes("@tanstack/react-router")) {
+            return "tanstack"
+          }
+
           // Form handling
-          'react-hook-form': ['react-hook-form'],
-          
+          if (id.includes("react-hook-form")) {
+            return "react-hook-form"
+          }
+
           // DND Kit
-          'dnd-kit': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+          if (id.includes("@dnd-kit")) {
+            return "dnd-kit"
+          }
         },
       },
     },
