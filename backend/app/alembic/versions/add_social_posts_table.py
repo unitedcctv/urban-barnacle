@@ -12,7 +12,7 @@ import sqlmodel
 
 # revision identifiers, used by Alembic.
 revision = 'add_social_posts'
-down_revision = None  # Update this to the latest revision ID
+down_revision = 'initial_schema'
 branch_labels = None
 depends_on = None
 
