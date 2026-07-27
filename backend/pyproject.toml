@@ -23,9 +23,6 @@ dependencies = [
     "boto3>=1.35.97",
     "boto3-stubs>=1.36.12",
     "openai>=1.14.0",
-    "google-api-python-client>=2.126.0",
-    "google-auth>=2.29.0",
-    "google-auth-httplib2>=0.2.0",
     # Payment processing
     "stripe>=7.0.0",
 ]
