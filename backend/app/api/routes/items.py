@@ -11,7 +11,6 @@ from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
 from app.core.config import settings
 from app.core.storage import delete_from_bunnycdn
 from app.models import Item, ItemCreate, ItemImage, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message, Producer
-from app.blockchain.blockchain_service import blockchain_service
 
 router = APIRouter(prefix="/items", tags=["items"])
 
@@ -136,94 +135,6 @@ def create_item(
     # Get base URL and return with image URLs
     base_url = str(request.base_url).rstrip('/')
     return ItemPublic.from_item(item, base_url)
-
-
-@router.post("/{id}/mint-nft", response_model=ItemPublic)
-def mint_item_nft(
-    *, request: Request, session: SessionDep, current_user: CurrentUser, id: uuid.UUID
-) -> Any:
-    """
-    Mint NFT for an existing item.
-    """
-    logger = logging.getLogger(__name__)
-    
-    # Get the item with images and producer
-    statement = select(Item).options(
-        selectinload(Item.item_images),
-        selectinload(Item.producer)
-    ).where(Item.id == id)
-    item = session.exec(statement).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    
-    # Check if user owns the item
-    if item.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    
-    # Check if NFT is already minted
-    if item.nft_token_id is not None:
-        raise HTTPException(status_code=400, detail="NFT already minted for this item")
-    
-    # Check if NFT is enabled for this item
-    if not item.is_nft_enabled:
-        raise HTTPException(status_code=400, detail="NFT is not enabled for this item")
-    
-    # Check if blockchain service is available
-    if not blockchain_service.is_available():
-        raise HTTPException(status_code=503, detail="Blockchain service is not available")
-    
-    try:
-        # Use a different address for NFT recipient to avoid minting to sender
-        # For testing, use Hardhat's second default account as recipient
-        # In production, this should come from user's connected wallet address
-        owner_address = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"  # Hardhat account #1
-        
-        # Create metadata URI (you might want to implement IPFS storage here)
-        metadata_uri = f"https://your-api.com/api/v1/items/{item.id}/metadata"
-        
-        nft_result = blockchain_service.mint_item_nft(
-            owner_address=owner_address,
-            item_id=str(item.id),
-            title=item.title,
-            description=item.description or "",
-            model=item.model or "",
-            certificate=item.certificate or "",
-            images=item.images or "",
-            metadata_uri=metadata_uri
-        )
-        
-        if nft_result:
-            # Update item with NFT information
-            item.nft_token_id = nft_result["token_id"]
-            item.nft_contract_address = nft_result["contract_address"]
-            item.nft_transaction_hash = nft_result["transaction_hash"]
-            item.nft_metadata_uri = metadata_uri
-            
-            # Debug: Log the NFT data being saved
-            logger.info(f"Saving NFT data to database for item {item.id}:")
-            logger.info(f"  Token ID: {item.nft_token_id}")
-            logger.info(f"  Contract: {item.nft_contract_address}")
-            logger.info(f"  TX Hash: {item.nft_transaction_hash}")
-            
-            # Ensure the item is properly updated in the session
-            session.merge(item)  # Use merge instead of add to handle existing objects
-            session.commit()
-            session.refresh(item)
-            
-            # Verify the data was saved
-            logger.info(f"After commit - Token ID in DB: {item.nft_token_id}")
-            logger.info(f"NFT minted for item {item.id}: Token ID {nft_result['token_id']}")
-            
-            # Get base URL and return with image URLs
-            base_url = str(request.base_url).rstrip('/')
-            return ItemPublic.from_item(item, base_url)
-        else:
-            logger.warning(f"Failed to mint NFT for item {item.id}")
-            raise HTTPException(status_code=500, detail="Failed to mint NFT")
-            
-    except Exception as e:
-        logger.error(f"Error minting NFT for item {item.id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Error minting NFT: {str(e)}")
 
 
 @router.put("/{id}", response_model=ItemPublic)

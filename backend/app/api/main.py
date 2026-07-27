@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
-    blockchain,
     images,
     items,
     login,
@@ -26,7 +25,6 @@ api_router.include_router(logs.router)
 api_router.include_router(models.router)
 api_router.include_router(payments.router)
 api_router.include_router(producers.router)
-api_router.include_router(blockchain.router, prefix="/blockchain", tags=["blockchain"])
 api_router.include_router(navigation.router)
 
 

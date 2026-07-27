@@ -79,12 +79,7 @@ class ItemBase(SQLModel):
     # Original/Variant linkage
     is_original: bool = Field(default=True)
     variant_of: Optional[uuid.UUID] = Field(default=None, foreign_key="item.id")
-    # NFT-related fields
-    nft_token_id: Optional[int] = Field(default=None)
-    nft_contract_address: Optional[str] = Field(default=None, max_length=255)
-    nft_transaction_hash: Optional[str] = Field(default=None, max_length=255)
-    nft_metadata_uri: Optional[str] = Field(default=None, max_length=500)
-    is_nft_enabled: bool = Field(default=True)  # Whether to create NFT for this item
+
 
     def get_images(self) -> list[str]:
         return self.images.split(",") if self.images else []
@@ -175,11 +170,6 @@ class ItemPublic(ItemBase):
             certificate=item.certificate,
             is_original=item.is_original,
             variant_of=item.variant_of,
-            nft_token_id=item.nft_token_id,
-            nft_contract_address=item.nft_contract_address,
-            nft_transaction_hash=item.nft_transaction_hash,
-            nft_metadata_uri=item.nft_metadata_uri,
-            is_nft_enabled=item.is_nft_enabled,
             image_urls=image_urls
         )
 
