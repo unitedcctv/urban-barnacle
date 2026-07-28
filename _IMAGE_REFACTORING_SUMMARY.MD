@@ -56,7 +56,6 @@ The image handling system has been completely refactored to use **UUID-based ide
 - `GET /items/{id}` - Returns item with image URLs
 - `POST /items/` - Creates item, returns with image URLs
 - `PUT /items/{id}` - Updates item, returns with image URLs
-- `POST /items/{id}/mint-nft` - Mints NFT, returns with image URLs
 
 ### 4. Database Migration
 ✅ Created migration: `7d8e9f0a1b2c_add_image_table.py`

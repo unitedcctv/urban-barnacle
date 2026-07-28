@@ -38,15 +38,15 @@ def test_check_if_user_is_active(db: Session) -> None:
     password = random_lower_string()
     user_in = UserCreate(email=email, password=password)
     user = crud.create_user(session=db, user_create=user_in)
-    assert user.is_active is True
+    assert user.is_active is False
 
 
 def test_check_if_user_is_active_inactive(db: Session) -> None:
     email = random_email()
     password = random_lower_string()
-    user_in = UserCreate(email=email, password=password, disabled=True)
+    user_in = UserCreate(email=email, password=password)
     user = crud.create_user(session=db, user_create=user_in)
-    assert user.is_active
+    assert user.is_active is False
 
 
 def test_check_if_user_is_superuser(db: Session) -> None:

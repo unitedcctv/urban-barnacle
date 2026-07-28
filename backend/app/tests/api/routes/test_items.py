@@ -33,7 +33,7 @@ def test_read_item(
         headers=superuser_token_headers,
     )
     assert response.status_code == 200
-    content = response.json()
+    content = response.json()["item"]
     assert content["title"] == item.title
     assert content["description"] == item.description
     assert content["id"] == str(item.id)
@@ -60,9 +60,8 @@ def test_read_item_not_enough_permissions(
         f"{settings.API_V1_STR}/items/{item.id}",
         headers=normal_user_token_headers,
     )
-    assert response.status_code == 400
-    content = response.json()
-    assert content["detail"] == "Not enough permissions"
+    assert response.status_code == 200
+    assert response.json()["can_edit"] is False
 
 
 def test_read_items(

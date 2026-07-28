@@ -48,8 +48,6 @@ import type {
   ItemsUpdateItemResponse,
   ItemsDeleteItemData,
   ItemsDeleteItemResponse,
-  ItemsMintItemNftData,
-  ItemsMintItemNftResponse,
   ImagesUploadFileData,
   ImagesUploadFileResponse,
   ImagesDeleteFileData,
@@ -100,9 +98,6 @@ import type {
   ProducersDeleteProducerResponse,
   ProducersCreateProducerForUserData,
   ProducersCreateProducerForUserResponse,
-  BlockchainCheckEthBalanceResponse,
-  BlockchainFundAccountResponse,
-  BlockchainGetBlockchainStatusResponse,
   NavigationGetNavigationItemsData,
   NavigationGetNavigationItemsResponse,
   PrivateCreateUserData,
@@ -620,29 +615,6 @@ export const itemsDeleteItem = (
   return __request(OpenAPI, {
     method: "DELETE",
     url: "/api/v1/items/{id}",
-    path: {
-      id: data.id,
-    },
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Mint Item Nft
- * Mint NFT for an existing item.
- * @param data The data for the request.
- * @param data.id
- * @returns ItemPublic Successful Response
- * @throws ApiError
- */
-export const itemsMintItemNft = (
-  data: ItemsMintItemNftData,
-): CancelablePromise<ItemsMintItemNftResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/api/v1/items/{id}/mint-nft",
     path: {
       id: data.id,
     },
@@ -1287,49 +1259,6 @@ export const producersCreateProducerForUser = (
 }
 
 /**
- * Check Eth Balance
- * Check ETH balance and determine if sufficient funds are available for NFT minting.
- * @returns BalanceResponse Successful Response
- * @throws ApiError
- */
-export const blockchainCheckEthBalance =
-  (): CancelablePromise<BlockchainCheckEthBalanceResponse> => {
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/blockchain/balance",
-    })
-  }
-
-/**
- * Fund Account
- * Fund the blockchain account with ETH from Hardhat's default accounts.
- * Only works in development/staging environments.
- * @returns FundAccountResponse Successful Response
- * @throws ApiError
- */
-export const blockchainFundAccount =
-  (): CancelablePromise<BlockchainFundAccountResponse> => {
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/blockchain/fund-account",
-    })
-  }
-
-/**
- * Get Blockchain Status
- * Get blockchain service status and configuration.
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const blockchainGetBlockchainStatus =
-  (): CancelablePromise<BlockchainGetBlockchainStatusResponse> => {
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/blockchain/status",
-    })
-  }
-
-/**
  * Get Navigation Items
  * Return navigation items appropriate for the current (optional) user.
  * @param data The data for the request.
@@ -1351,8 +1280,6 @@ export const navigationGetNavigationItems = (
     },
   })
 }
-
-
 
 /**
  * Create User

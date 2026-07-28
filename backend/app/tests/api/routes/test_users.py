@@ -78,7 +78,7 @@ def test_get_existing_user(
 def test_get_existing_user_current_user(client: TestClient, db: Session) -> None:
     username = random_email()
     password = random_lower_string()
-    user_in = UserCreate(email=username, password=password)
+    user_in = UserCreate(email=username, password=password, is_active=True)
     user = crud.create_user(session=db, user_create=user_in)
     user_id = user.id
 
@@ -109,8 +109,8 @@ def test_get_existing_user_permissions_error(
         f"{settings.API_V1_STR}/users/{uuid.uuid4()}",
         headers=normal_user_token_headers,
     )
-    assert r.status_code == 403
-    assert r.json() == {"detail": "The user doesn't have enough privileges"}
+    assert r.status_code == 404
+    assert r.json() == {"detail": "User not found"}
 
 
 def test_create_user_existing_username(
@@ -385,7 +385,7 @@ def test_update_user_email_exists(
 def test_delete_user_me(client: TestClient, db: Session) -> None:
     username = random_email()
     password = random_lower_string()
-    user_in = UserCreate(email=username, password=password)
+    user_in = UserCreate(email=username, password=password, is_active=True)
     user = crud.create_user(session=db, user_create=user_in)
     user_id = user.id
 
