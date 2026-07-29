@@ -1,16 +1,15 @@
-from typing import Annotated, List, TypedDict
+from typing import TypedDict
 
-from fastapi import APIRouter, Depends, Header
-from sqlmodel import Session
-
-from app.api.deps import SessionDep, get_current_user
-from app.core import security
-from app.core.config import settings
-from app.models import TokenPayload, User
 import jwt
+from fastapi import APIRouter, Header
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
-from app.models import UserPermission
+from sqlmodel import Session
+
+from app.api.deps import SessionDep
+from app.core import security
+from app.core.config import settings
+from app.models import TokenPayload, User, UserPermission
 
 router = APIRouter(prefix="/navigation", tags=["navigation"])
 
@@ -39,7 +38,7 @@ def _get_user_optional(session: Session, authorization: str | None) -> User | No
     return session.get(User, token_data.sub)
 
 
-@router.get("/", response_model=List[NavigationItem])
+@router.get("/", response_model=list[NavigationItem])
 def get_navigation_items(
     *,
     session: SessionDep,
@@ -51,6 +50,8 @@ def get_navigation_items(
 
     items: list[NavigationItem] = [
         {"title": "Gallery", "path": "/items", "icon": "gallery", "action": None},
+        {"title": "About", "path": "/about", "icon": "about", "action": None},
+        {"title": "Contact", "path": "/contact", "icon": "contact", "action": None},
     ]
 
     if user:

@@ -25,6 +25,8 @@ import { Route as LayoutLogsImport } from './routes/_layout/logs'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutCreateproducerImport } from './routes/_layout/createproducer'
+import { Route as LayoutContactImport } from './routes/_layout/contact'
+import { Route as LayoutAboutImport } from './routes/_layout/about'
 import { Route as LayoutPaymentSuccessImport } from './routes/_layout/payment/success'
 import { Route as LayoutPaymentCancelImport } from './routes/_layout/payment/cancel'
 
@@ -100,6 +102,16 @@ const LayoutCreateproducerRoute = LayoutCreateproducerImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutContactRoute = LayoutContactImport.update({
+  path: '/contact',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutAboutRoute = LayoutAboutImport.update({
+  path: '/about',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutPaymentSuccessRoute = LayoutPaymentSuccessImport.update({
   path: '/payment/success',
   getParentRoute: () => LayoutRoute,
@@ -129,6 +141,14 @@ declare module '@tanstack/react-router' {
     '/reset-password': {
       preLoaderRoute: typeof ResetPasswordImport
       parentRoute: typeof rootRoute
+    }
+    '/_layout/about': {
+      preLoaderRoute: typeof LayoutAboutImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/contact': {
+      preLoaderRoute: typeof LayoutContactImport
+      parentRoute: typeof LayoutImport
     }
     '/_layout/createproducer': {
       preLoaderRoute: typeof LayoutCreateproducerImport
@@ -185,6 +205,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
+    LayoutAboutRoute,
+    LayoutContactRoute,
     LayoutCreateproducerRoute,
     LayoutItemRoute,
     LayoutItemsRoute,
