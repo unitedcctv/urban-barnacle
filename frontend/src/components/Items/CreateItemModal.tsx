@@ -147,8 +147,8 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
     const file = event.target.files?.[0]
     if (file) {
       // Validate file extension
-      if (!file.name.toLowerCase().endsWith(".gh")) {
-        showToast("Error", "Only .gh files are allowed", "error")
+      if (!file.name.toLowerCase().endsWith(".3mf")) {
+        showToast("Error", "Only .3mf files are allowed", "error")
         event.target.value = ""
         return
       }
@@ -257,7 +257,7 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
 
             {/* Model File Upload */}
             <FormControl mt={4}>
-              <FormLabel htmlFor="model">3D Model File (.gh)</FormLabel>
+              <FormLabel htmlFor="model">3D Model File (.3mf)</FormLabel>
               <Box
                 opacity={!isItemStarted ? 0.6 : 1}
                 pointerEvents={!isItemStarted ? "none" : "auto"}
@@ -265,7 +265,7 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
                 <Input
                   id="model"
                   type="file"
-                  accept=".gh"
+                  accept=".3mf"
                   onChange={handleModelFileChange}
                   display="none"
                 />
@@ -289,7 +289,7 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
                   role="group"
                   size="sm"
                 >
-                  {modelFile ? modelFile.name : "Upload Blender File (.gh)"}
+                  {modelFile ? modelFile.name : "Upload 3MF File (.3mf)"}
                 </Button>
               </Box>
               {modelFile && (

@@ -856,7 +856,7 @@ export const logsGetLogStats =
 
 /**
  * Upload Model
- * Upload a 3D model file (.blend) and return the URL.
+ * Upload a 3D model file (.3mf) and return the URL.
  * @param data The data for the request.
  * @param data.itemId
  * @param data.userId

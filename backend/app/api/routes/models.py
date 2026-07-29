@@ -25,15 +25,15 @@ class ModelRequest(BaseModel):
 async def upload_model(
     item_id: str, user_id: str, file: UploadFile = File(...)
 ) -> dict[str, str]:
-    """Upload a 3D model file (.blend) and return the URL."""
+    """Upload a 3D model file (.3mf) and return the URL."""
     logging.info(f"Upload request: item_id={item_id}, user_id={user_id}, file={file.filename}")
     logging.info(f"Environment: {settings.ENVIRONMENT}, BunnyCDN enabled: {settings.bunnycdn_enabled}")
     
     # Validate file extension
-    if not file.filename or not file.filename.lower().endswith('.blend'):
+    if not file.filename or not file.filename.lower().endswith('.3mf'):
         raise HTTPException(
             status_code=400, 
-            detail="Only .blend files are allowed"
+            detail="Only .3mf files are allowed"
         )
     
     # Generate unique model ID
@@ -117,18 +117,18 @@ async def get_model(item_id: str, user_id: str) -> dict[str, str | None]:
         if not upload_dir.exists():
             return {"model": None}
         
-        # Find .blend files (note: this is simplified, doesn't filter by item_id)
-        blend_files = list(upload_dir.glob("*.blend"))
-        if blend_files:
-            return {"model": blend_files[0].name}
+        # Find .3mf files (note: this is simplified, doesn't filter by item_id)
+        model_files = list(upload_dir.glob("*.3mf"))
+        if model_files:
+            return {"model": model_files[0].name}
         return {"model": None}
 
 
 @router.get("/{item_id}/{user_id}/{file_name}", response_model=None)
 async def download_model(item_id: str, user_id: str, file_name: str) -> FileResponse | RedirectResponse:
     """Download a model file by filename."""
-    # Validate it's a .blend file
-    if not file_name.lower().endswith('.blend'):
+    # Validate it's a .3mf file
+    if not file_name.lower().endswith('.3mf'):
         raise HTTPException(status_code=400, detail="Invalid file type")
     
     if settings.bunnycdn_enabled:

@@ -170,8 +170,8 @@ const EditItem = ({
     const file = event.target.files?.[0]
     if (file) {
       // Validate file extension
-      if (!file.name.toLowerCase().endsWith(".blend")) {
-        showToast("Error", "Only .blend files are allowed", "error")
+      if (!file.name.toLowerCase().endsWith(".3mf")) {
+        showToast("Error", "Only .3mf files are allowed", "error")
         event.target.value = ""
         return
       }
@@ -254,7 +254,7 @@ const EditItem = ({
       </FormControl>
 
       <FormControl mt={4}>
-        <FormLabel>Model (.blend file)</FormLabel>
+        <FormLabel>Model (.3mf file)</FormLabel>
         {currentModel && !modelDeleted ? (
           <Box>
             <HStack spacing={4} align="center">
@@ -302,7 +302,7 @@ const EditItem = ({
           <Box>
             <Input
               type="file"
-              accept=".blend"
+              accept=".3mf"
               onChange={handleModelUpload}
               display="none"
               id="model-upload"
@@ -326,7 +326,7 @@ const EditItem = ({
               }
               role="group"
             >
-              Upload Blender File (.blend)
+              Upload 3MF File (.3mf)
             </Button>
           </Box>
         )}
