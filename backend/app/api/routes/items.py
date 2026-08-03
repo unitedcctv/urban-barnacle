@@ -26,7 +26,7 @@ def read_items(
     count = session.exec(count_statement).one()
     statement = select(Item).options(
         selectinload(Item.item_images),
-        selectinload(Item.producer)
+        selectinload(Item.producer).selectinload(Producer.producer_images)
     ).offset(skip).limit(limit)
     items = session.exec(statement).all()
     
@@ -54,7 +54,7 @@ def read_my_items(
         select(Item)
         .options(
             selectinload(Item.item_images),
-            selectinload(Item.producer)
+            selectinload(Item.producer).selectinload(Producer.producer_images)
         )
         .where(Item.owner_id == current_user.id)
         .offset(skip)
@@ -76,7 +76,7 @@ def read_item(request: Request, session: SessionDep, current_user: OptionalCurre
     """
     statement = select(Item).options(
         selectinload(Item.item_images),
-        selectinload(Item.producer)
+        selectinload(Item.producer).selectinload(Producer.producer_images)
     ).where(Item.id == id)
     item = session.exec(statement).first()
     if not item:
@@ -128,7 +128,7 @@ def create_item(
     # Reload item with producer relationship for response
     statement = select(Item).options(
         selectinload(Item.item_images),
-        selectinload(Item.producer)
+        selectinload(Item.producer).selectinload(Producer.producer_images)
     ).where(Item.id == item.id)
     item = session.exec(statement).first()
     
@@ -151,7 +151,7 @@ def update_item(
     """
     statement = select(Item).options(
         selectinload(Item.item_images),
-        selectinload(Item.producer)
+        selectinload(Item.producer).selectinload(Producer.producer_images)
     ).where(Item.id == id)
     item = session.exec(statement).first()
     if not item:

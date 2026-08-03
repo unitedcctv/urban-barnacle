@@ -53,6 +53,9 @@ const customStyles = {
       },
     },
     "@media (max-width: 768px)": {
+      ".grid-container": {
+        marginTop: "24px",
+      },
       ".grid-item": {
         flex: "0 0 220px",
         width: "220px",
@@ -60,6 +63,9 @@ const customStyles = {
       },
     },
     "@media (max-width: 480px)": {
+      ".grid-container": {
+        marginTop: "24px",
+      },
       ".grid-item": {
         flex: "0 0 280px",
         width: "280px",

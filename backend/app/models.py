@@ -155,6 +155,13 @@ class ItemPublic(ItemBase):
             producer_name = item.producer.name
             producer_location = item.producer.location
             producer_logo_url = item.producer.logo_url
+            if not producer_logo_url and hasattr(item.producer, 'producer_images'):
+                logo_images = [
+                    img for img in item.producer.producer_images
+                    if img.image_type == "logo"
+                ]
+                if logo_images:
+                    producer_logo_url = logo_images[0].path
         
         return cls(
             id=item.id,

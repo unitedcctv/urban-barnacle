@@ -11,19 +11,9 @@ function About() {
       <VStack spacing={6} align="flex-start">
         <Heading size="lg">About</Heading>
         <Text>
-          Urban Barnacle is a gallery of parametric 3D designs created by
-          independent producers. Each item in the gallery is generated from a
-          Grasshopper model, so every piece can be customised and manufactured
-          on demand.
-        </Text>
-        <Text>
-          Producers upload their parametric models and images, and buyers can
-          browse the gallery, view each design in detail, and order directly
-          through the platform.
-        </Text>
-        <Text>
-          Our goal is to connect digital designers with people looking for
-          unique, made-to-order objects.
+          We create one-of-a-kind furniture leveraging 3D printings ability to create infinite variations. Beginning with a collection of tiki-inspired stools. Why tikis? Why not? Each piece is a multicolour PETG 3D print. No peeling paint solid, robust and built for indoors and out.
+          This is mass bespoke production. Every object is designed as an individual unique work. Each piece is linked to a secure, encrypted digital tag that records its identity and provenance, connecting the physical object and its digital record.
+          Made to be used, collected and kept.
         </Text>
       </VStack>
     </Container>

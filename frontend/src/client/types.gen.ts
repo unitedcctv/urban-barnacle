@@ -74,6 +74,9 @@ export type ItemPublic = {
   id: string
   owner_id: string
   producer_id?: string | null
+  producer_name?: string | null
+  producer_location?: string | null
+  producer_logo_url?: string | null
   image_urls?: Array<string>
 }
 
