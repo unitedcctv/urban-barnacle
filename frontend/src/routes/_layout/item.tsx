@@ -1,8 +1,10 @@
 import {
+  Badge,
   Box,
   Button,
   Container,
   HStack,
+  Heading,
   Image,
   Modal,
   ModalBody,
@@ -10,10 +12,9 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Stack,
   Text,
   VStack,
-  Heading,
-  Stack,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react"
@@ -38,6 +39,7 @@ function Item({ item: propItem }: { item: ItemPublic }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const search = useSearch({ from: Route.id })
   const itemId = (search as { id: string }).id
+  const { verified, tap } = search as { verified?: string; tap?: string }
   const navigate = useNavigate()
   const showToast = useCustomToast()
   const queryClient = useQueryClient()
@@ -224,6 +226,24 @@ function Item({ item: propItem }: { item: ItemPublic }) {
             {/* Title and Description Section */}
             <VStack align="start" spacing={4}>
               <Heading size="xl">{currentItem?.title}</Heading>
+              {verified === "true" && (
+                <HStack spacing={3}>
+                  <Badge
+                    colorScheme="green"
+                    fontSize="md"
+                    px={3}
+                    py={1}
+                    borderRadius="full"
+                  >
+                    Verified authentic
+                  </Badge>
+                  {tap && (
+                    <Text fontSize="sm" color={subtle}>
+                      NFC tag verification #{tap}
+                    </Text>
+                  )}
+                </HStack>
+              )}
               {currentItem?.description && (
                 <Text fontSize="md" color={subtle}>
                   {currentItem.description}

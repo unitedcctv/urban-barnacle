@@ -417,3 +417,50 @@ class EmailLogPublic(EmailLogBase):
     user_id: Optional[uuid.UUID]
     created_at: datetime
     sent_at: Optional[datetime]
+
+
+# Shared properties for NFC tags (NTAG 424 DNA)
+# NOTE: No key material is ever stored in the database. Per-tag keys are
+# derived from a master key (NFC_MASTER_KEY env var) via AES-CMAC
+# diversification using the tag UID.
+class NfcTagStatus(str, Enum):
+    ACTIVE = "active"
+    REVOKED = "revoked"
+
+
+class NfcTagBase(SQLModel):
+    uid: str = Field(min_length=14, max_length=14, regex=r"^[0-9A-Fa-f]{14}$")  # 7-byte UID as hex
+    item_id: uuid.UUID = Field(foreign_key="item.id", nullable=False)
+
+
+# Properties to receive on tag registration
+class NfcTagCreate(NfcTagBase):
+    pass
+
+
+# Database model
+class NfcTag(NfcTagBase, table=True):  # type: ignore[call-arg]
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    uid: str = Field(min_length=14, max_length=14, unique=True, index=True)
+    last_read_counter: Optional[int] = Field(default=None)  # None = never tapped
+    status: NfcTagStatus = Field(
+        default=NfcTagStatus.ACTIVE,
+        sa_column=Column(String(length=20), nullable=False),
+    )
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column=Column(DateTime, nullable=False)
+    )
+
+
+# Properties to return via API
+class NfcTagPublic(NfcTagBase):
+    id: uuid.UUID
+    last_read_counter: Optional[int]
+    status: NfcTagStatus
+    created_at: datetime
+
+
+class NfcTagsPublic(SQLModel):
+    data: list[NfcTagPublic]
+    count: int

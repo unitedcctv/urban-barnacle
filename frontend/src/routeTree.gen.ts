@@ -16,6 +16,7 @@ import { Route as RecoverPasswordImport } from './routes/recover-password'
 import { Route as ConfirmEmailImport } from './routes/confirm-email'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
+import { Route as LayoutVerificationFailedImport } from './routes/_layout/verification-failed'
 import { Route as LayoutSuadminImport } from './routes/_layout/suadmin'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutProducersImport } from './routes/_layout/producers'
@@ -54,6 +55,11 @@ const LayoutRoute = LayoutImport.update({
 
 const LayoutIndexRoute = LayoutIndexImport.update({
   path: '/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutVerificationFailedRoute = LayoutVerificationFailedImport.update({
+  path: '/verification-failed',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -186,6 +192,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSuadminImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/verification-failed': {
+      preLoaderRoute: typeof LayoutVerificationFailedImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/': {
       preLoaderRoute: typeof LayoutIndexImport
       parentRoute: typeof LayoutImport
@@ -216,6 +226,7 @@ export const routeTree = rootRoute.addChildren([
     LayoutProducersRoute,
     LayoutSettingsRoute,
     LayoutSuadminRoute,
+    LayoutVerificationFailedRoute,
     LayoutIndexRoute,
     LayoutPaymentCancelRoute,
     LayoutPaymentSuccessRoute,

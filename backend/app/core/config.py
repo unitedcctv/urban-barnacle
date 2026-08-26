@@ -111,6 +111,16 @@ class Settings(BaseSettings):
     STRIPE_PUBLISHABLE_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
 
+    # NTAG 424 DNA master key (32 hex chars = 16 bytes AES-128).
+    # Kept outside the database; per-tag keys are derived from it via
+    # AES-CMAC diversification on the tag UID. In production this should
+    # come from a secrets manager, never committed to the repo.
+    NFC_MASTER_KEY: str | None = None
+
+    @computed_field
+    def nfc_enabled(self) -> bool:
+        return bool(self.NFC_MASTER_KEY)
+
     @computed_field
     def stripe_enabled(self) -> bool:
         return bool(self.STRIPE_SECRET_KEY and self.STRIPE_PUBLISHABLE_KEY)

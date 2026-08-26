@@ -24,6 +24,7 @@ dependencies = [
     "boto3-stubs>=1.36.12",
     # Payment processing
     "stripe>=7.0.0",
+    "cryptography>=50.0.1",
 ]
 
 [tool.uv]
