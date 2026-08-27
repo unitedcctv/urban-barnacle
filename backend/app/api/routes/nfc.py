@@ -1,8 +1,9 @@
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import selectinload
 from sqlmodel import func, select
 
 from app.api.deps import SessionDep, get_current_active_superuser
@@ -10,12 +11,15 @@ from app.core.config import settings
 from app.core.nfc import NfcValidationError, validate_tag
 from app.models import (
     Item,
+    ItemPublic,
+    ItemsPublic,
     Message,
     NfcTag,
     NfcTagCreate,
     NfcTagPublic,
     NfcTagsPublic,
     NfcTagStatus,
+    Producer,
 )
 
 logger = logging.getLogger(__name__)
@@ -104,6 +108,7 @@ def register_tag(session: SessionDep, tag_in: NfcTagCreate) -> Any:
     session.add(tag)
     session.commit()
     session.refresh(tag)
+    logger.info("NFC tag %s registered for item %s", tag.uid, tag.item_id)
     return tag
 
 
@@ -121,6 +126,41 @@ def list_tags(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     return NfcTagsPublic(data=tags, count=count)
 
 
+@router.get(
+    "/untagged-items",
+    response_model=ItemsPublic,
+    dependencies=[Depends(get_current_active_superuser)],
+)
+def list_untagged_items(
+    request: Request, session: SessionDep, skip: int = 0, limit: int = 100
+) -> Any:
+    """
+    List items that have no NFC tag registered. Superuser only.
+    """
+    join_condition = NfcTag.item_id == Item.id
+    count = session.exec(
+        select(func.count())
+        .select_from(Item)
+        .outerjoin(NfcTag, join_condition)
+        .where(NfcTag.id.is_(None))  # type: ignore[union-attr]
+    ).one()
+    items = session.exec(
+        select(Item)
+        .options(
+            selectinload(Item.item_images),
+            selectinload(Item.producer).selectinload(Producer.producer_images),
+        )
+        .outerjoin(NfcTag, join_condition)
+        .where(NfcTag.id.is_(None))  # type: ignore[union-attr]
+        .offset(skip)
+        .limit(limit)
+    ).all()
+    base_url = str(request.base_url).rstrip("/")
+    return ItemsPublic(
+        data=[ItemPublic.from_item(item, base_url) for item in items], count=count
+    )
+
+
 @router.delete("/tags/{uid}", dependencies=[Depends(get_current_active_superuser)])
 def revoke_tag(session: SessionDep, uid: str) -> Message:
     """
@@ -132,4 +172,5 @@ def revoke_tag(session: SessionDep, uid: str) -> Message:
     tag.status = NfcTagStatus.REVOKED
     session.add(tag)
     session.commit()
+    logger.info("NFC tag %s revoked (was bound to item %s)", tag.uid, tag.item_id)
     return Message(message="Tag revoked")

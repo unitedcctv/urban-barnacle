@@ -25,6 +25,7 @@ import { z } from "zod"
 import { usersReadUsers, producersReadMyProducer } from "../../client/sdk.gen.ts"
 import type { UserPublic } from "../../client/types.gen.ts"
 import AddUser from "../../components/Admin/AddUser.tsx"
+import NfcTagSection from "../../components/Admin/NfcTagSection.tsx"
 import Navbar from "../../components/Common/Navbar.tsx"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
 import { UserRow } from "../../components/UserSettings/User.tsx"
@@ -206,6 +207,7 @@ function SuAdmin() {
       </Flex>
       <UsersTable />
       <ProducerSection />
+      <NfcTagSection />
       <Flex gap={4} wrap="wrap" mt={4}>
         <Button as={Link} to="/logs" variant="primary">
           View Logs

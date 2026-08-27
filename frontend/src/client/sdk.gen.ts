@@ -103,6 +103,14 @@ import type {
   PrivateCreateUserData,
   PrivateCreateUserResponse,
   UsersApiCurrentUserResponse,
+  NfcListTagsData,
+  NfcListTagsResponse,
+  NfcRegisterTagData,
+  NfcRegisterTagResponse,
+  NfcRevokeTagData,
+  NfcRevokeTagResponse,
+  NfcListUntaggedItemsData,
+  NfcListUntaggedItemsResponse,
 } from "./types.gen"
 
 /**
@@ -1316,3 +1324,98 @@ export const usersApiCurrentUser =
       url: "/api/currentUser",
     })
   }
+
+/**
+ * List Tags
+ * List registered NFC tags. Superuser only.
+ * @param data The data for the request.
+ * @param data.skip
+ * @param data.limit
+ * @returns NfcTagsPublic Successful Response
+ * @throws ApiError
+ */
+export const nfcListTags = (
+  data: NfcListTagsData = {},
+): CancelablePromise<NfcListTagsResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/nfc/tags",
+    query: {
+      skip: data.skip,
+      limit: data.limit,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Register Tag
+ * Register a tag (bind its UID to an item). Superuser only.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns NfcTagPublic Successful Response
+ * @throws ApiError
+ */
+export const nfcRegisterTag = (
+  data: NfcRegisterTagData,
+): CancelablePromise<NfcRegisterTagResponse> => {
+  return __request(OpenAPI, {
+    method: "POST",
+    url: "/api/v1/nfc/tags",
+    body: data.requestBody,
+    mediaType: "application/json",
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * Revoke Tag
+ * Revoke a tag so future taps fail verification. Superuser only.
+ * @param data The data for the request.
+ * @param data.uid
+ * @returns Message Successful Response
+ * @throws ApiError
+ */
+export const nfcRevokeTag = (
+  data: NfcRevokeTagData,
+): CancelablePromise<NfcRevokeTagResponse> => {
+  return __request(OpenAPI, {
+    method: "DELETE",
+    url: "/api/v1/nfc/tags/{uid}",
+    path: {
+      uid: data.uid,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}
+
+/**
+ * List Untagged Items
+ * List items that have no NFC tag registered. Superuser only.
+ * @param data The data for the request.
+ * @param data.skip
+ * @param data.limit
+ * @returns ItemsPublic Successful Response
+ * @throws ApiError
+ */
+export const nfcListUntaggedItems = (
+  data: NfcListUntaggedItemsData = {},
+): CancelablePromise<NfcListUntaggedItemsResponse> => {
+  return __request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/nfc/untagged-items",
+    query: {
+      skip: data.skip,
+      limit: data.limit,
+    },
+    errors: {
+      422: "Validation Error",
+    },
+  })
+}

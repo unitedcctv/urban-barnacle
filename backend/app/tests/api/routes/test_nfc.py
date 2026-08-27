@@ -187,6 +187,45 @@ def test_list_tags(
     assert data["data"][0]["uid"] == TEST_UID
 
 
+def test_list_untagged_items(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    tagged_item = create_random_item(db)
+    untagged_item = create_random_item(db)
+    db.add(NfcTag(uid=TEST_UID, item_id=tagged_item.id))
+    db.commit()
+    response = client.get(
+        f"{settings.API_V1_STR}/nfc/untagged-items",
+        headers=superuser_token_headers,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["count"] == 1
+    assert [item["id"] for item in data["data"]] == [str(untagged_item.id)]
+
+
+def test_list_untagged_items_requires_auth(client: TestClient, db: Session) -> None:
+    create_random_item(db)
+    response = client.get(f"{settings.API_V1_STR}/nfc/untagged-items")
+    assert response.status_code == 401
+
+
+def test_list_untagged_items_pagination(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    for _ in range(3):
+        create_random_item(db)
+    response = client.get(
+        f"{settings.API_V1_STR}/nfc/untagged-items",
+        headers=superuser_token_headers,
+        params={"skip": 2, "limit": 1},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["count"] == 3
+    assert len(data["data"]) == 1
+
+
 def test_verify_disabled_without_master_key(client: TestClient) -> None:
     settings.NFC_MASTER_KEY = None
     response = client.get(

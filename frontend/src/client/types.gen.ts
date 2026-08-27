@@ -558,3 +558,50 @@ export type PrivateCreateUserData = {
 export type PrivateCreateUserResponse = UserPublic
 
 export type UsersApiCurrentUserResponse = UserPublic
+
+export type NfcTagStatus = "active" | "revoked"
+
+export type NfcTagCreate = {
+  uid: string
+  item_id: string
+}
+
+export type NfcTagPublic = {
+  uid: string
+  item_id: string
+  id: string
+  last_read_counter: number | null
+  status: NfcTagStatus
+  created_at: string
+}
+
+export type NfcTagsPublic = {
+  data: Array<NfcTagPublic>
+  count: number
+}
+
+export type NfcListTagsData = {
+  limit?: number
+  skip?: number
+}
+
+export type NfcListTagsResponse = NfcTagsPublic
+
+export type NfcRegisterTagData = {
+  requestBody: NfcTagCreate
+}
+
+export type NfcRegisterTagResponse = NfcTagPublic
+
+export type NfcRevokeTagData = {
+  uid: string
+}
+
+export type NfcRevokeTagResponse = Message
+
+export type NfcListUntaggedItemsData = {
+  limit?: number
+  skip?: number
+}
+
+export type NfcListUntaggedItemsResponse = ItemsPublic
