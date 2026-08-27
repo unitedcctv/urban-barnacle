@@ -9,6 +9,7 @@ import businessIcon from "../../theme/assets/icons/business.svg"
 import contactIcon from "../../theme/assets/icons/contact.svg"
 // Import custom SVG icons
 import galleryIcon from "../../theme/assets/icons/gallery.svg"
+import printServiceIcon from "../../theme/assets/icons/print_service.svg"
 import producerEditIcon from "../../theme/assets/icons/producer_edit.svg"
 import producersIcon from "../../theme/assets/icons/producers.svg"
 import settingsIcon from "../../theme/assets/icons/settings.svg"
@@ -85,6 +86,7 @@ const NavigationItems = ({ onClose, onCount, direction = "row" }: NavigationItem
     settings: settingsIcon,
     su_settings: suSettingsIcon,
     business: businessIcon,
+    print_service: printServiceIcon,
     add_item: addItemIcon,
     producer_edit: producerEditIcon,
   }

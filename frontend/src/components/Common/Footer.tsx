@@ -1,18 +1,23 @@
-import { Flex, Icon, Link, useColorModeValue } from "@chakra-ui/react"
+import { Divider, Flex, Icon, Link, useColorModeValue } from "@chakra-ui/react"
+import { Link as RouterLink } from "@tanstack/react-router"
 import {
   FaCloud,
   FaLinkedin,
   FaMastodon,
   FaReddit,
-  FaYoutube,
 } from "react-icons/fa"
+
+const legalLinks = [
+  { title: "Contact", to: "/contact" },
+  { title: "Impressum", to: "/impressum" },
+  { title: "Privacy", to: "/privacy" },
+] as const
 
 const Footer = () => {
   const mastodonUrl = import.meta.env.VITE_MASTODON_URL
   const blueskyUrl = import.meta.env.VITE_BLUESKY_URL
   const redditUrl = import.meta.env.VITE_REDDIT_URL
   const linkedinUrl = import.meta.env.VITE_LINKEDIN_URL
-  const youtubeUrl = import.meta.env.VITE_YOUTUBE_URL
 
   const bgColor = useColorModeValue("ui.light", "ui.dark")
 
@@ -21,11 +26,9 @@ const Footer = () => {
     { url: blueskyUrl, icon: FaCloud, color: "#1185FE" },
     { url: redditUrl, icon: FaReddit, color: "#FF4500" },
     { url: linkedinUrl, icon: FaLinkedin, color: "#0A66C2" },
-    { url: youtubeUrl, icon: FaYoutube, color: "#FF0000" },
   ]
 
   const visibleLinks = links.filter((l) => l.url)
-  if (visibleLinks.length === 0) return null
 
   return (
     <Flex
@@ -43,6 +46,14 @@ const Footer = () => {
       boxShadow="0 -2px 8px rgba(0,0,0,0.1)"
       transition="background 0.2s"
     >
+      {legalLinks.map(({ title, to }) => (
+        <Link key={to} as={RouterLink} to={to} color="ui.main">
+          {title}
+        </Link>
+      ))}
+      {visibleLinks.length > 0 && (
+        <Divider orientation="vertical" h="20px" />
+      )}
       {visibleLinks.map(({ url, icon, color }) => (
         <Link key={url} href={url} isExternal>
           <Icon

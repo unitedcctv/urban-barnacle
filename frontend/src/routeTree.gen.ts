@@ -22,9 +22,12 @@ import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutProducersImport } from './routes/_layout/producers'
 import { Route as LayoutProducerDetailImport } from './routes/_layout/producer-detail'
 import { Route as LayoutProducerImport } from './routes/_layout/producer'
+import { Route as LayoutPrivacyImport } from './routes/_layout/privacy'
+import { Route as LayoutPrintServiceImport } from './routes/_layout/print-service'
 import { Route as LayoutLogsImport } from './routes/_layout/logs'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutItemImport } from './routes/_layout/item'
+import { Route as LayoutImpressumImport } from './routes/_layout/impressum'
 import { Route as LayoutCreateproducerImport } from './routes/_layout/createproducer'
 import { Route as LayoutContactImport } from './routes/_layout/contact'
 import { Route as LayoutAboutImport } from './routes/_layout/about'
@@ -88,6 +91,16 @@ const LayoutProducerRoute = LayoutProducerImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutPrivacyRoute = LayoutPrivacyImport.update({
+  path: '/privacy',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutPrintServiceRoute = LayoutPrintServiceImport.update({
+  path: '/print-service',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutLogsRoute = LayoutLogsImport.update({
   path: '/logs',
   getParentRoute: () => LayoutRoute,
@@ -100,6 +113,11 @@ const LayoutItemsRoute = LayoutItemsImport.update({
 
 const LayoutItemRoute = LayoutItemImport.update({
   path: '/item',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutImpressumRoute = LayoutImpressumImport.update({
+  path: '/impressum',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -160,6 +178,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutCreateproducerImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/impressum': {
+      preLoaderRoute: typeof LayoutImpressumImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/item': {
       preLoaderRoute: typeof LayoutItemImport
       parentRoute: typeof LayoutImport
@@ -170,6 +192,14 @@ declare module '@tanstack/react-router' {
     }
     '/_layout/logs': {
       preLoaderRoute: typeof LayoutLogsImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/print-service': {
+      preLoaderRoute: typeof LayoutPrintServiceImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/privacy': {
+      preLoaderRoute: typeof LayoutPrivacyImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/producer': {
@@ -218,9 +248,12 @@ export const routeTree = rootRoute.addChildren([
     LayoutAboutRoute,
     LayoutContactRoute,
     LayoutCreateproducerRoute,
+    LayoutImpressumRoute,
     LayoutItemRoute,
     LayoutItemsRoute,
     LayoutLogsRoute,
+    LayoutPrintServiceRoute,
+    LayoutPrivacyRoute,
     LayoutProducerRoute,
     LayoutProducerDetailRoute,
     LayoutProducersRoute,
