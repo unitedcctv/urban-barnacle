@@ -31,11 +31,6 @@ export type EmailConfirmation = {
   token: string
 }
 
-/**
- * Enum for entity types that can have image uploads.
- */
-export type EntityType = "item" | "producer"
-
 export type HTTPValidationError = {
   detail?: Array<ValidationError>
 }
@@ -73,10 +68,6 @@ export type ItemPublic = {
   variant_of?: string | null
   id: string
   owner_id: string
-  producer_id?: string | null
-  producer_name?: string | null
-  producer_location?: string | null
-  producer_logo_url?: string | null
   image_urls?: Array<string>
 }
 
@@ -124,48 +115,6 @@ export type PrivateUserCreate = {
   password: string
   full_name: string
   is_verified?: boolean
-}
-
-export type ProducerCreate = {
-  name: string
-  location?: string | null
-  logo_url?: string | null
-  portfolio_images?: string | null
-}
-
-export type ProducerImagePublic = {
-  path: string
-  name: string
-  image_type: string
-  producer_id: string
-  id: string
-  created_at: string
-}
-
-/**
- * Enum for producer image types.
- */
-export type ProducerImageType = "logo" | "portfolio"
-
-export type ProducerPublic = {
-  name: string
-  location?: string | null
-  logo_url?: string | null
-  portfolio_images?: string | null
-  id: string
-  created_at: string
-}
-
-export type ProducersPublic = {
-  data: Array<ProducerPublic>
-  count: number
-}
-
-export type ProducerUpdate = {
-  name?: string | null
-  location?: string | null
-  logo_url?: string | null
-  portfolio_images?: string | null
 }
 
 export type Token = {
@@ -360,19 +309,11 @@ export type ItemsDeleteItemData = {
 export type ItemsDeleteItemResponse = Message
 
 export type ImagesUploadFileData = {
-  /**
-   * Type of entity: item or producer
-   */
-  entityType?: EntityType
   formData: Body_images_upload_file
   id: string
-  /**
-   * Type of producer image: logo or portfolio
-   */
-  imageType?: ProducerImageType | null
 }
 
-export type ImagesUploadFileResponse = ImagePublic | ProducerImagePublic
+export type ImagesUploadFileResponse = ImagePublic
 
 export type ImagesDeleteFileData = {
   imageId: string
@@ -407,16 +348,6 @@ export type ImagesDownloadImageData = {
 }
 
 export type ImagesDownloadImageResponse = unknown
-
-export type ImagesGetProducerImagesData = {
-  /**
-   * Filter by image type: logo or portfolio
-   */
-  imageType?: ProducerImageType | null
-  producerId: string
-}
-
-export type ImagesGetProducerImagesResponse = Array<ProducerImagePublic>
 
 export type LogsGetRecentLogsData = {
   level?: string | null
@@ -497,53 +428,6 @@ export type PaymentsPaymentCancelResponse = unknown
 export type PaymentsStripeWebhookResponse = unknown
 
 export type PaymentsGetStripeConfigResponse = unknown
-
-export type ProducersReadMyProducerResponse = ProducerPublic | null
-
-export type ProducersReadProducersData = {
-  limit?: number
-  skip?: number
-}
-
-export type ProducersReadProducersResponse = ProducersPublic
-
-export type ProducersCreateProducerData = {
-  requestBody: ProducerCreate
-}
-
-export type ProducersCreateProducerResponse = ProducerPublic
-
-export type ProducersReadProducerByUserData = {
-  userId: string
-}
-
-export type ProducersReadProducerByUserResponse = ProducerPublic | null
-
-export type ProducersReadProducerData = {
-  id: string
-}
-
-export type ProducersReadProducerResponse = ProducerPublic
-
-export type ProducersUpdateProducerData = {
-  id: string
-  requestBody: ProducerUpdate
-}
-
-export type ProducersUpdateProducerResponse = ProducerPublic
-
-export type ProducersDeleteProducerData = {
-  id: string
-}
-
-export type ProducersDeleteProducerResponse = Message
-
-export type ProducersCreateProducerForUserData = {
-  requestBody: ProducerCreate
-  userId: string
-}
-
-export type ProducersCreateProducerForUserResponse = ProducerPublic
 
 export type NavigationGetNavigationItemsData = {
   authorization?: string | null

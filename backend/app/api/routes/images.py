@@ -4,22 +4,19 @@ from enum import Enum
 from logging import getLogger
 from pathlib import Path
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlmodel import select
 
 from app.api.deps import SessionDep
-from app.core.config import CDNFolder, EntityType, ProducerImageType, settings
+from app.core.config import CDNFolder, settings
 from app.core.storage import delete_from_bunnycdn, save_to_bunnycdn, save_to_local
 from app.models import (
     ItemImage,
     ImageCreate,
     ImagePublic,
     ImagesPublic,
-    ProducerImage,
-    ProducerImageCreate,
-    ProducerImagePublic,
 )
 
 router = APIRouter(prefix="/images", tags=["images"])
@@ -38,14 +35,11 @@ async def upload_file(
     session: SessionDep,
     id: str,
     file: UploadFile = File(...),
-    entity_type: EntityType = Query(EntityType.ITEM, description="Type of entity: item or producer"),
-    image_type: ProducerImageType | None = Query(None, description="Type of producer image: logo or portfolio")
-) -> ImagePublic | ProducerImagePublic:
-    """Upload an image for items or producers."""
-    # Determine folder based on entity type
-    folder = CDNFolder.IMAGES_PRODUCER if entity_type == EntityType.PRODUCER else CDNFolder.IMAGES_ITEM
-    
-    logging.info(f"Upload request: id={id}, file={file.filename}, entity_type={entity_type.value}, folder={folder.value}")
+) -> ImagePublic:
+    """Upload an image for an item."""
+    folder = CDNFolder.IMAGES_ITEM
+
+    logging.info(f"Upload request: id={id}, file={file.filename}, folder={folder.value}")
     logging.info(f"Environment: {settings.ENVIRONMENT}, BunnyCDN enabled: {settings.bunnycdn_enabled}")
     
     # Parse id as UUID
@@ -77,26 +71,8 @@ async def upload_file(
     # Extract filename
     filename = file.filename or "file"
     name_without_ext = Path(filename).stem
-    
-    # For producer images, create database entry with image_type
-    if entity_type == EntityType.PRODUCER:
-        if image_type is None:
-            raise HTTPException(status_code=400, detail="image_type is required for producer images")
-        
-        producer_image_create = ProducerImageCreate(
-            path=image_path,
-            name=name_without_ext,
-            image_type=image_type.value,
-            producer_id=entity_uuid
-        )
-        db_producer_image = ProducerImage.model_validate(producer_image_create, update={"id": file_id})
-        session.add(db_producer_image)
-        session.commit()
-        session.refresh(db_producer_image)
-        
-        return ProducerImagePublic.model_validate(db_producer_image)
-    
-    # For item images, create database entry
+
+    # Create database entry for the item image
     image_create = ImageCreate(
         path=image_path,
         name=name_without_ext,
@@ -112,17 +88,14 @@ async def upload_file(
 
 @router.delete("/{image_id}")
 async def delete_file(session: SessionDep, image_id: str) -> dict[str, str]:
-    """Delete an image by its ID (supports both item and producer images)."""
+    """Delete an image by its ID."""
     try:
         img_uuid = uuid.UUID(image_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid image_id format")
-    
-    # Try to get image from database (check both ItemImage and ProducerImage)
+
     db_image = session.get(ItemImage, img_uuid)
-    if not db_image:
-        db_image = session.get(ProducerImage, img_uuid)
-    
+
     if not db_image:
         raise HTTPException(status_code=404, detail="Image not found")
     
@@ -283,28 +256,5 @@ async def download_image(session: SessionDep, image_id: str) -> FileResponse:
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="File not found")
         return FileResponse(file_path)
-
-
-@router.get("/producer/{producer_id}")
-async def get_producer_images(
-    session: SessionDep, 
-    producer_id: str,
-    image_type: ProducerImageType | None = Query(None, description="Filter by image type: logo or portfolio")
-) -> list[ProducerImagePublic]:
-    """Get all images for a producer, optionally filtered by type."""
-    try:
-        producer_uuid = uuid.UUID(producer_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid producer_id format")
-    
-    statement = select(ProducerImage).where(ProducerImage.producer_id == producer_uuid)
-    
-    # Filter by image type if provided
-    if image_type:
-        statement = statement.where(ProducerImage.image_type == image_type.value)
-    
-    images = session.exec(statement).all()
-    
-    return [ProducerImagePublic.model_validate(img) for img in images]
 
 

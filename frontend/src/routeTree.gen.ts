@@ -19,16 +19,12 @@ import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutVerificationFailedImport } from './routes/_layout/verification-failed'
 import { Route as LayoutSuadminImport } from './routes/_layout/suadmin'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
-import { Route as LayoutProducersImport } from './routes/_layout/producers'
-import { Route as LayoutProducerDetailImport } from './routes/_layout/producer-detail'
-import { Route as LayoutProducerImport } from './routes/_layout/producer'
 import { Route as LayoutPrivacyImport } from './routes/_layout/privacy'
 import { Route as LayoutPrintServiceImport } from './routes/_layout/print-service'
 import { Route as LayoutLogsImport } from './routes/_layout/logs'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutImpressumImport } from './routes/_layout/impressum'
-import { Route as LayoutCreateproducerImport } from './routes/_layout/createproducer'
 import { Route as LayoutContactImport } from './routes/_layout/contact'
 import { Route as LayoutAboutImport } from './routes/_layout/about'
 import { Route as LayoutPaymentSuccessImport } from './routes/_layout/payment/success'
@@ -76,21 +72,6 @@ const LayoutSettingsRoute = LayoutSettingsImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutProducersRoute = LayoutProducersImport.update({
-  path: '/producers',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutProducerDetailRoute = LayoutProducerDetailImport.update({
-  path: '/producer-detail',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutProducerRoute = LayoutProducerImport.update({
-  path: '/producer',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
 const LayoutPrivacyRoute = LayoutPrivacyImport.update({
   path: '/privacy',
   getParentRoute: () => LayoutRoute,
@@ -118,11 +99,6 @@ const LayoutItemRoute = LayoutItemImport.update({
 
 const LayoutImpressumRoute = LayoutImpressumImport.update({
   path: '/impressum',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutCreateproducerRoute = LayoutCreateproducerImport.update({
-  path: '/createproducer',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -174,10 +150,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutContactImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/createproducer': {
-      preLoaderRoute: typeof LayoutCreateproducerImport
-      parentRoute: typeof LayoutImport
-    }
     '/_layout/impressum': {
       preLoaderRoute: typeof LayoutImpressumImport
       parentRoute: typeof LayoutImport
@@ -200,18 +172,6 @@ declare module '@tanstack/react-router' {
     }
     '/_layout/privacy': {
       preLoaderRoute: typeof LayoutPrivacyImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/producer': {
-      preLoaderRoute: typeof LayoutProducerImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/producer-detail': {
-      preLoaderRoute: typeof LayoutProducerDetailImport
-      parentRoute: typeof LayoutImport
-    }
-    '/_layout/producers': {
-      preLoaderRoute: typeof LayoutProducersImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/settings': {
@@ -247,16 +207,12 @@ export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAboutRoute,
     LayoutContactRoute,
-    LayoutCreateproducerRoute,
     LayoutImpressumRoute,
     LayoutItemRoute,
     LayoutItemsRoute,
     LayoutLogsRoute,
     LayoutPrintServiceRoute,
     LayoutPrivacyRoute,
-    LayoutProducerRoute,
-    LayoutProducerDetailRoute,
-    LayoutProducersRoute,
     LayoutSettingsRoute,
     LayoutSuadminRoute,
     LayoutVerificationFailedRoute,

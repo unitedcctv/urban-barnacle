@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import CurrentUser, OptionalCurrentUser, SessionDep
 from app.core.config import settings
 from app.core.storage import delete_from_bunnycdn
-from app.models import Item, ItemCreate, ItemImage, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message, Producer
+from app.models import Item, ItemCreate, ItemImage, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message
 
 router = APIRouter(prefix="/items", tags=["items"])
 
@@ -25,8 +25,7 @@ def read_items(
     count_statement = select(func.count()).select_from(Item)
     count = session.exec(count_statement).one()
     statement = select(Item).options(
-        selectinload(Item.item_images),
-        selectinload(Item.producer).selectinload(Producer.producer_images)
+        selectinload(Item.item_images)
     ).offset(skip).limit(limit)
     items = session.exec(statement).all()
     
@@ -53,8 +52,7 @@ def read_my_items(
     statement = (
         select(Item)
         .options(
-            selectinload(Item.item_images),
-            selectinload(Item.producer).selectinload(Producer.producer_images)
+            selectinload(Item.item_images)
         )
         .where(Item.owner_id == current_user.id)
         .offset(skip)
@@ -75,8 +73,7 @@ def read_item(request: Request, session: SessionDep, current_user: OptionalCurre
     Get item by ID with edit permissions.
     """
     statement = select(Item).options(
-        selectinload(Item.item_images),
-        selectinload(Item.producer).selectinload(Producer.producer_images)
+        selectinload(Item.item_images)
     ).where(Item.id == id)
     item = session.exec(statement).first()
     if not item:
@@ -110,25 +107,15 @@ def create_item(
     """
     Create new item.
     """
-    # Check if user has a producer profile and set producer_id
-    producer = session.exec(
-        select(Producer).where(Producer.user_id == current_user.id)
-    ).first()
-    
-    update_data = {"owner_id": current_user.id}
-    if producer:
-        update_data["producer_id"] = producer.id
-    
     # Create the item
-    item = Item.model_validate(item_in, update=update_data)
+    item = Item.model_validate(item_in, update={"owner_id": current_user.id})
     session.add(item)
     session.commit()
     session.refresh(item)
-    
-    # Reload item with producer relationship for response
+
+    # Reload item with images for response
     statement = select(Item).options(
-        selectinload(Item.item_images),
-        selectinload(Item.producer).selectinload(Producer.producer_images)
+        selectinload(Item.item_images)
     ).where(Item.id == item.id)
     item = session.exec(statement).first()
     
@@ -150,8 +137,7 @@ def update_item(
     Update an item.
     """
     statement = select(Item).options(
-        selectinload(Item.item_images),
-        selectinload(Item.producer).selectinload(Producer.producer_images)
+        selectinload(Item.item_images)
     ).where(Item.id == id)
     item = session.exec(statement).first()
     if not item:

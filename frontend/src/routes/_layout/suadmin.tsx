@@ -4,17 +4,14 @@ import {
   Container,
   Flex,
   Heading,
-  Skeleton,
   SkeletonText,
   Table,
   TableContainer,
   Tbody,
   Td,
-  Text,
   Th,
   Thead,
   Tr,
-  VStack,
   useDisclosure,
 } from "@chakra-ui/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -22,14 +19,13 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { z } from "zod"
 
-import { usersReadUsers, producersReadMyProducer } from "../../client/sdk.gen.ts"
+import { usersReadUsers } from "../../client/sdk.gen.ts"
 import type { UserPublic } from "../../client/types.gen.ts"
 import AddUser from "../../components/Admin/AddUser.tsx"
 import NfcTagSection from "../../components/Admin/NfcTagSection.tsx"
 import Navbar from "../../components/Common/Navbar.tsx"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
 import { UserRow } from "../../components/UserSettings/User.tsx"
-import EditProducer from "../../components/Producers/EditProducer.tsx"
 import CreateItemModal from "../../components/Items/CreateItemModal.tsx"
 
 const usersSearchSchema = z.object({
@@ -127,73 +123,21 @@ function UsersTable() {
   )
 }
 
-function ProducerSection() {
-  const navigate = useNavigate()
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure()
+function ItemsSection() {
   const {
     isOpen: isCreateOpen,
     onOpen: onCreateOpen,
     onClose: onCreateClose,
   } = useDisclosure()
 
-  const { data: producer, isLoading, error } = useQuery({
-    queryKey: ["myProducer"],
-    queryFn: () => producersReadMyProducer(),
-  })
-
-  if (isLoading) {
-    return (
-      <Box mt={8}>
-        <Skeleton height="40px" mb={4} />
-        <Skeleton height="120px" />
-      </Box>
-    )
-  }
-
-  if (error) {
-    return (
-      <Box mt={8}>
-        <Text color="red.500">Error loading producer profile.</Text>
-      </Box>
-    )
-  }
-
   return (
     <Box mt={8}>
       <Heading size="md" mb={4}>
-        Producer Console
+        Items
       </Heading>
-      <VStack spacing={4} align="stretch">
-        {producer ? (
-          <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
-            <Heading size="sm" mb={1}>{producer.name}</Heading>
-            {producer.location && <Text color="gray.600">{producer.location}</Text>}
-            <Flex gap={3} mt={4}>
-              <Button variant="primary" onClick={onEditOpen}>
-                Edit Producer Profile
-              </Button>
-              <Button variant="primary" onClick={onCreateOpen}>
-                Create Item
-              </Button>
-            </Flex>
-          </Box>
-        ) : (
-          <Box p={4} borderWidth="1px" borderRadius="lg" bg="white" shadow="sm">
-            <Text mb={3}>No producer profile found.</Text>
-            <Button variant="primary" onClick={() => navigate({ to: "/createproducer" })}>
-              Create Producer Profile
-            </Button>
-          </Box>
-        )}
-      </VStack>
-
-      {producer && (
-        <EditProducer producer={producer} isOpen={isEditOpen} onClose={onEditClose} />
-      )}
+      <Button variant="primary" onClick={onCreateOpen}>
+        Create Item
+      </Button>
       <CreateItemModal isOpen={isCreateOpen} onClose={onCreateClose} />
     </Box>
   )
@@ -206,7 +150,7 @@ function SuAdmin() {
         <Navbar type={"User"} addModalAs={AddUser} />
       </Flex>
       <UsersTable />
-      <ProducerSection />
+      <ItemsSection />
       <NfcTagSection />
       <Flex gap={4} wrap="wrap" mt={4}>
         <Button as={Link} to="/logs" variant="primary">

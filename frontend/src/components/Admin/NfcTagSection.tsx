@@ -63,15 +63,14 @@ function UntaggedItemsTable({
         <Table size={{ base: "sm", md: "md" }}>
           <Thead>
             <Tr>
-              <Th width="45%">Item</Th>
-              <Th width="40%">Producer</Th>
-              <Th width="15%" />
+              <Th width="75%">Item</Th>
+              <Th width="25%" />
             </Tr>
           </Thead>
           {isPending ? (
             <Tbody>
               <Tr>
-                {new Array(3).fill(null).map((_, index) => (
+                {new Array(2).fill(null).map((_, index) => (
                   <Td key={index}>
                     <SkeletonText noOfLines={1} paddingBlock="16px" />
                   </Td>
@@ -84,9 +83,6 @@ function UntaggedItemsTable({
                 <Tr key={item.id}>
                   <Td isTruncated maxWidth="200px">
                     {item.title}
-                  </Td>
-                  <Td isTruncated maxWidth="200px">
-                    {item.producer_name || "—"}
                   </Td>
                   <Td>
                     <Button

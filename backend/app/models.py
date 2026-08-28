@@ -109,9 +109,7 @@ class Item(ItemBase, table=True):  # type: ignore[call-arg]
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(max_length=255)
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    producer_id: Optional[uuid.UUID] = Field(default=None, foreign_key="producer.id")
     owner: Optional[User] = Relationship(back_populates="items")
-    producer: Optional["Producer"] = Relationship(back_populates="produced_items")
     item_images: list["ItemImage"] = Relationship(
         back_populates="item",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
@@ -122,20 +120,16 @@ class Item(ItemBase, table=True):  # type: ignore[call-arg]
 class ItemPublic(ItemBase):
     id: uuid.UUID
     owner_id: uuid.UUID
-    producer_id: Optional[uuid.UUID] = None
-    producer_name: Optional[str] = None
-    producer_location: Optional[str] = None
-    producer_logo_url: Optional[str] = None
     image_urls: list[str] = []  # URLs/paths to images from Image table
-    
+
     @classmethod
     def from_item(cls, item: "Item", base_url: str = "") -> "ItemPublic":
-        """Create ItemPublic from Item with image URLs and producer info."""
+        """Create ItemPublic from Item with image URLs."""
         from app.core.config import settings
         import logging
-        
+
         logger = logging.getLogger(__name__)
-        
+
         image_urls = []
         if hasattr(item, 'item_images') and item.item_images:
             logger.info(f"Processing {len(item.item_images)} images for item {item.id}, environment: {settings.ENVIRONMENT}")
@@ -146,30 +140,10 @@ class ItemPublic(ItemBase):
                 # Just use the stored path directly
                 logger.info(f"Image {img.id}: using path={img.path}")
                 image_urls.append(img.path)
-        
-        # Get producer info if available
-        producer_name = None
-        producer_location = None
-        producer_logo_url = None
-        if hasattr(item, 'producer') and item.producer:
-            producer_name = item.producer.name
-            producer_location = item.producer.location
-            producer_logo_url = item.producer.logo_url
-            if not producer_logo_url and hasattr(item.producer, 'producer_images'):
-                logo_images = [
-                    img for img in item.producer.producer_images
-                    if img.image_type == "logo"
-                ]
-                if logo_images:
-                    producer_logo_url = logo_images[0].path
-        
+
         return cls(
             id=item.id,
             owner_id=item.owner_id,
-            producer_id=item.producer_id,
-            producer_name=producer_name,
-            producer_location=producer_location,
-            producer_logo_url=producer_logo_url,
             title=item.title,
             description=item.description,
             images=item.images,
@@ -254,137 +228,6 @@ class ImagePublic(ImageBase):
 
 class ImagesPublic(SQLModel):
     data: list[ImagePublic]
-    count: int
-
-
-# Shared properties for ProducerImage
-class ProducerImageBase(SQLModel):
-    path: str = Field(max_length=500)  # Full path or URL to the image
-    name: str = Field(max_length=255)  # Filename without extension
-    image_type: str = Field(max_length=50)  # "logo" or "portfolio"
-    producer_id: uuid.UUID = Field(foreign_key="producer.id", nullable=False, ondelete="CASCADE")
-
-
-# Properties to receive on producer image creation
-class ProducerImageCreate(ProducerImageBase):
-    pass
-
-
-# Properties to receive on producer image update
-class ProducerImageUpdate(SQLModel):
-    path: Optional[str] = Field(default=None, max_length=500)
-    name: Optional[str] = Field(default=None, max_length=255)
-    image_type: Optional[str] = Field(default=None, max_length=50)
-
-
-# Database model, database table inferred from class name
-class ProducerImage(ProducerImageBase, table=True):  # type: ignore[call-arg]
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        sa_column=Column(DateTime, nullable=False)
-    )
-    producer: Optional["Producer"] = Relationship(back_populates="producer_images")
-
-
-# Properties to return via API, id is always required
-class ProducerImagePublic(ProducerImageBase):
-    id: uuid.UUID
-    created_at: datetime
-
-
-class ProducerImagesPublic(SQLModel):
-    data: list[ProducerImagePublic]
-    count: int
-
-
-# Shared properties for Producer
-class ProducerBase(SQLModel):
-    name: str = Field(min_length=1, max_length=255)
-    location: Optional[str] = Field(default=None, max_length=255)
-    logo_url: Optional[str] = Field(default=None)
-    portfolio_images: Optional[str] = Field(default=None)  # Comma-separated URLs
-
-
-# Properties to receive on producer creation
-class ProducerCreate(ProducerBase):
-    pass
-
-
-# Properties to receive on producer update
-class ProducerUpdate(ProducerBase):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=255)  # type: ignore
-
-
-# Database model, database table inferred from class name
-class Producer(ProducerBase, table=True):  # type: ignore[call-arg]
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    user_id: Optional[uuid.UUID] = Field(default=None, foreign_key="user.id")
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        sa_column=Column(DateTime, nullable=False)
-    )
-    # Relationship to user who owns this producer profile
-    user: Optional["User"] = Relationship()
-    # Relationship to items produced by this producer
-    produced_items: list["Item"] = Relationship(back_populates="producer")
-    # Relationship to reviews for this producer
-    reviews: list["Review"] = Relationship(back_populates="producer")
-    # Relationship to producer images (logos and portfolio)
-    producer_images: list["ProducerImage"] = Relationship(
-        back_populates="producer",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
-    )
-
-
-# Properties to return via API, id is always required
-class ProducerPublic(ProducerBase):
-    id: uuid.UUID
-    created_at: datetime
-
-
-class ProducersPublic(SQLModel):
-    data: list[ProducerPublic]
-    count: int
-
-
-# Shared properties for Review
-class ReviewBase(SQLModel):
-    name: str = Field(min_length=1, max_length=255)
-    review_text: str = Field(min_length=1)
-
-
-# Properties to receive on review creation
-class ReviewCreate(ReviewBase):
-    producer_id: uuid.UUID
-
-
-# Properties to receive on review update
-class ReviewUpdate(ReviewBase):
-    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
-    review_text: Optional[str] = Field(default=None, min_length=1)
-
-
-# Database model, database table inferred from class name
-class Review(ReviewBase, table=True):  # type: ignore[call-arg]
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        sa_column=Column(DateTime, nullable=False)
-    )
-    producer_id: uuid.UUID = Field(foreign_key="producer.id", nullable=False)
-    producer: Optional["Producer"] = Relationship(back_populates="reviews")
-
-
-# Properties to return via API, id is always required
-class ReviewPublic(ReviewBase):
-    id: uuid.UUID
-    created_at: datetime
-    producer_id: uuid.UUID
-
-
-class ReviewsPublic(SQLModel):
-    data: list[ReviewPublic]
     count: int
 
 

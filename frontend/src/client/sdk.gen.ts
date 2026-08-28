@@ -60,8 +60,6 @@ import type {
   ImagesGetItemImagesResponse,
   ImagesDownloadImageData,
   ImagesDownloadImageResponse,
-  ImagesGetProducerImagesData,
-  ImagesGetProducerImagesResponse,
   LogsGetRecentLogsData,
   LogsGetRecentLogsResponse,
   LogsClearLogsResponse,
@@ -83,21 +81,6 @@ import type {
   PaymentsPaymentCancelResponse,
   PaymentsStripeWebhookResponse,
   PaymentsGetStripeConfigResponse,
-  ProducersReadMyProducerResponse,
-  ProducersReadProducersData,
-  ProducersReadProducersResponse,
-  ProducersCreateProducerData,
-  ProducersCreateProducerResponse,
-  ProducersReadProducerByUserData,
-  ProducersReadProducerByUserResponse,
-  ProducersReadProducerData,
-  ProducersReadProducerResponse,
-  ProducersUpdateProducerData,
-  ProducersUpdateProducerResponse,
-  ProducersDeleteProducerData,
-  ProducersDeleteProducerResponse,
-  ProducersCreateProducerForUserData,
-  ProducersCreateProducerForUserResponse,
   NavigationGetNavigationItemsData,
   NavigationGetNavigationItemsResponse,
   PrivateCreateUserData,
@@ -634,12 +617,10 @@ export const itemsDeleteItem = (
 
 /**
  * Upload File
- * Upload an image for items or producers.
+ * Upload an image for an item.
  * @param data The data for the request.
  * @param data.id
  * @param data.formData
- * @param data.entityType Type of entity: item or producer
- * @param data.imageType Type of producer image: logo or portfolio
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -651,10 +632,6 @@ export const imagesUploadFile = (
     url: "/api/v1/images/{id}",
     path: {
       id: data.id,
-    },
-    query: {
-      entity_type: data.entityType,
-      image_type: data.imageType,
     },
     formData: data.formData,
     mediaType: "multipart/form-data",
@@ -772,33 +749,6 @@ export const imagesDownloadImage = (
     url: "/api/v1/images/download/{image_id}",
     path: {
       image_id: data.imageId,
-    },
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Get Producer Images
- * Get all images for a producer, optionally filtered by type.
- * @param data The data for the request.
- * @param data.producerId
- * @param data.imageType Filter by image type: logo or portfolio
- * @returns ProducerImagePublic Successful Response
- * @throws ApiError
- */
-export const imagesGetProducerImages = (
-  data: ImagesGetProducerImagesData,
-): CancelablePromise<ImagesGetProducerImagesResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/images/producer/{producer_id}",
-    path: {
-      producer_id: data.producerId,
-    },
-    query: {
-      image_type: data.imageType,
     },
     errors: {
       422: "Validation Error",
@@ -1079,192 +1029,6 @@ export const paymentsGetStripeConfig =
     })
   }
 
-/**
- * Read My Producer
- * Get current user's producer profile.
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const producersReadMyProducer =
-  (): CancelablePromise<ProducersReadMyProducerResponse> => {
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/producers/me",
-    })
-  }
-
-/**
- * Read Producers
- * Retrieve producers.
- * @param data The data for the request.
- * @param data.skip
- * @param data.limit
- * @returns ProducersPublic Successful Response
- * @throws ApiError
- */
-export const producersReadProducers = (
-  data: ProducersReadProducersData = {},
-): CancelablePromise<ProducersReadProducersResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/producers/",
-    query: {
-      skip: data.skip,
-      limit: data.limit,
-    },
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Create Producer
- * Create new producer.
- * Only users with producer permissions can create producers.
- * @param data The data for the request.
- * @param data.requestBody
- * @returns ProducerPublic Successful Response
- * @throws ApiError
- */
-export const producersCreateProducer = (
-  data: ProducersCreateProducerData,
-): CancelablePromise<ProducersCreateProducerResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/api/v1/producers/",
-    body: data.requestBody,
-    mediaType: "application/json",
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Read Producer By User
- * Get producer by user ID.
- * Only superusers can access this endpoint.
- * @param data The data for the request.
- * @param data.userId
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const producersReadProducerByUser = (
-  data: ProducersReadProducerByUserData,
-): CancelablePromise<ProducersReadProducerByUserResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/producers/by-user/{user_id}",
-    path: {
-      user_id: data.userId,
-    },
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Read Producer
- * Get producer by ID.
- * @param data The data for the request.
- * @param data.id
- * @returns ProducerPublic Successful Response
- * @throws ApiError
- */
-export const producersReadProducer = (
-  data: ProducersReadProducerData,
-): CancelablePromise<ProducersReadProducerResponse> => {
-  return __request(OpenAPI, {
-    method: "GET",
-    url: "/api/v1/producers/{id}",
-    path: {
-      id: data.id,
-    },
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Update Producer
- * Update a producer.
- * Only users with producer permissions can update their own producer profile.
- * @param data The data for the request.
- * @param data.id
- * @param data.requestBody
- * @returns ProducerPublic Successful Response
- * @throws ApiError
- */
-export const producersUpdateProducer = (
-  data: ProducersUpdateProducerData,
-): CancelablePromise<ProducersUpdateProducerResponse> => {
-  return __request(OpenAPI, {
-    method: "PUT",
-    url: "/api/v1/producers/{id}",
-    path: {
-      id: data.id,
-    },
-    body: data.requestBody,
-    mediaType: "application/json",
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Delete Producer
- * Delete a producer.
- * Only users can delete their own producer profile.
- * @param data The data for the request.
- * @param data.id
- * @returns Message Successful Response
- * @throws ApiError
- */
-export const producersDeleteProducer = (
-  data: ProducersDeleteProducerData,
-): CancelablePromise<ProducersDeleteProducerResponse> => {
-  return __request(OpenAPI, {
-    method: "DELETE",
-    url: "/api/v1/producers/{id}",
-    path: {
-      id: data.id,
-    },
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
-
-/**
- * Create Producer For User
- * Create new producer for a specific user.
- * Only superusers can create producers for other users.
- * @param data The data for the request.
- * @param data.userId
- * @param data.requestBody
- * @returns ProducerPublic Successful Response
- * @throws ApiError
- */
-export const producersCreateProducerForUser = (
-  data: ProducersCreateProducerForUserData,
-): CancelablePromise<ProducersCreateProducerForUserResponse> => {
-  return __request(OpenAPI, {
-    method: "POST",
-    url: "/api/v1/producers/for-user/{user_id}",
-    path: {
-      user_id: data.userId,
-    },
-    body: data.requestBody,
-    mediaType: "application/json",
-    errors: {
-      422: "Validation Error",
-    },
-  })
-}
 
 /**
  * Get Navigation Items

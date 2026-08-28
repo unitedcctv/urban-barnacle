@@ -26,20 +26,8 @@ def parse_cors(v: Any) -> list[str] | str:
 class CDNFolder(str, Enum):
     """Enum for CDN folder types."""
     IMAGES_ITEM = "images/item"
-    IMAGES_PRODUCER = "images/producer"
     UPLOADS = "uploads"
     MODELS = "models"
-
-class EntityType(str, Enum):
-    """Enum for entity types that can have image uploads."""
-    ITEM = "item"
-    PRODUCER = "producer"
-
-
-class ProducerImageType(str, Enum):
-    """Enum for producer image types."""
-    LOGO = "logo"
-    PORTFOLIO = "portfolio"
 
 
 class Settings(BaseSettings):

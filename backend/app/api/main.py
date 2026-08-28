@@ -10,7 +10,6 @@ from app.api.routes import (
     nfc,
     payments,
     private,
-    producers,
     users,
     utils,
 )
@@ -25,7 +24,6 @@ api_router.include_router(images.router)
 api_router.include_router(logs.router)
 api_router.include_router(models.router)
 api_router.include_router(payments.router)
-api_router.include_router(producers.router)
 api_router.include_router(navigation.router)
 api_router.include_router(nfc.router)
 

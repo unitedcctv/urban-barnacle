@@ -12,9 +12,6 @@ from app.models import (
     Item,
     ItemImage,
     NfcTag,
-    Producer,
-    ProducerImage,
-    Review,
     User,
 )
 from app.tests.utils.user import authentication_token_from_email
@@ -24,13 +21,10 @@ from app.tests.utils.utils import get_superuser_token_headers
 def clear_database(session: Session) -> None:
     session.rollback()
     for model in (
-        ProducerImage,
-        Review,
         NfcTag,
         ItemImage,
         Item,
         EmailLog,
-        Producer,
         User,
     ):
         session.execute(delete(model))

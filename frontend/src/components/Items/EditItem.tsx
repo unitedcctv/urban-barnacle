@@ -152,14 +152,12 @@ const EditItem = ({
     },
   })
 
-  const handleImagesChange = (urls: string | string[]) => {
-    // Convert array to string if needed (for backward compatibility)
-    const urlsString = Array.isArray(urls) ? urls.join(",") : urls
-    setCurrentImages(urlsString)
-    setValue("images", urlsString, { shouldDirty: true })
+  const handleImagesChange = (urls: string) => {
+    setCurrentImages(urls)
+    setValue("images", urls, { shouldDirty: true })
     // Track if images were deleted
-    if (urlsString !== originalImages) {
-      setImagesDeleted(originalImages !== "" && urlsString === "")
+    if (urls !== originalImages) {
+      setImagesDeleted(originalImages !== "" && urls === "")
     }
   }
 
@@ -336,8 +334,6 @@ const EditItem = ({
         <FormLabel>Images</FormLabel>
         <ImagesUploader
           itemId={item?.id}
-          imageType="item"
-          entityType="item"
           existingImages={existingImages}
           onImagesChange={handleImagesChange}
         />

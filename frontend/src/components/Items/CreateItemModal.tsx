@@ -94,10 +94,8 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
     },
   })
 
-  const handleImagesChange = (urls: string | string[]) => {
-    // Convert array to string if needed (for backward compatibility)
-    const commaSeparatedUrls = Array.isArray(urls) ? urls.join(",") : urls
-    setValue("images", commaSeparatedUrls, { shouldDirty: true })
+  const handleImagesChange = (urls: string) => {
+    setValue("images", urls, { shouldDirty: true })
   }
 
   const handleCancel = async () => {
@@ -309,8 +307,6 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
                 <ImagesUploader
                   ref={imagesUploaderRef}
                   itemId={createdItemId}
-                  imageType="item"
-                  entityType="item"
                   onImagesChange={handleImagesChange}
                 />
               </Box>

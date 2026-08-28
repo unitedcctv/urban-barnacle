@@ -19,7 +19,6 @@ from app.models import (
     NfcTagPublic,
     NfcTagsPublic,
     NfcTagStatus,
-    Producer,
 )
 
 logger = logging.getLogger(__name__)
@@ -146,10 +145,7 @@ def list_untagged_items(
     ).one()
     items = session.exec(
         select(Item)
-        .options(
-            selectinload(Item.item_images),
-            selectinload(Item.producer).selectinload(Producer.producer_images),
-        )
+        .options(selectinload(Item.item_images))
         .outerjoin(NfcTag, join_condition)
         .where(NfcTag.id.is_(None))  # type: ignore[union-attr]
         .offset(skip)

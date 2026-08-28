@@ -24,9 +24,6 @@ from app.models import (
     Item,
     ItemImage,
     Message,
-    Producer,
-    ProducerImage,
-    Review,
     UpdatePassword,
     User,
     UserCreate,
@@ -362,26 +359,6 @@ async def delete_user(
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
-    # Get user's producer profile if exists
-    producer = session.exec(
-        select(Producer).where(Producer.user_id == user_id)
-    ).first()
-    
-    # If user has a producer profile, clean up related data
-    if producer:
-        from sqlmodel import update
-        # Nullify producer_id in items that reference this producer
-        update_items_statement = (
-            update(Item)
-            .where(col(Item.producer_id) == producer.id)
-            .values(producer_id=None)
-        )
-        session.exec(update_items_statement)  # type: ignore
-        
-        # Delete all reviews for this producer
-        delete_reviews_statement = delete(Review).where(col(Review.producer_id) == producer.id)
-        session.exec(delete_reviews_statement)  # type: ignore
-    
     # Delete user's items and their images
     # First get all items owned by this user
     user_items_statement = select(Item).where(Item.owner_id == user_id)
@@ -423,41 +400,7 @@ async def delete_user(
     # Now delete all items (cascade will handle database records)
     statement = delete(Item).where(col(Item.owner_id) == user_id)
     session.exec(statement)  # type: ignore
-    
-    # Delete user's producer profile if exists
-    if producer:
-        # Delete physical producer image files before deleting producer
-        producer_images_statement = select(ProducerImage).where(ProducerImage.producer_id == producer.id)
-        producer_images = session.exec(producer_images_statement).all()
-        
-        logging.info(f"Found {len(producer_images)} producer images to delete for user {user_id}")
-        
-        for image in producer_images:
-            if settings.bunnycdn_enabled:
-                try:
-                    await delete_from_bunnycdn(image.path)
-                    logging.info(f"Deleted from BunnyCDN: {image.path}")
-                except Exception as e:
-                    logging.error(f"Failed to delete from BunnyCDN: {e}")
-            else:
-                # Delete from local folder
-                try:
-                    base_url = str(settings.BACKEND_HOST)
-                    relative_path = image.path.replace(base_url, "")
-                    # Remove leading slash and 'uploads/' prefix since UPLOAD_DIR already points to uploads folder
-                    relative_path = relative_path.lstrip("/").replace("uploads/", "", 1)
-                    file_path = settings.UPLOAD_DIR / relative_path
-                    
-                    if file_path.exists():
-                        os.remove(file_path)
-                        logging.info(f"✓ Deleted producer image file: {file_path}")
-                    else:
-                        logging.warning(f"✗ Producer image file not found: {file_path}")
-                except Exception as e:
-                    logging.error(f"Failed to delete producer image file {image.path}: {e}")
-        
-        session.delete(producer)
-    
+
     session.delete(user)
     session.commit()
     return Message(message="User deleted successfully")
