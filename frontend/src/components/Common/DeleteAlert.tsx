@@ -32,9 +32,9 @@ const Delete = ({ type, id, isOpen, onClose }: DeleteProps) => {
 
   const deleteEntity = async (id: string) => {
     if (type === "Item") {
-      await itemsDeleteItem({ id: id })
+      await itemsDeleteItem({ path: { id }, throwOnError: true })
     } else if (type === "User") {
-      await usersDeleteUser({ userId: id })
+      await usersDeleteUser({ path: { user_id: id }, throwOnError: true })
     } else {
       throw new Error(`Unexpected type: ${type}`)
     }

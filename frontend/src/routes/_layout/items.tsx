@@ -31,7 +31,10 @@ function ItemsGrid() {
   } = useInfiniteQuery({
     queryKey: ["items", "infinite", PER_PAGE],
     queryFn: ({ pageParam = 0 }) =>
-      itemsReadItems({ skip: pageParam, limit: PER_PAGE }),
+      itemsReadItems({
+        query: { skip: pageParam, limit: PER_PAGE },
+        throwOnError: true,
+      }),
     getNextPageParam: (lastPage, allPages) => {
       const lastPageData = Array.isArray(lastPage?.data) ? lastPage.data : []
       if (lastPageData.length < PER_PAGE) return undefined

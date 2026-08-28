@@ -12,7 +12,6 @@ import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import type { ApiError } from "../../client/core/ApiError"
 import { loginResetPassword } from "../../client/sdk.gen"
 import type { NewPassword } from "../../client/types.gen"
 // import { isLoggedIn } from "../../hooks/useAuth"
@@ -44,7 +43,8 @@ function ResetPassword() {
     const token = new URLSearchParams(window.location.search).get("token")
     if (!token) return
     await loginResetPassword({
-      requestBody: { new_password: data.new_password, token: token },
+      body: { new_password: data.new_password, token: token },
+      throwOnError: true,
     })
   }
 
@@ -55,7 +55,7 @@ function ResetPassword() {
       reset()
       navigate({ to: "/login" })
     },
-    onError: (err: ApiError) => {
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
   })

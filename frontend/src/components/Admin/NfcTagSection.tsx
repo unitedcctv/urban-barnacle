@@ -21,7 +21,6 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
-import type { ApiError } from "../../client/core/ApiError"
 import {
   nfcListTags,
   nfcListUntaggedItems,
@@ -48,7 +47,10 @@ function UntaggedItemsTable({
   const { data, isPending, isPlaceholderData } = useQuery({
     queryKey: ["nfcUntaggedItems", { page }],
     queryFn: () =>
-      nfcListUntaggedItems({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
+      nfcListUntaggedItems({
+        query: { skip: (page - 1) * PER_PAGE, limit: PER_PAGE },
+        throwOnError: true,
+      }),
     placeholderData: (prevData) => prevData,
   })
 
@@ -123,7 +125,10 @@ function RegisteredTagsTable({
   const { data, isPending, isPlaceholderData } = useQuery({
     queryKey: ["nfcTags", { page }],
     queryFn: () =>
-      nfcListTags({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
+      nfcListTags({
+        query: { skip: (page - 1) * PER_PAGE, limit: PER_PAGE },
+        throwOnError: true,
+      }),
     placeholderData: (prevData) => prevData,
   })
 
@@ -212,12 +217,13 @@ function NfcTagSection() {
   const cancelRef = React.useRef<HTMLButtonElement | null>(null)
 
   const revokeMutation = useMutation({
-    mutationFn: (uid: string) => nfcRevokeTag({ uid }),
+    mutationFn: (uid: string) =>
+      nfcRevokeTag({ path: { uid }, throwOnError: true }),
     onSuccess: () => {
       showToast("Success", "The tag was revoked.", "success")
       setRevokeTag(null)
     },
-    onError: (err: ApiError) => {
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
     onSettled: () => {

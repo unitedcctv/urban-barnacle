@@ -20,7 +20,6 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import type { ApiError } from "../../client/core/ApiError"
 import { usersUpdateUserMe } from "../../client/sdk.gen"
 import type { UserPublic, UserUpdateMe } from "../../client/types.gen"
 import useAuth from "../../hooks/useAuth"
@@ -50,12 +49,12 @@ function UserInformation() {
 
   const mutation = useMutation({
     mutationFn: (data: UserUpdateMe) =>
-      usersUpdateUserMe({ requestBody: data }),
+      usersUpdateUserMe({ body: data, throwOnError: true }),
     onSuccess: () => {
       showToast("Success!", "User updated successfully.", "success")
       onClose()
     },
-    onError: (err: ApiError) => {
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
     onSettled: () => {

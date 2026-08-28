@@ -2,15 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 
-import { AxiosError } from "axios"
-import type { ApiError } from "../client/core/ApiError"
 import {
   loginLoginAccessToken,
   usersReadUserMe,
   usersRegisterUser,
 } from "../client/sdk.gen"
 import type { UserPublic, UserRegister } from "../client/types.gen"
-import type { Body_login_login_access_token as AccessToken } from "../client/types.gen"
+import type { BodyLoginLoginAccessToken as AccessToken } from "../client/types.gen"
 
 import useCustomToast from "./useCustomToast"
 
@@ -29,18 +27,19 @@ const useAuth = () => {
     error: userError,
   } = useQuery<UserPublic | null, Error>({
     queryKey: ["currentUser"],
-    queryFn: usersReadUserMe,
+    queryFn: () => usersReadUserMe({ throwOnError: true }),
     enabled: isLoggedIn(),
     retry: false, // Don't retry on auth failures
   })
 
   // Handle authentication errors
   if (userError && isLoggedIn()) {
-    const error = userError as any
+    const detail = (userError as { detail?: unknown })?.detail
     if (
-      error?.status === 401 ||
-      error?.status === 403 ||
-      error?.message?.includes("User not found")
+      detail === "Could not validate credentials" ||
+      detail === "Inactive user" ||
+      (userError instanceof Error &&
+        userError.message.includes("User not found"))
     ) {
       localStorage.removeItem("access_token")
       navigate({ to: "/" })
@@ -49,7 +48,7 @@ const useAuth = () => {
 
   const signUpMutation = useMutation({
     mutationFn: (data: UserRegister) =>
-      usersRegisterUser({ requestBody: data }),
+      usersRegisterUser({ body: data, throwOnError: true }),
 
     onSuccess: () => {
       // TODO sign in the user after successful sign up
@@ -59,14 +58,18 @@ const useAuth = () => {
         "success",
       )
     },
-    onError: (err: ApiError) => {
-      let errDetail = (err.body as any)?.detail
+    onError: (err: unknown) => {
+      let errDetail = (err as { detail?: string })?.detail
 
-      if (err instanceof AxiosError) {
+      if (err instanceof Error && errDetail === undefined) {
         errDetail = err.message
       }
 
-      showToast("Something went wrong.", errDetail, "error")
+      showToast(
+        "Something went wrong.",
+        errDetail ?? "Something went wrong",
+        "error",
+      )
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] })
@@ -75,7 +78,8 @@ const useAuth = () => {
 
   const login = async (data: AccessToken) => {
     const response = await loginLoginAccessToken({
-      formData: data,
+      body: data,
+      throwOnError: true,
     })
     localStorage.setItem("access_token", response.access_token)
   }
@@ -85,10 +89,10 @@ const useAuth = () => {
     onSuccess: () => {
       navigate({ to: "/" })
     },
-    onError: (err: ApiError) => {
-      let errDetail = (err.body as any)?.detail
+    onError: (err: unknown) => {
+      let errDetail: string | undefined = (err as { detail?: string })?.detail
 
-      if (err instanceof AxiosError) {
+      if (err instanceof Error && errDetail === undefined) {
         errDetail = err.message
       }
 
@@ -96,7 +100,7 @@ const useAuth = () => {
         errDetail = "Something went wrong"
       }
 
-      setError(errDetail)
+      setError(errDetail ?? "Something went wrong")
     },
   })
 

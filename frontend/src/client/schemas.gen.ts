@@ -141,6 +141,89 @@ export const EmailConfirmationSchema = {
   title: "EmailConfirmation",
 } as const
 
+export const EmailLogPublicSchema = {
+  properties: {
+    email_to: {
+      type: "string",
+      maxLength: 255,
+      title: "Email To",
+    },
+    email_type: {
+      type: "string",
+      maxLength: 50,
+      title: "Email Type",
+    },
+    subject: {
+      type: "string",
+      maxLength: 255,
+      title: "Subject",
+    },
+    status: {
+      type: "string",
+      maxLength: 20,
+      title: "Status",
+    },
+    error_message: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 1000,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Error Message",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    user_id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "User Id",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+    sent_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Sent At",
+    },
+  },
+  type: "object",
+  required: [
+    "email_to",
+    "email_type",
+    "subject",
+    "status",
+    "id",
+    "user_id",
+    "created_at",
+    "sent_at",
+  ],
+  title: "EmailLogPublic",
+} as const
+
 export const HTTPValidationErrorSchema = {
   properties: {
     detail: {
@@ -554,6 +637,100 @@ export const NewPasswordSchema = {
   type: "object",
   required: ["token", "new_password"],
   title: "NewPassword",
+} as const
+
+export const NfcTagCreateSchema = {
+  properties: {
+    uid: {
+      type: "string",
+      maxLength: 14,
+      minLength: 14,
+      title: "Uid",
+    },
+    item_id: {
+      type: "string",
+      format: "uuid",
+      title: "Item Id",
+    },
+  },
+  type: "object",
+  required: ["uid", "item_id"],
+  title: "NfcTagCreate",
+} as const
+
+export const NfcTagPublicSchema = {
+  properties: {
+    uid: {
+      type: "string",
+      maxLength: 14,
+      minLength: 14,
+      title: "Uid",
+    },
+    item_id: {
+      type: "string",
+      format: "uuid",
+      title: "Item Id",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    last_read_counter: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Last Read Counter",
+    },
+    status: {
+      $ref: "#/components/schemas/NfcTagStatus",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+  },
+  type: "object",
+  required: [
+    "uid",
+    "item_id",
+    "id",
+    "last_read_counter",
+    "status",
+    "created_at",
+  ],
+  title: "NfcTagPublic",
+} as const
+
+export const NfcTagStatusSchema = {
+  type: "string",
+  enum: ["active", "revoked"],
+  title: "NfcTagStatus",
+} as const
+
+export const NfcTagsPublicSchema = {
+  properties: {
+    data: {
+      items: {
+        $ref: "#/components/schemas/NfcTagPublic",
+      },
+      type: "array",
+      title: "Data",
+    },
+    count: {
+      type: "integer",
+      title: "Count",
+    },
+  },
+  type: "object",
+  required: ["data", "count"],
+  title: "NfcTagsPublic",
 } as const
 
 export const PrivateUserCreateSchema = {

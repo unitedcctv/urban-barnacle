@@ -10,7 +10,6 @@ import {
 import { useMutation } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import type { ApiError } from "../../client/core/ApiError"
 import { loginRecoverPassword } from "../../client/sdk.gen"
 // import { isLoggedIn } from "../../hooks/useAuth"
 import useCustomToast from "../../hooks/useCustomToast"
@@ -31,7 +30,8 @@ function RecoverPassword() {
 
   const recoverPassword = async (data: FormData) => {
     await loginRecoverPassword({
-      email: data.email,
+      path: { email: data.email },
+      throwOnError: true,
     })
   }
 
@@ -45,7 +45,7 @@ function RecoverPassword() {
       )
       reset()
     },
-    onError: (err: ApiError) => {
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
   })

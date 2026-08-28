@@ -50,14 +50,16 @@ function Item({ item: propItem }: { item: ItemPublic }) {
   // Fetch item if itemId exists
   const { data, refetch } = useQuery({
     queryKey: ["item", itemId],
-    queryFn: () => itemsReadItem({ id: itemId }),
+    queryFn: () =>
+      itemsReadItem({ path: { id: itemId }, throwOnError: true }),
     enabled: !!itemId,
   })
   itemData = data
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => itemsDeleteItem({ id }),
+    mutationFn: (id: string) =>
+      itemsDeleteItem({ path: { id }, throwOnError: true }),
     onSuccess: () => {
       showToast("Success!", "Item deleted successfully.", "success")
       setButtonsDisabled(true)
@@ -73,7 +75,10 @@ function Item({ item: propItem }: { item: ItemPublic }) {
     if (itemId) {
       try {
         // Attempt to delete the item images first
-        await imagesDeleteItemImages({ itemId })
+        await imagesDeleteItemImages({
+          path: { item_id: itemId },
+          throwOnError: true,
+        })
       } catch (error) {
         console.error(`Error deleting images for item ${itemId}:`, error)
         showToast(

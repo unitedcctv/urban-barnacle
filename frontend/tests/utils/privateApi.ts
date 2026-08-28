@@ -1,9 +1,11 @@
 // Note: the user creation function is only available when generating the client
 // for local environments
-import { OpenAPI } from "../../src/client"
+import { client } from "../../src/client/client.gen"
 import { usersCreateUser } from "../../src/client/sdk.gen"
 
-OpenAPI.BASE = `${process.env.VITE_API_URL}`
+client.setConfig({
+  baseUrl: `${process.env.VITE_API_URL}`,
+})
 
 export const createUser = async ({
   email,
@@ -13,11 +15,12 @@ export const createUser = async ({
   password: string
 }) => {
   return await usersCreateUser({
-    requestBody: {
+    body: {
       email,
       password,
       is_active: true,
       full_name: "Test User",
     },
+    throwOnError: true,
   })
 }

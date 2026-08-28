@@ -16,7 +16,6 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import type { ApiError } from "../../client/core/ApiError"
 import { nfcRegisterTag } from "../../client/sdk.gen"
 import type { ItemPublic } from "../../client/types.gen"
 import useCustomToast from "../../hooks/useCustomToast"
@@ -45,14 +44,15 @@ function AssignTagModal({ item, isOpen, onClose }: AssignTagModalProps) {
   const mutation = useMutation({
     mutationFn: (uid: string) =>
       nfcRegisterTag({
-        requestBody: { uid: uid.toUpperCase(), item_id: item.id },
+        body: { uid: uid.toUpperCase(), item_id: item.id },
+        throwOnError: true,
       }),
     onSuccess: () => {
       showToast("Success", `Tag assigned to "${item.title}".`, "success")
       reset()
       onClose()
     },
-    onError: (err: ApiError) => {
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
     onSettled: () => {

@@ -16,7 +16,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import type { ApiError } from "../../client/core/ApiError"
 import { usersUpdateUser } from "../../client/sdk.gen"
 import type {
   UserPermission,
@@ -62,13 +61,17 @@ const EditUser = ({ user, isOpen, onClose }: EditUserProps) => {
         is_active: data.is_active,
         permissions: data.permissions as any, // Convert string to UserPermission
       }
-      return usersUpdateUser({ userId: user.id, requestBody: updateData })
+      return usersUpdateUser({
+        path: { user_id: user.id },
+        body: updateData,
+        throwOnError: true,
+      })
     },
     onSuccess: () => {
       showToast("Success!", "User updated successfully.", "success")
       onClose()
     },
-    onError: (err: ApiError) => {
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
     onSettled: () => {

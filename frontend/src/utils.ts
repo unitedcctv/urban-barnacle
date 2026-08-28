@@ -1,4 +1,5 @@
-import type { ApiError } from "./client"
+// The generated client (hey-api) throws the parsed error body on failure
+// (throwOnError: true), so API errors arrive as `{ detail: ... }`.
 
 export const emailPattern = {
   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -43,9 +44,14 @@ export const confirmPasswordRules = (
   return rules
 }
 
-export const handleError = (err: ApiError, showToast: any) => {
-  const errDetail = (err.body as any)?.detail
-  let errorMessage = errDetail || "Something went wrong."
+export const handleError = (err: unknown, showToast: any) => {
+  const errDetail = (err as { detail?: unknown })?.detail
+  let errorMessage =
+    typeof errDetail === "string"
+      ? errDetail
+      : err instanceof Error
+        ? err.message
+        : "Something went wrong."
   if (Array.isArray(errDetail) && errDetail.length > 0) {
     errorMessage = errDetail[0].msg
   }

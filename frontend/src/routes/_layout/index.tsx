@@ -14,7 +14,11 @@ const ITEM_COUNT = 5
 
 function getItemsQueryOptions() {
   return {
-    queryFn: () => itemsReadItems({ skip: 0, limit: ITEM_COUNT }),
+    queryFn: () =>
+      itemsReadItems({
+        query: { skip: 0, limit: ITEM_COUNT },
+        throwOnError: true,
+      }),
     queryKey: ["items", "home", ITEM_COUNT],
   }
 }

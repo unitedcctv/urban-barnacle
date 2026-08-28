@@ -15,7 +15,6 @@ import { useEffect, useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import type { ItemPublic } from "../../client"
 import type { UserPublic } from "../../client"
-import type { ApiError } from "../../client/core/ApiError"
 import {
   imagesGetItemImages,
   itemsUpdateItem,
@@ -49,7 +48,10 @@ const EditItem = ({
   const { data: existingImages = [] } = useQuery({
     queryKey: ["itemImages", item.id],
     queryFn: async () => {
-      const response = await imagesGetItemImages({ itemId: item.id })
+      const response = await imagesGetItemImages({
+        path: { item_id: item.id },
+        throwOnError: true,
+      })
       return response.data.map((img) => ({
         id: img.id,
         name: img.name,
@@ -137,8 +139,9 @@ const EditItem = ({
   const mutation = useMutation({
     mutationFn: (data: ItemUpdate) =>
       itemsUpdateItem({
-        id: item.id,
-        requestBody: { ...data, title: data.title ?? "" },
+        path: { id: item.id },
+        body: { ...data, title: data.title ?? "" },
+        throwOnError: true,
       }),
     onSuccess: () => {
       showToast("Success!", "Item updated successfully.", "success")
@@ -147,7 +150,7 @@ const EditItem = ({
       queryClient.invalidateQueries({ queryKey: ["itemImages", item.id] }) // Refresh images
       onSuccess()
     },
-    onError: (err: ApiError) => {
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
   })
@@ -177,9 +180,12 @@ const EditItem = ({
       try {
         // Upload the model file to the server
         await modelsUploadModel({
-          formData: { file },
-          itemId: item?.id || "",
-          userId: currentUser?.id?.toString() || "0",
+          body: { file },
+          path: {
+            item_id: item?.id || "",
+            user_id: currentUser?.id?.toString() || "0",
+          },
+          throwOnError: true,
         })
 
         setModelFile(file)
@@ -200,9 +206,12 @@ const EditItem = ({
 
     try {
       await modelsDeleteModel({
-        itemId: item.id,
-        userId: currentUser?.id?.toString() || "0",
-        fileName: currentModel,
+        path: {
+          item_id: item.id,
+          user_id: currentUser?.id?.toString() || "0",
+          file_name: currentModel,
+        },
+        throwOnError: true,
       })
 
       setCurrentModel(null)

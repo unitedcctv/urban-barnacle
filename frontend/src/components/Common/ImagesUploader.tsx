@@ -28,7 +28,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import type { ImagePublic } from "../../client"
 
 // Import SDK methods
 import { imagesDeleteFile, imagesUploadFile } from "../../client/sdk.gen"
@@ -158,10 +157,11 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
         try {
           // If itemId is provided, upload immediately
           if (itemId) {
-            const response = (await imagesUploadFile({
-              formData: { file },
-              id: itemId,
-            })) as ImagePublic
+            const response = await imagesUploadFile({
+              body: { file },
+              path: { id: itemId },
+              throwOnError: true,
+            })
 
             // Extract URL from response path
             const imageUrl = response.path.startsWith("http")
@@ -216,7 +216,10 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
           !fileToDelete.id.startsWith("existing-") &&
           !fileToDelete.id.startsWith("temp-")
         ) {
-          await imagesDeleteFile({ imageId: fileToDelete.id })
+          await imagesDeleteFile({
+            path: { image_id: fileToDelete.id },
+            throwOnError: true,
+          })
         }
 
         // Clean up object URL if it's a temp file

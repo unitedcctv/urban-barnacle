@@ -11,7 +11,8 @@ import {
 } from "@chakra-ui/react"
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
-import { OpenAPI } from "../client"
+
+const API_BASE = import.meta.env.VITE_API_URL
 
 export const Route = createFileRoute("/confirm-email")({
   component: ConfirmEmail,
@@ -37,7 +38,7 @@ function ConfirmEmail() {
 
       try {
         const response = await fetch(
-          `${OpenAPI.BASE}/api/v1/users/confirm-email`,
+          `${API_BASE}/api/v1/users/confirm-email`,
           {
             method: "POST",
             headers: {

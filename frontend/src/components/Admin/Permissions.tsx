@@ -17,7 +17,7 @@ const PermissionsSelector = ({
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const data = await utilsListPermissions()
+        const data = await utilsListPermissions({ throwOnError: true })
         setPermissions(data as UserPermission[])
       } catch (error) {
         console.error("Failed to fetch permissions:", error)

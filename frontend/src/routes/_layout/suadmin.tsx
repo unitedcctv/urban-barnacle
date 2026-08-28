@@ -45,7 +45,10 @@ const PER_PAGE = 5
 function getUsersQueryOptions({ page }: { page: number }) {
   return {
     queryFn: () =>
-      usersReadUsers({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
+      usersReadUsers({
+        query: { skip: (page - 1) * PER_PAGE, limit: PER_PAGE },
+        throwOnError: true,
+      }),
     queryKey: ["users", { page }],
   }
 }

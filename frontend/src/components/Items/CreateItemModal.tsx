@@ -20,7 +20,6 @@ import type React from "react"
 import { useRef, useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import type { UserPublic } from "../../client"
-import type { ApiError } from "../../client/core/ApiError"
 import { itemsCreateItem, itemsUpdateItem } from "../../client/sdk.gen"
 import {
   imagesDeleteItemImages,
@@ -74,8 +73,9 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
   })
 
   const createMutation = useMutation({
-    mutationFn: (data: ItemCreate) => itemsCreateItem({ requestBody: data }),
-    onError: (err: ApiError) => {
+    mutationFn: (data: ItemCreate) =>
+      itemsCreateItem({ body: data, throwOnError: true }),
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
     onSettled: () => {
@@ -85,8 +85,12 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
 
   const updateMutation = useMutation({
     mutationFn: (data: { itemId: string; body: ItemCreate }) =>
-      itemsUpdateItem({ id: data.itemId, requestBody: data.body }),
-    onError: (err: ApiError) => {
+      itemsUpdateItem({
+        path: { id: data.itemId },
+        body: data.body,
+        throwOnError: true,
+      }),
+    onError: (err: unknown) => {
       handleError(err, showToast)
     },
     onSettled: () => {
@@ -103,11 +107,20 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
     if (createdItemId) {
       try {
         // Delete uploaded files first
-        await imagesDeleteItemImages({ itemId: createdItemId })
-        await modelsDeleteItemModel({ itemId: createdItemId })
+        await imagesDeleteItemImages({
+          path: { item_id: createdItemId },
+          throwOnError: true,
+        })
+        await modelsDeleteItemModel({
+          path: { item_id: createdItemId },
+          throwOnError: true,
+        })
 
         // Delete the item record from database
-        await itemsDeleteItem({ id: createdItemId })
+        await itemsDeleteItem({
+          path: { id: createdItemId },
+          throwOnError: true,
+        })
 
         showToast("Success", "Item and all associated files deleted", "success")
       } catch (error) {
@@ -165,9 +178,12 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
       try {
         // Upload the model file to the server
         await modelsUploadModel({
-          formData: { file },
-          itemId: createdItemId,
-          userId: currentUser?.id?.toString() || "0",
+          body: { file },
+          path: {
+            item_id: createdItemId,
+            user_id: currentUser?.id?.toString() || "0",
+          },
+          throwOnError: true,
         })
 
         setModelFile(file)
