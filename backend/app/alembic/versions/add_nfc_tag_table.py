@@ -19,6 +19,10 @@ depends_on = None
 
 def upgrade() -> None:
     # Create nfctag table (stores UIDs and tap counters only - no key material)
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    if 'nfctag' in inspector.get_table_names():
+        return
     op.create_table(
         'nfctag',
         sa.Column('uid', sa.String(length=14), nullable=False),
