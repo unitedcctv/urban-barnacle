@@ -50,7 +50,7 @@ def get_navigation_items(
 
     items: list[NavigationItem] = [
         {"title": "Gallery", "path": "/items", "icon": "gallery", "action": None},
-        {"title": "Print Service", "path": "/print-service", "icon": "print_service", "action": None},
+        {"title": "B2B", "path": "/print-service", "icon": "business", "action": None},
         {"title": "About", "path": "/about", "icon": "about", "action": None},
         {"title": "Contact", "path": "/contact", "icon": "contact", "action": None},
     ]
