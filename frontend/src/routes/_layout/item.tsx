@@ -29,6 +29,7 @@ import {
   itemsReadItem,
 } from "../../client/sdk.gen.ts"
 import EditItem from "../../components/Items/EditItem.tsx"
+import { useCart } from "../../context/CartContext"
 import useCustomToast from "../../hooks/useCustomToast"
 
 export const Route = createFileRoute("/_layout/item")({
@@ -43,6 +44,7 @@ function Item({ item: propItem }: { item: ItemPublic }) {
   const navigate = useNavigate()
   const showToast = useCustomToast()
   const queryClient = useQueryClient()
+  const { addItem, hasItem } = useCart()
 
   // Use the item directly if passed in, or fetch below
   let itemData: any = propItem
@@ -101,49 +103,18 @@ function Item({ item: propItem }: { item: ItemPublic }) {
     }
   }
 
-  // Handle purchase model functionality
-  const handlePurchaseModel = async () => {
-    if (!currentItem?.id) {
-      showToast("Error", "Item not found", "error")
-      return
-    }
-
-    try {
-      // Call the backend to create a Stripe checkout session
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/api/v1/payments/create-checkout-session`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify({
-            item_id: currentItem.id,
-            success_url: `${window.location.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${window.location.origin}/payment/cancel`,
-          }),
-        },
-      )
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || "Failed to create checkout session")
-      }
-
-      const data = await response.json()
-
-      // Redirect to Stripe checkout
-      window.location.href = data.url
-    } catch (error) {
-      console.error("Payment error:", error)
-      showToast(
-        "Payment Error",
-        error instanceof Error ? error.message : "Failed to initiate payment",
-        "error",
-      )
+  const handleAddToCart = () => {
+    if (!currentItem?.id) return
+    const added = addItem({
+      id: currentItem.id,
+      title: currentItem.title,
+      price: currentItem.price ?? 0,
+      image_url: imagesArray[0] ?? null,
+    })
+    if (added) {
+      showToast("Added", `${currentItem.title} added to your cart.`, "success")
+    } else {
+      showToast("Cart", "This item is already in your cart.", "success")
     }
   }
 
@@ -254,21 +225,43 @@ function Item({ item: propItem }: { item: ItemPublic }) {
                   {currentItem.description}
                 </Text>
               )}
+              <HStack spacing={3} align="center">
+                {(currentItem?.price ?? 0) > 0 && (
+                  <Text fontSize="xl" fontWeight="bold">
+                    €{currentItem.price.toFixed(2)}
+                  </Text>
+                )}
+                {currentItem?.is_sold && (
+                  <Badge colorScheme="red" fontSize="md" px={3} py={1} borderRadius="full">
+                    Sold
+                  </Badge>
+                )}
+              </HStack>
             </VStack>
 
             {/* Actions Section */}
             <Stack spacing={3} pt={4} borderTopWidth="1px">
               <HStack spacing={4} flexWrap="wrap">
-                {/* Purchase Model Button - Only show if item has a model */}
-                {currentItem?.model && !canEdit && (
-                  <Button
-                    variant="primary"
-                    onClick={handlePurchaseModel}
-                    isDisabled={buttonsDisabled}
-                    size="lg"
-                  >
-                    Purchase 3D Model - $10.00
-                  </Button>
+                {/* Add to Cart - visible to buyers when item has a price and isn't sold */}
+                {!canEdit && (currentItem?.price ?? 0) > 0 && !currentItem?.is_sold && (
+                  hasItem(currentItem.id) ? (
+                    <Button
+                      variant="primary"
+                      onClick={() => navigate({ to: "/cart" })}
+                      size="lg"
+                    >
+                      In Cart - Go to Checkout
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      onClick={handleAddToCart}
+                      isDisabled={buttonsDisabled}
+                      size="lg"
+                    >
+                      Add to Cart - €{currentItem.price.toFixed(2)}
+                    </Button>
+                  )
                 )}
 
                 {/* Button for Edit - Only visible to superusers or item owners */}

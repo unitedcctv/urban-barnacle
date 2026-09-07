@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react"
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
 import * as React from "react"
+import { useCart } from "../../../context/CartContext"
 import useCustomToast from "../../../hooks/useCustomToast"
 
 export const Route = createFileRoute("/_layout/payment/success")({
@@ -19,9 +20,9 @@ export const Route = createFileRoute("/_layout/payment/success")({
 
 interface PaymentSuccessData {
   message: string
-  download_url: string
-  item_title: string
-  expires_in: string
+  items: Array<string>
+  total: number
+  currency: string
 }
 
 function PaymentSuccess() {
@@ -29,6 +30,7 @@ function PaymentSuccess() {
   const sessionId = (search as { session_id?: string }).session_id
   const navigate = useNavigate()
   const showToast = useCustomToast()
+  const { clearCart } = useCart()
 
   const [loading, setLoading] = React.useState(true)
   const [paymentData, setPaymentData] =
@@ -62,6 +64,7 @@ function PaymentSuccess() {
 
         const data = await response.json()
         setPaymentData(data)
+        clearCart()
         showToast("Success!", "Payment completed successfully!", "success")
       } catch (error) {
         console.error("Payment verification error:", error)
@@ -78,12 +81,6 @@ function PaymentSuccess() {
 
     verifyPayment()
   }, [sessionId, showToast])
-
-  const handleDownload = () => {
-    if (paymentData?.download_url) {
-      window.open(paymentData.download_url, "_blank")
-    }
-  }
 
   const handleBackToItems = () => {
     navigate({ to: "/items" })
@@ -126,36 +123,38 @@ function PaymentSuccess() {
           <Text fontSize="2xl" mb={2}>
             Thank you for your purchase!
           </Text>
-          <Text fontSize="lg" color="gray.600">
-            {paymentData?.item_title} - 3D Model
-          </Text>
+          {paymentData && paymentData.items.length > 0 && (
+            <VStack spacing={1} mb={2}>
+              {paymentData.items.map((title) => (
+                <Text key={title} fontSize="lg" color="gray.600">
+                  {title}
+                </Text>
+              ))}
+            </VStack>
+          )}
+          {paymentData && (
+            <Text fontSize="lg" fontWeight="bold">
+              Total: {paymentData.currency === "EUR" ? "€" : `${paymentData.currency} `}
+              {paymentData.total.toFixed(2)}
+            </Text>
+          )}
         </Box>
 
         <Box textAlign="center">
           <Text mb={4}>
-            Your download is ready! Click the button below to download your 3D
-            model.
-          </Text>
-          <Text fontSize="sm" color="gray.500" mb={4}>
-            Download link expires in {paymentData?.expires_in}
+            We'll get in touch about shipping your order.
           </Text>
 
-          <VStack spacing={4}>
-            <Button colorScheme="green" size="lg" onClick={handleDownload}>
-              Download 3D Model
-            </Button>
-
-            <Button variant="outline" onClick={handleBackToItems}>
-              Back to Items
-            </Button>
-          </VStack>
+          <Button variant="outline" onClick={handleBackToItems}>
+            Back to Items
+          </Button>
         </Box>
 
         <Box textAlign="center" fontSize="sm" color="gray.500">
           <Text>
             Need help? Contact us at{" "}
-            <Link href="mailto:support@example.com" color="blue.500">
-              support@example.com
+            <Link href="mailto:karl@ubdm.io" color="blue.500">
+              karl@ubdm.io
             </Link>
           </Text>
         </Box>

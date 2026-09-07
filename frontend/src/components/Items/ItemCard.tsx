@@ -47,6 +47,17 @@ const ItemCard = ({ item }: { item: ItemPublic }) => {
         <Text fontSize="sm" color="gray.600" noOfLines={2}>
           {item.description || "No description available"}
         </Text>
+        {item.is_sold ? (
+          <Text fontSize="sm" fontWeight="bold" color="red.500">
+            Sold
+          </Text>
+        ) : (
+          (item.price ?? 0) > 0 && (
+            <Text fontSize="sm" fontWeight="bold">
+              €{(item.price ?? 0).toFixed(2)}
+            </Text>
+          )
+        )}
       </Box>
     </Box>
   )

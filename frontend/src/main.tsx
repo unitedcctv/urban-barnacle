@@ -6,6 +6,7 @@ import { routeTree } from "./routeTree.gen"
 
 import { StrictMode } from "react"
 import { client } from "./client/client.gen"
+import { CartProvider } from "./context/CartContext"
 import theme from "./theme"
 
 client.setConfig({
@@ -34,7 +35,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ChakraProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <CartProvider>
+          <RouterProvider router={router} />
+        </CartProvider>
       </QueryClientProvider>
     </ChakraProvider>
   </StrictMode>,

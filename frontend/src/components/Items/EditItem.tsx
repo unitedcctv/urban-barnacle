@@ -68,6 +68,7 @@ const EditItem = ({
     title: item?.title || "",
     description: item?.description || "",
     model: item?.model || "",
+    price: item?.price ?? 0,
     images: imagesString,
   }
 
@@ -95,6 +96,7 @@ const EditItem = ({
       title: item?.title,
       description: item?.description || "",
       model: item?.model || "",
+      price: item?.price ?? 0,
       images: imagesString,
     },
   })
@@ -120,6 +122,7 @@ const EditItem = ({
       (watchedValues.title || "") !== originalValues.title ||
       (watchedValues.description || "") !== originalValues.description ||
       (watchedValues.model || "") !== originalValues.model ||
+      Number(watchedValues.price ?? 0) !== originalValues.price ||
       currentImages !== originalImages ||
       imagesDeleted ||
       modelDeleted ||
@@ -258,6 +261,24 @@ const EditItem = ({
           {...register("description")}
           placeholder="Description"
         />
+      </FormControl>
+
+      <FormControl mt={4} isInvalid={!!errors.price}>
+        <FormLabel htmlFor="price">Price (€)</FormLabel>
+        <Input
+          id="price"
+          {...register("price", {
+            valueAsNumber: true,
+            min: { value: 0, message: "Price cannot be negative" },
+          })}
+          placeholder="0.00"
+          type="number"
+          step="0.01"
+          min="0"
+        />
+        {errors.price && (
+          <FormErrorMessage>{errors.price.message}</FormErrorMessage>
+        )}
       </FormControl>
 
       <FormControl mt={4}>

@@ -16,10 +16,52 @@ import leftPanelOpenIcon from "../../theme/assets/icons/left_panel_open.svg"
 
 import { Link } from "@tanstack/react-router"
 import { useMemo, useState } from "react"
+import { FaShoppingCart } from "react-icons/fa"
+import { useCart } from "../../context/CartContext"
 import UBLogoSvg from "../../theme/assets/logo.svg"
 import colors from "../../theme/colors"
 import LogInOut from "./LogInOut"
 import NavigationItems from "./NavigationItems"
+
+const CartBadge = ({ onClick }: { onClick?: () => void }) => {
+  const { count } = useCart()
+  const textColor = useColorModeValue(colors.ui.dark, colors.ui.light)
+  return (
+    <ChakraFlex
+      as={Link}
+      to="/cart"
+      align="center"
+      justify="center"
+      position="relative"
+      px={3}
+      h="52px"
+      color={textColor}
+      onClick={onClick}
+      aria-label="Cart"
+    >
+      <FaShoppingCart size={22} />
+      {count > 0 && (
+        <ChakraFlex
+          position="absolute"
+          top="6px"
+          right="2px"
+          bg="ui.main"
+          color="ui.light"
+          borderRadius="full"
+          minW="18px"
+          h="18px"
+          align="center"
+          justify="center"
+          fontSize="xs"
+          fontWeight="bold"
+          px={1}
+        >
+          {count}
+        </ChakraFlex>
+      )}
+    </ChakraFlex>
+  )
+}
 
 const Navigation = () => {
   const UBLogo = () =>
@@ -117,6 +159,7 @@ const Navigation = () => {
                 </Text>
               </ChakraFlex>
               <NavigationItems onClose={onClose} onCount={setItemCount} direction="column" />
+              <CartBadge onClick={onClose} />
               <LogInOut showText={true} />
             </Flex>
           </DrawerBody>
@@ -159,7 +202,10 @@ const Navigation = () => {
           <NavigationItems onCount={setItemCount} />
         </Flex>
 
-        <LogInOut showText={showText} />
+        <Flex align="center">
+          <CartBadge />
+          <LogInOut showText={showText} />
+        </Flex>
       </Flex>
     </>
   )

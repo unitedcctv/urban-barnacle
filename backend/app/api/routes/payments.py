@@ -1,14 +1,17 @@
+import logging
+import uuid
+
 import stripe
 from typing import Any
-from fastapi import APIRouter, HTTPException, Depends, Request
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
-from sqlmodel import Session, select
+from sqlmodel import select
 
-from app.api.deps import SessionDep, CurrentUser
+from app.api.deps import SessionDep
 from app.core.config import settings
 from app.models import Item
-from app import crud
+
+logger = logging.getLogger(__name__)
 
 # Initialize Stripe
 if settings.stripe_enabled:
@@ -17,8 +20,8 @@ if settings.stripe_enabled:
 router = APIRouter(prefix="/payments", tags=["payments"])
 
 
-class CheckoutRequest(BaseModel):
-    item_id: str
+class CartCheckoutRequest(BaseModel):
+    item_ids: list[str]
     success_url: str | None = None
     cancel_url: str | None = None
 
@@ -27,64 +30,86 @@ class CheckoutResponse(BaseModel):
     url: str
 
 
-@router.post("/create-checkout-session", response_model=CheckoutResponse)
-async def create_checkout_session(
-    request: CheckoutRequest,
+def _mark_items_sold(session: Any, item_ids: list[str]) -> None:
+    """Mark purchased items as sold."""
+    for item_id in item_ids:
+        try:
+            item = session.get(Item, uuid.UUID(item_id))
+        except ValueError:
+            continue
+        if item and not item.is_sold:
+            item.is_sold = True
+            session.add(item)
+    session.commit()
+
+
+@router.post("/create-cart-checkout", response_model=CheckoutResponse)
+async def create_cart_checkout(
+    request: CartCheckoutRequest,
     session: SessionDep,
-    current_user: CurrentUser,
 ) -> Any:
     """
-    Create a Stripe checkout session for purchasing a model.
+    Create a Stripe checkout session for purchasing cart items.
     """
     if not settings.stripe_enabled:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail="Stripe payments are not configured"
         )
-    
-    # Get the item from database
-    item = session.get(Item, request.item_id)
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    
-    # Check if item has a model file to purchase
-    if not item.model:
-        raise HTTPException(
-            status_code=400, 
-            detail="This item does not have a purchasable model"
-        )
-    
+
+    if not request.item_ids:
+        raise HTTPException(status_code=400, detail="Cart is empty")
+
+    # Resolve and validate all items
+    items = []
+    for item_id in request.item_ids:
+        try:
+            item = session.get(Item, uuid.UUID(item_id))
+        except ValueError:
+            item = None
+        if not item:
+            raise HTTPException(status_code=404, detail=f"Item not found: {item_id}")
+        if item.is_sold:
+            raise HTTPException(status_code=400, detail=f"Item already sold: {item.title}")
+        if item.price <= 0:
+            raise HTTPException(status_code=400, detail=f"Item has no price: {item.title}")
+        items.append(item)
+
     try:
         # Set default URLs if not provided
         success_url = request.success_url or f"{settings.FRONTEND_HOST}/payment/success?session_id={{CHECKOUT_SESSION_ID}}"
         cancel_url = request.cancel_url or f"{settings.FRONTEND_HOST}/payment/cancel"
-        
+
+        line_items = [
+            {
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {
+                        "name": item.title,
+                        "description": item.description or item.title,
+                    },
+                    "unit_amount": round(item.price * 100),  # Stripe uses cents
+                },
+                "quantity": 1,
+            }
+            for item in items
+        ]
+
         # Create Stripe checkout session
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
-            line_items=[{
-                "price_data": {
-                    "currency": "usd",
-                    "product_data": {
-                        "name": f"{item.title} - 3D Model",
-                        "description": item.description or f"3D model file for {item.title}",
-                    },
-                    "unit_amount": 1000,  # $10.00 - you can make this configurable per item
-                },
-                "quantity": 1,
-            }],
+            line_items=line_items,
             mode="payment",
             success_url=success_url,
             cancel_url=cancel_url,
+            shipping_address_collection={"allowed_countries": ["DE", "AT", "CH", "NL", "BE", "FR", "IT", "ES", "PL", "GB", "US"]},
             metadata={
-                "item_id": str(item.id),
-                "user_id": str(current_user.id),
-                "user_email": current_user.email,
+                "item_ids": ",".join(str(item.id) for item in items),
             },
         )
-        
+
         return CheckoutResponse(url=checkout_session.url)
-        
+
     except stripe.error.StripeError as e:
         raise HTTPException(status_code=400, detail=f"Stripe error: {str(e)}")
     except Exception as e:
@@ -95,54 +120,56 @@ async def create_checkout_session(
 async def payment_success(
     session_id: str,
     session: SessionDep,
-    current_user: CurrentUser,
 ) -> Any:
     """
-    Handle successful payment and provide secure download link.
+    Verify a completed payment and mark purchased items as sold.
     """
     if not settings.stripe_enabled:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail="Stripe payments are not configured"
         )
-    
+
     try:
         # Retrieve the checkout session from Stripe
         checkout_session = stripe.checkout.Session.retrieve(session_id)
-        
+
         # Verify payment was completed
         if checkout_session.payment_status != "paid":
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="Payment not completed"
             )
-        
-        # Get item ID from metadata
-        item_id = checkout_session.metadata.get("item_id")
-        if not item_id:
+
+        # Get item IDs from metadata
+        item_ids_raw = checkout_session.metadata.get("item_ids") or ""
+        item_ids = [i for i in item_ids_raw.split(",") if i]
+        if not item_ids:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="Invalid session metadata"
             )
-        
-        # Get the item
-        item = session.get(Item, item_id)
-        if not item or not item.model:
-            raise HTTPException(
-                status_code=404, 
-                detail="Model file not found"
-            )
-        
-        # For now, return the direct model URL
-        # In production, you'd want to generate a time-limited presigned URL
-        # or serve the file through a secure endpoint
+
+        # Mark items as sold (idempotent)
+        _mark_items_sold(session, item_ids)
+
+        # Fetch item titles for the confirmation page
+        titles = []
+        for item_id in item_ids:
+            try:
+                item = session.get(Item, uuid.UUID(item_id))
+            except ValueError:
+                item = None
+            if item:
+                titles.append(item.title)
+
         return {
             "message": "Payment successful!",
-            "download_url": item.model,
-            "item_title": item.title,
-            "expires_in": "10 minutes"
+            "items": titles,
+            "total": (checkout_session.amount_total or 0) / 100,
+            "currency": (checkout_session.currency or "eur").upper(),
         }
-        
+
     except stripe.error.StripeError as e:
         raise HTTPException(status_code=400, detail=f"Stripe error: {str(e)}")
     except Exception as e:
@@ -180,9 +207,12 @@ async def stripe_webhook(request: Request, session: SessionDep) -> Any:
     # Handle the event
     if event["type"] == "checkout.session.completed":
         session_data = event["data"]["object"]
-        # Log successful payment, update database, send confirmation email, etc.
-        print(f"Payment completed for session: {session_data['id']}")
-    
+        logger.info(f"Payment completed for session: {session_data['id']}")
+        item_ids_raw = session_data.get("metadata", {}).get("item_ids") or ""
+        item_ids = [i for i in item_ids_raw.split(",") if i]
+        if item_ids:
+            _mark_items_sold(session, item_ids)
+
     return {"status": "success"}
 
 

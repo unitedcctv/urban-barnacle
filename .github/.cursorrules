@@ -1,0 +1,27 @@
+### FastAPI & Pydantic V2 Project Rules
+
+### Tech Stack Rules
+
+* Target Python 3.11+ syntax and features.
+* Use FastAPI for all web frameworks and routing.
+* Use Pydantic V2 exclusively (e.g., use model_validator, field_validator, and BaseModel). Do not use V1 syntax (@validator or root_validator).
+* Use SQLAlchemy 2.0 or SQLModel with async execution (asyncio and asyncSession).
+
+### Coding Conventions
+
+* Prefer asynchronous endpoints (async def) unless third-party blockers force synchronous code.
+* Explicitly declare response models on all route definitions (e.g., response_model=UserResponse).
+* Use native FastAPI Depends() for all dependency injections (DB sessions, authentication, current user context).
+* Group routes using explicit APIRouter instances with clean prefixing and logical tags.
+
+### Pydantic & Data Handling
+
+* Return exact HTTP status codes via status_code=status.HTTP_....
+* Leverage Pydantic Field for descriptions, examples, and validations.
+* Keep data validation logic strictly inside Pydantic schemas, out of the router endpoints.
+* Handle data persistence transformations gracefully using model_dump() or model_dump_json().
+
+### Error & Response Management
+
+* Always use FastAPI's built-in HTTPException for operational errors.
+* Return consistent JSON structures for error states.

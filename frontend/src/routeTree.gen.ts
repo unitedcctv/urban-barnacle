@@ -26,6 +26,7 @@ import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutImpressumImport } from './routes/_layout/impressum'
 import { Route as LayoutContactImport } from './routes/_layout/contact'
+import { Route as LayoutCartImport } from './routes/_layout/cart'
 import { Route as LayoutAboutImport } from './routes/_layout/about'
 import { Route as LayoutPaymentSuccessImport } from './routes/_layout/payment/success'
 import { Route as LayoutPaymentCancelImport } from './routes/_layout/payment/cancel'
@@ -107,6 +108,11 @@ const LayoutContactRoute = LayoutContactImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutCartRoute = LayoutCartImport.update({
+  path: '/cart',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutAboutRoute = LayoutAboutImport.update({
   path: '/about',
   getParentRoute: () => LayoutRoute,
@@ -144,6 +150,10 @@ declare module '@tanstack/react-router' {
     }
     '/_layout/about': {
       preLoaderRoute: typeof LayoutAboutImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/cart': {
+      preLoaderRoute: typeof LayoutCartImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/contact': {
@@ -206,6 +216,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAboutRoute,
+    LayoutCartRoute,
     LayoutContactRoute,
     LayoutImpressumRoute,
     LayoutItemRoute,

@@ -56,6 +56,7 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
     description: "",
     model: "",
     certificate: "",
+    price: 0,
     images: "",
   }
 
@@ -267,6 +268,27 @@ function CreateItemModal({ isOpen, onClose }: CreateItemModalProps) {
                 {...register("description")}
                 placeholder="Description"
               />
+            </FormControl>
+
+            {/* Price Field */}
+            <FormControl mt={4} isInvalid={!!errors.price}>
+              <FormLabel htmlFor="price">Price (€)</FormLabel>
+              <Input
+                id="price"
+                {...register("price", {
+                  valueAsNumber: true,
+                  min: { value: 0, message: "Price cannot be negative" },
+                })}
+                placeholder="0.00"
+                type="number"
+                step="0.01"
+                min="0"
+              />
+              {errors.price && (
+                <FormErrorMessage>
+                  {errors.price.message as string}
+                </FormErrorMessage>
+              )}
             </FormControl>
 
             {/* Model File Upload */}

@@ -76,6 +76,8 @@ class ItemBase(SQLModel):
     images: Optional[str] = Field(default=None)  # Store as comma-separated string
     model: Optional[str] = Field(default=None)
     certificate: Optional[str] = Field(default=None)
+    price: float = Field(default=0.0, ge=0)  # Price in EUR
+    is_sold: bool = Field(default=False)
     # Original/Variant linkage
     is_original: bool = Field(default=True)
     variant_of: Optional[uuid.UUID] = Field(default=None, foreign_key="item.id")
@@ -149,6 +151,8 @@ class ItemPublic(ItemBase):
             images=item.images,
             model=item.model,
             certificate=item.certificate,
+            price=item.price,
+            is_sold=item.is_sold,
             is_original=item.is_original,
             variant_of=item.variant_of,
             image_urls=image_urls

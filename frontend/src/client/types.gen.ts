@@ -209,6 +209,14 @@ export type ItemCreate = {
    */
   certificate?: string | null
   /**
+   * Price
+   */
+  price?: number
+  /**
+   * Is Sold
+   */
+  is_sold?: boolean
+  /**
    * Is Original
    */
   is_original?: boolean
@@ -242,6 +250,14 @@ export type ItemPublic = {
    * Certificate
    */
   certificate?: string | null
+  /**
+   * Price
+   */
+  price?: number
+  /**
+   * Is Sold
+   */
+  is_sold?: boolean
   /**
    * Is Original
    */
@@ -288,6 +304,14 @@ export type ItemUpdate = {
    * Certificate
    */
   certificate?: string | null
+  /**
+   * Price
+   */
+  price?: number | null
+  /**
+   * Is Sold
+   */
+  is_sold?: boolean | null
   /**
    * Is Original
    */
