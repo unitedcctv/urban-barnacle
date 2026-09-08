@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_layout/items")({
 
 const PER_PAGE = 20
 
-export function Dashboard() {
+function Dashboard() {
   return (
     <Container maxW="full">
       <ItemsGrid />
