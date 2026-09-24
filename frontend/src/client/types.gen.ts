@@ -83,6 +83,80 @@ export type CheckoutResponse = {
 }
 
 /**
+ * ContactEnquiriesPublic
+ */
+export type ContactEnquiriesPublic = {
+  /**
+   * Data
+   */
+  data: Array<ContactEnquiryPublic>
+  /**
+   * Count
+   */
+  count: number
+}
+
+/**
+ * ContactEnquiryCreate
+ */
+export type ContactEnquiryCreate = {
+  /**
+   * Name
+   */
+  name: string
+  /**
+   * Email
+   */
+  email: string
+  /**
+   * Subject
+   */
+  subject?: string | null
+  /**
+   * Message
+   */
+  message: string
+  /**
+   * Website
+   */
+  website?: string | null
+}
+
+/**
+ * ContactEnquiryPublic
+ */
+export type ContactEnquiryPublic = {
+  /**
+   * Name
+   */
+  name: string
+  /**
+   * Email
+   */
+  email: string
+  /**
+   * Subject
+   */
+  subject?: string | null
+  /**
+   * Message
+   */
+  message: string
+  /**
+   * Id
+   */
+  id: string
+  /**
+   * Status
+   */
+  status: string
+  /**
+   * Created At
+   */
+  created_at: string
+}
+
+/**
  * EmailConfirmation
  */
 export type EmailConfirmation = {
@@ -2376,6 +2450,69 @@ export type TodosReorderTodosResponses = {
 
 export type TodosReorderTodosResponse =
   TodosReorderTodosResponses[keyof TodosReorderTodosResponses]
+
+export type EnquiriesReadEnquiriesData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+     * Skip
+     */
+    skip?: number
+    /**
+     * Limit
+     */
+    limit?: number
+  }
+  url: "/api/v1/enquiries/"
+}
+
+export type EnquiriesReadEnquiriesErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type EnquiriesReadEnquiriesError =
+  EnquiriesReadEnquiriesErrors[keyof EnquiriesReadEnquiriesErrors]
+
+export type EnquiriesReadEnquiriesResponses = {
+  /**
+   * Successful Response
+   */
+  200: ContactEnquiriesPublic
+}
+
+export type EnquiriesReadEnquiriesResponse =
+  EnquiriesReadEnquiriesResponses[keyof EnquiriesReadEnquiriesResponses]
+
+export type EnquiriesSubmitEnquiryData = {
+  body: ContactEnquiryCreate
+  path?: never
+  query?: never
+  url: "/api/v1/enquiries/"
+}
+
+export type EnquiriesSubmitEnquiryErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type EnquiriesSubmitEnquiryError =
+  EnquiriesSubmitEnquiryErrors[keyof EnquiriesSubmitEnquiryErrors]
+
+export type EnquiriesSubmitEnquiryResponses = {
+  /**
+   * Successful Response
+   */
+  201: Message
+}
+
+export type EnquiriesSubmitEnquiryResponse =
+  EnquiriesSubmitEnquiryResponses[keyof EnquiriesSubmitEnquiryResponses]
 
 export type PrivateCreateUserData = {
   body: PrivateUserCreate

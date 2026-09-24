@@ -81,6 +81,8 @@ class Settings(BaseSettings):
     # TODO: update type to EmailStr when sqlmodel supports it
     EMAILS_FROM_EMAIL: str | None = None
     EMAILS_FROM_NAME: str | None = None
+    # Where contact form enquiries are sent; falls back to EMAILS_FROM_EMAIL
+    CONTACT_FORM_EMAIL: str | None = None
 
     @model_validator(mode="after")
     def _set_default_emails_from(self) -> Self:

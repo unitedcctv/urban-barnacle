@@ -266,6 +266,42 @@ class EmailLogPublic(EmailLogBase):
     sent_at: Optional[datetime]
 
 
+# Contact form enquiries
+class ContactEnquiryBase(SQLModel):
+    name: str = Field(max_length=255)
+    email: EmailStr = Field(max_length=255)
+    subject: Optional[str] = Field(default=None, max_length=255)
+    message: str = Field(max_length=5000)
+
+
+# Properties to receive via API from the public contact form
+class ContactEnquiryCreate(ContactEnquiryBase):
+    # Honeypot field: real users never see it, bots fill it in
+    website: Optional[str] = Field(default=None, max_length=255)
+
+
+# Database model
+class ContactEnquiry(ContactEnquiryBase, table=True):  # type: ignore[call-arg]
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    status: str = Field(default="new", max_length=20)
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column=Column(DateTime, nullable=False)
+    )
+
+
+# Properties to return via API
+class ContactEnquiryPublic(ContactEnquiryBase):
+    id: uuid.UUID
+    status: str
+    created_at: datetime
+
+
+class ContactEnquiriesPublic(SQLModel):
+    data: list[ContactEnquiryPublic]
+    count: int
+
+
 # Shared properties for NFC tags (NTAG 424 DNA)
 # NOTE: No key material is ever stored in the database. Per-tag keys are
 # derived from a master key (NFC_MASTER_KEY env var) via AES-CMAC

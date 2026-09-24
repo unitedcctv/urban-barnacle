@@ -132,6 +132,123 @@ export const CheckoutResponseSchema = {
   title: "CheckoutResponse",
 } as const
 
+export const ContactEnquiriesPublicSchema = {
+  properties: {
+    data: {
+      items: {
+        $ref: "#/components/schemas/ContactEnquiryPublic",
+      },
+      type: "array",
+      title: "Data",
+    },
+    count: {
+      type: "integer",
+      title: "Count",
+    },
+  },
+  type: "object",
+  required: ["data", "count"],
+  title: "ContactEnquiriesPublic",
+} as const
+
+export const ContactEnquiryCreateSchema = {
+  properties: {
+    name: {
+      type: "string",
+      maxLength: 255,
+      title: "Name",
+    },
+    email: {
+      type: "string",
+      maxLength: 255,
+      format: "email",
+      title: "Email",
+    },
+    subject: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Subject",
+    },
+    message: {
+      type: "string",
+      maxLength: 5000,
+      title: "Message",
+    },
+    website: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Website",
+    },
+  },
+  type: "object",
+  required: ["name", "email", "message"],
+  title: "ContactEnquiryCreate",
+} as const
+
+export const ContactEnquiryPublicSchema = {
+  properties: {
+    name: {
+      type: "string",
+      maxLength: 255,
+      title: "Name",
+    },
+    email: {
+      type: "string",
+      maxLength: 255,
+      format: "email",
+      title: "Email",
+    },
+    subject: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Subject",
+    },
+    message: {
+      type: "string",
+      maxLength: 5000,
+      title: "Message",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    status: {
+      type: "string",
+      title: "Status",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+  },
+  type: "object",
+  required: ["name", "email", "message", "id", "status", "created_at"],
+  title: "ContactEnquiryPublic",
+} as const
+
 export const EmailConfirmationSchema = {
   properties: {
     token: {

@@ -2,6 +2,7 @@ import logging
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from html import escape
 from pathlib import Path
 from typing import Any, Optional
 
@@ -37,12 +38,14 @@ def send_email(
     email_to: str,
     subject: str = "",
     html_content: str = "",
+    reply_to: str | None = None,
 ) -> None:
     assert settings.emails_enabled, "no provided configuration for email variables"
     message = emails.Message(
         subject=subject,
         html=html_content,
         mail_from=(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL),
+        headers={"Reply-To": reply_to} if reply_to else None,
     )
     smtp_options = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT}
     if settings.SMTP_TLS:
@@ -65,6 +68,7 @@ def send_email_with_logging(
     html_content: str,
     email_type: str,
     user_id: Optional[uuid.UUID] = None,
+    reply_to: Optional[str] = None,
 ) -> None:
     """
     Send email and log the result to database.
@@ -89,6 +93,7 @@ def send_email_with_logging(
             email_to=email_to,
             subject=subject,
             html_content=html_content,
+            reply_to=reply_to,
         )
         
         # Update log with success
@@ -197,6 +202,44 @@ def verify_email_confirmation_token(token: str) -> str | None:
         return str(decoded_token["sub"])
     except InvalidTokenError:
         return None
+
+
+def generate_enquiry_notification_email(
+    name: str, email: str, subject: str | None, message: str
+) -> EmailData:
+    """
+    Email sent to the site owner when someone submits the contact form.
+    """
+    project_name = settings.PROJECT_NAME
+    email_subject = f"{project_name} - New enquiry: {subject or 'Contact form'}"
+    html_content = render_email_template(
+        template_name="contact_enquiry.html",
+        context={
+            "project_name": project_name,
+            "name": escape(name),
+            "email": escape(email),
+            "subject": escape(subject or "(no subject)"),
+            "message": escape(message).replace("\n", "<br>"),
+        },
+    )
+    return EmailData(html_content=html_content, subject=email_subject)
+
+
+def generate_enquiry_acknowledgement_email(email_to: str, name: str) -> EmailData:
+    """
+    Confirmation email sent back to the visitor after they submit the form.
+    """
+    project_name = settings.PROJECT_NAME
+    subject = f"{project_name} - We've received your enquiry"
+    html_content = render_email_template(
+        template_name="enquiry_acknowledgement.html",
+        context={
+            "project_name": project_name,
+            "name": escape(name),
+            "email": escape(email_to),
+        },
+    )
+    return EmailData(html_content=html_content, subject=subject)
 
 
 def generate_email_confirmation_email(email_to: str, token: str) -> EmailData:

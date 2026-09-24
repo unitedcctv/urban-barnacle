@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    enquiries,
     images,
     items,
     login,
@@ -28,6 +29,7 @@ api_router.include_router(payments.router)
 api_router.include_router(navigation.router)
 api_router.include_router(nfc.router)
 api_router.include_router(todos.router)
+api_router.include_router(enquiries.router)
 
 
 # Temporarily disabled to test signup endpoint

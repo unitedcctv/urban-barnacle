@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.db import engine, init_db
 from app.main import app
 from app.models import (
+    ContactEnquiry,
     EmailLog,
     Item,
     ItemImage,
@@ -29,6 +30,7 @@ def clear_database(session: Session) -> None:
         ItemImage,
         Item,
         EmailLog,
+        ContactEnquiry,
         User,
     ):
         session.execute(delete(model))

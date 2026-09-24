@@ -11,6 +11,12 @@ import {
 } from "./client"
 import { client } from "./client.gen"
 import type {
+  EnquiriesReadEnquiriesData,
+  EnquiriesReadEnquiriesErrors,
+  EnquiriesReadEnquiriesResponses,
+  EnquiriesSubmitEnquiryData,
+  EnquiriesSubmitEnquiryErrors,
+  EnquiriesSubmitEnquiryResponses,
   ImagesDeleteFileData,
   ImagesDeleteFileErrors,
   ImagesDeleteFileResponses,
@@ -1594,6 +1600,65 @@ export const todosReorderTodos = <ThrowOnError extends boolean = false>(
     responseStyle: "data",
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/todos/reorder",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Read Enquiries
+ *
+ * Retrieve contact form enquiries (superusers only), newest first.
+ */
+export const enquiriesReadEnquiries = <ThrowOnError extends boolean = false>(
+  options?: Options<EnquiriesReadEnquiriesData, ThrowOnError>,
+): RequestResult<
+  EnquiriesReadEnquiriesResponses,
+  EnquiriesReadEnquiriesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).get<
+    EnquiriesReadEnquiriesResponses,
+    EnquiriesReadEnquiriesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/enquiries/",
+    ...options,
+  })
+
+/**
+ * Submit Enquiry
+ *
+ * Submit a contact form enquiry (public, no authentication required).
+ *
+ * Spam protection:
+ * - Honeypot: submissions with the hidden 'website' field filled in are
+ * silently accepted but discarded, so bots get no signal.
+ * - Rate limiting: at most ENQUIRY_RATE_LIMIT_MAX submissions per IP per
+ * ENQUIRY_RATE_LIMIT_WINDOW_MINUTES minutes.
+ */
+export const enquiriesSubmitEnquiry = <ThrowOnError extends boolean = false>(
+  options: Options<EnquiriesSubmitEnquiryData, ThrowOnError>,
+): RequestResult<
+  EnquiriesSubmitEnquiryResponses,
+  EnquiriesSubmitEnquiryErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    EnquiriesSubmitEnquiryResponses,
+    EnquiriesSubmitEnquiryErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v1/enquiries/",
     ...options,
     headers: {
       "Content-Type": "application/json",
