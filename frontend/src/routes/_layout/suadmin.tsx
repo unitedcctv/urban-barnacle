@@ -159,6 +159,9 @@ function SuAdmin() {
         <Button as={Link} to="/logs" variant="primary">
           View Logs
         </Button>
+        <Button as={Link} to="/todos" variant="primary">
+          Manage Todos
+        </Button>
       </Flex>
     </Container>
   )

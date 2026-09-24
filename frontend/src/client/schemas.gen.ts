@@ -83,11 +83,14 @@ export const Body_models_upload_modelSchema = {
   title: "Body_models-upload_model",
 } as const
 
-export const CheckoutRequestSchema = {
+export const CartCheckoutRequestSchema = {
   properties: {
-    item_id: {
-      type: "string",
-      title: "Item Id",
+    item_ids: {
+      items: {
+        type: "string",
+      },
+      type: "array",
+      title: "Item Ids",
     },
     success_url: {
       anyOf: [
@@ -113,8 +116,8 @@ export const CheckoutRequestSchema = {
     },
   },
   type: "object",
-  required: ["item_id"],
-  title: "CheckoutRequest",
+  required: ["item_ids"],
+  title: "CartCheckoutRequest",
 } as const
 
 export const CheckoutResponseSchema = {
@@ -343,6 +346,17 @@ export const ItemCreateSchema = {
       ],
       title: "Certificate",
     },
+    price: {
+      type: "number",
+      minimum: 0,
+      title: "Price",
+      default: 0,
+    },
+    is_sold: {
+      type: "boolean",
+      title: "Is Sold",
+      default: false,
+    },
     is_original: {
       type: "boolean",
       title: "Is Original",
@@ -418,6 +432,17 @@ export const ItemPublicSchema = {
         },
       ],
       title: "Certificate",
+    },
+    price: {
+      type: "number",
+      minimum: 0,
+      title: "Price",
+      default: 0,
+    },
+    is_sold: {
+      type: "boolean",
+      title: "Is Sold",
+      default: false,
     },
     is_original: {
       type: "boolean",
@@ -519,6 +544,17 @@ export const ItemUpdateSchema = {
         },
       ],
       title: "Certificate",
+    },
+    price: {
+      type: "number",
+      minimum: 0,
+      title: "Price",
+      default: 0,
+    },
+    is_sold: {
+      type: "boolean",
+      title: "Is Sold",
+      default: false,
     },
     is_original: {
       type: "boolean",
@@ -756,6 +792,204 @@ export const PrivateUserCreateSchema = {
   type: "object",
   required: ["email", "password", "full_name"],
   title: "PrivateUserCreate",
+} as const
+
+export const TodoCreateSchema = {
+  properties: {
+    title: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      title: "Title",
+    },
+    description: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 2000,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Description",
+    },
+    deadline: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Deadline",
+    },
+    related_ids: {
+      items: {
+        type: "string",
+        format: "uuid",
+      },
+      type: "array",
+      title: "Related Ids",
+      default: [],
+    },
+  },
+  type: "object",
+  required: ["title"],
+  title: "TodoCreate",
+} as const
+
+export const TodoPublicSchema = {
+  properties: {
+    title: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      title: "Title",
+    },
+    description: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 2000,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Description",
+    },
+    deadline: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Deadline",
+    },
+    position: {
+      type: "integer",
+      title: "Position",
+      default: 0,
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    related_ids: {
+      items: {
+        type: "string",
+        format: "uuid",
+      },
+      type: "array",
+      title: "Related Ids",
+      default: [],
+    },
+  },
+  type: "object",
+  required: ["title", "id"],
+  title: "TodoPublic",
+} as const
+
+export const TodoReorderSchema = {
+  properties: {
+    ordered_ids: {
+      items: {
+        type: "string",
+        format: "uuid",
+      },
+      type: "array",
+      title: "Ordered Ids",
+    },
+  },
+  type: "object",
+  required: ["ordered_ids"],
+  title: "TodoReorder",
+} as const
+
+export const TodoUpdateSchema = {
+  properties: {
+    title: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+          minLength: 1,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Title",
+    },
+    description: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 2000,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Description",
+    },
+    deadline: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Deadline",
+    },
+    related_ids: {
+      anyOf: [
+        {
+          items: {
+            type: "string",
+            format: "uuid",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Related Ids",
+    },
+  },
+  type: "object",
+  title: "TodoUpdate",
+} as const
+
+export const TodosPublicSchema = {
+  properties: {
+    data: {
+      items: {
+        $ref: "#/components/schemas/TodoPublic",
+      },
+      type: "array",
+      title: "Data",
+    },
+    count: {
+      type: "integer",
+      title: "Count",
+    },
+  },
+  type: "object",
+  required: ["data", "count"],
+  title: "TodosPublic",
 } as const
 
 export const TokenSchema = {

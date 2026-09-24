@@ -311,3 +311,84 @@ class NfcTagPublic(NfcTagBase):
 class NfcTagsPublic(SQLModel):
     data: list[NfcTagPublic]
     count: int
+
+
+# Link table for self-referential many-to-many relations between todos
+class TodoLink(SQLModel, table=True):  # type: ignore[call-arg]
+    from_id: uuid.UUID = Field(foreign_key="todo.id", primary_key=True)
+    to_id: uuid.UUID = Field(foreign_key="todo.id", primary_key=True)
+
+
+# Shared properties for Todo
+class TodoBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: Optional[str] = Field(default=None, max_length=2000)
+    deadline: Optional[datetime] = Field(
+        default=None, sa_column=Column(DateTime, nullable=True)
+    )
+    position: int = Field(default=0, index=True)
+
+
+# Properties to receive on todo creation
+class TodoCreate(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: Optional[str] = Field(default=None, max_length=2000)
+    deadline: Optional[datetime] = None
+    related_ids: list[uuid.UUID] = []
+
+
+# Properties to receive on todo update, all are optional
+class TodoUpdate(SQLModel):
+    title: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    description: Optional[str] = Field(default=None, max_length=2000)
+    deadline: Optional[datetime] = None
+    related_ids: Optional[list[uuid.UUID]] = None
+
+
+# Payload for drag-and-drop reordering
+class TodoReorder(SQLModel):
+    ordered_ids: list[uuid.UUID]
+
+
+# Database model, database table inferred from class name
+class Todo(TodoBase, table=True):  # type: ignore[call-arg]
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    related: list["Todo"] = Relationship(
+        back_populates="related_by",
+        link_model=TodoLink,
+        sa_relationship_kwargs={
+            "primaryjoin": "Todo.id == TodoLink.from_id",
+            "secondaryjoin": "Todo.id == TodoLink.to_id",
+        },
+    )
+    related_by: list["Todo"] = Relationship(
+        back_populates="related",
+        link_model=TodoLink,
+        sa_relationship_kwargs={
+            "primaryjoin": "Todo.id == TodoLink.to_id",
+            "secondaryjoin": "Todo.id == TodoLink.from_id",
+        },
+    )
+
+
+# Properties to return via API, id is always required
+class TodoPublic(TodoBase):
+    id: uuid.UUID
+    related_ids: list[uuid.UUID] = []
+
+    @classmethod
+    def from_todo(cls, todo: "Todo") -> "TodoPublic":
+        related_ids = {t.id for t in todo.related} | {t.id for t in todo.related_by}
+        return cls(
+            id=todo.id,
+            title=todo.title,
+            description=todo.description,
+            deadline=todo.deadline,
+            position=todo.position,
+            related_ids=sorted(related_ids),
+        )
+
+
+class TodosPublic(SQLModel):
+    data: list[TodoPublic]
+    count: int

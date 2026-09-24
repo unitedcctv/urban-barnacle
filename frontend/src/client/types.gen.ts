@@ -55,13 +55,13 @@ export type BodyModelsUploadModel = {
 }
 
 /**
- * CheckoutRequest
+ * CartCheckoutRequest
  */
-export type CheckoutRequest = {
+export type CartCheckoutRequest = {
   /**
-   * Item Id
+   * Item Ids
    */
-  item_id: string
+  item_ids: Array<string>
   /**
    * Success Url
    */
@@ -307,11 +307,11 @@ export type ItemUpdate = {
   /**
    * Price
    */
-  price?: number | null
+  price?: number
   /**
    * Is Sold
    */
-  is_sold?: boolean | null
+  is_sold?: boolean
   /**
    * Is Original
    */
@@ -475,6 +475,104 @@ export type PrivateUserCreate = {
    * Is Verified
    */
   is_verified?: boolean
+}
+
+/**
+ * TodoCreate
+ */
+export type TodoCreate = {
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Description
+   */
+  description?: string | null
+  /**
+   * Deadline
+   */
+  deadline?: string | null
+  /**
+   * Related Ids
+   */
+  related_ids?: Array<string>
+}
+
+/**
+ * TodoPublic
+ */
+export type TodoPublic = {
+  /**
+   * Title
+   */
+  title: string
+  /**
+   * Description
+   */
+  description?: string | null
+  /**
+   * Deadline
+   */
+  deadline?: string | null
+  /**
+   * Position
+   */
+  position?: number
+  /**
+   * Id
+   */
+  id: string
+  /**
+   * Related Ids
+   */
+  related_ids?: Array<string>
+}
+
+/**
+ * TodoReorder
+ */
+export type TodoReorder = {
+  /**
+   * Ordered Ids
+   */
+  ordered_ids: Array<string>
+}
+
+/**
+ * TodoUpdate
+ */
+export type TodoUpdate = {
+  /**
+   * Title
+   */
+  title?: string | null
+  /**
+   * Description
+   */
+  description?: string | null
+  /**
+   * Deadline
+   */
+  deadline?: string | null
+  /**
+   * Related Ids
+   */
+  related_ids?: Array<string> | null
+}
+
+/**
+ * TodosPublic
+ */
+export type TodosPublic = {
+  /**
+   * Data
+   */
+  data: Array<TodoPublic>
+  /**
+   * Count
+   */
+  count: number
 }
 
 /**
@@ -1834,32 +1932,32 @@ export type ModelsDeleteItemModelResponses = {
 export type ModelsDeleteItemModelResponse =
   ModelsDeleteItemModelResponses[keyof ModelsDeleteItemModelResponses]
 
-export type PaymentsCreateCheckoutSessionData = {
-  body: CheckoutRequest
+export type PaymentsCreateCartCheckoutData = {
+  body: CartCheckoutRequest
   path?: never
   query?: never
-  url: "/api/v1/payments/create-checkout-session"
+  url: "/api/v1/payments/create-cart-checkout"
 }
 
-export type PaymentsCreateCheckoutSessionErrors = {
+export type PaymentsCreateCartCheckoutErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError
 }
 
-export type PaymentsCreateCheckoutSessionError =
-  PaymentsCreateCheckoutSessionErrors[keyof PaymentsCreateCheckoutSessionErrors]
+export type PaymentsCreateCartCheckoutError =
+  PaymentsCreateCartCheckoutErrors[keyof PaymentsCreateCartCheckoutErrors]
 
-export type PaymentsCreateCheckoutSessionResponses = {
+export type PaymentsCreateCartCheckoutResponses = {
   /**
    * Successful Response
    */
   200: CheckoutResponse
 }
 
-export type PaymentsCreateCheckoutSessionResponse =
-  PaymentsCreateCheckoutSessionResponses[keyof PaymentsCreateCheckoutSessionResponses]
+export type PaymentsCreateCartCheckoutResponse =
+  PaymentsCreateCartCheckoutResponses[keyof PaymentsCreateCartCheckoutResponses]
 
 export type PaymentsPaymentSuccessData = {
   body?: never
@@ -2143,6 +2241,141 @@ export type NfcRevokeTagResponses = {
 
 export type NfcRevokeTagResponse =
   NfcRevokeTagResponses[keyof NfcRevokeTagResponses]
+
+export type TodosReadTodosData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v1/todos/"
+}
+
+export type TodosReadTodosResponses = {
+  /**
+   * Successful Response
+   */
+  200: TodosPublic
+}
+
+export type TodosReadTodosResponse =
+  TodosReadTodosResponses[keyof TodosReadTodosResponses]
+
+export type TodosCreateTodoData = {
+  body: TodoCreate
+  path?: never
+  query?: never
+  url: "/api/v1/todos/"
+}
+
+export type TodosCreateTodoErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type TodosCreateTodoError =
+  TodosCreateTodoErrors[keyof TodosCreateTodoErrors]
+
+export type TodosCreateTodoResponses = {
+  /**
+   * Successful Response
+   */
+  200: TodoPublic
+}
+
+export type TodosCreateTodoResponse =
+  TodosCreateTodoResponses[keyof TodosCreateTodoResponses]
+
+export type TodosDeleteTodoData = {
+  body?: never
+  path: {
+    /**
+     * Id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v1/todos/{id}"
+}
+
+export type TodosDeleteTodoErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type TodosDeleteTodoError =
+  TodosDeleteTodoErrors[keyof TodosDeleteTodoErrors]
+
+export type TodosDeleteTodoResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message
+}
+
+export type TodosDeleteTodoResponse =
+  TodosDeleteTodoResponses[keyof TodosDeleteTodoResponses]
+
+export type TodosUpdateTodoData = {
+  body: TodoUpdate
+  path: {
+    /**
+     * Id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v1/todos/{id}"
+}
+
+export type TodosUpdateTodoErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type TodosUpdateTodoError =
+  TodosUpdateTodoErrors[keyof TodosUpdateTodoErrors]
+
+export type TodosUpdateTodoResponses = {
+  /**
+   * Successful Response
+   */
+  200: TodoPublic
+}
+
+export type TodosUpdateTodoResponse =
+  TodosUpdateTodoResponses[keyof TodosUpdateTodoResponses]
+
+export type TodosReorderTodosData = {
+  body: TodoReorder
+  path?: never
+  query?: never
+  url: "/api/v1/todos/reorder"
+}
+
+export type TodosReorderTodosErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type TodosReorderTodosError =
+  TodosReorderTodosErrors[keyof TodosReorderTodosErrors]
+
+export type TodosReorderTodosResponses = {
+  /**
+   * Successful Response
+   */
+  200: TodosPublic
+}
+
+export type TodosReorderTodosResponse =
+  TodosReorderTodosResponses[keyof TodosReorderTodosResponses]
 
 export type PrivateCreateUserData = {
   body: PrivateUserCreate

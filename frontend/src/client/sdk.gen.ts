@@ -101,9 +101,9 @@ import type {
   NfcVerifyTagData,
   NfcVerifyTagErrors,
   NfcVerifyTagResponses,
-  PaymentsCreateCheckoutSessionData,
-  PaymentsCreateCheckoutSessionErrors,
-  PaymentsCreateCheckoutSessionResponses,
+  PaymentsCreateCartCheckoutData,
+  PaymentsCreateCartCheckoutErrors,
+  PaymentsCreateCartCheckoutResponses,
   PaymentsGetStripeConfigData,
   PaymentsGetStripeConfigResponses,
   PaymentsPaymentCancelData,
@@ -116,6 +116,20 @@ import type {
   PrivateCreateUserData,
   PrivateCreateUserErrors,
   PrivateCreateUserResponses,
+  TodosCreateTodoData,
+  TodosCreateTodoErrors,
+  TodosCreateTodoResponses,
+  TodosDeleteTodoData,
+  TodosDeleteTodoErrors,
+  TodosDeleteTodoResponses,
+  TodosReadTodosData,
+  TodosReadTodosResponses,
+  TodosReorderTodosData,
+  TodosReorderTodosErrors,
+  TodosReorderTodosResponses,
+  TodosUpdateTodoData,
+  TodosUpdateTodoErrors,
+  TodosUpdateTodoResponses,
   UsersApiCurrentUserData,
   UsersApiCurrentUserResponses,
   UsersConfirmEmailData,
@@ -1168,29 +1182,28 @@ export const modelsDeleteItemModel = <ThrowOnError extends boolean = false>(
   })
 
 /**
- * Create Checkout Session
+ * Create Cart Checkout
  *
- * Create a Stripe checkout session for purchasing a model.
+ * Create a Stripe checkout session for purchasing cart items.
  */
-export const paymentsCreateCheckoutSession = <
+export const paymentsCreateCartCheckout = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<PaymentsCreateCheckoutSessionData, ThrowOnError>,
+  options: Options<PaymentsCreateCartCheckoutData, ThrowOnError>,
 ): RequestResult<
-  PaymentsCreateCheckoutSessionResponses,
-  PaymentsCreateCheckoutSessionErrors,
+  PaymentsCreateCartCheckoutResponses,
+  PaymentsCreateCartCheckoutErrors,
   ThrowOnError,
   "data"
 > =>
   (options.client ?? client).post<
-    PaymentsCreateCheckoutSessionResponses,
-    PaymentsCreateCheckoutSessionErrors,
+    PaymentsCreateCartCheckoutResponses,
+    PaymentsCreateCartCheckoutErrors,
     ThrowOnError,
     "data"
   >({
     responseStyle: "data",
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/payments/create-checkout-session",
+    url: "/api/v1/payments/create-cart-checkout",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1201,7 +1214,7 @@ export const paymentsCreateCheckoutSession = <
 /**
  * Payment Success
  *
- * Handle successful payment and provide secure download link.
+ * Verify a completed payment and mark purchased items as sold.
  */
 export const paymentsPaymentSuccess = <ThrowOnError extends boolean = false>(
   options: Options<PaymentsPaymentSuccessData, ThrowOnError>,
@@ -1218,7 +1231,6 @@ export const paymentsPaymentSuccess = <ThrowOnError extends boolean = false>(
     "data"
   >({
     responseStyle: "data",
-    security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/payments/success",
     ...options,
   })
@@ -1455,6 +1467,138 @@ export const nfcRevokeTag = <ThrowOnError extends boolean = false>(
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/nfc/tags/{uid}",
     ...options,
+  })
+
+/**
+ * Read Todos
+ *
+ * Retrieve todos ordered by position.
+ */
+export const todosReadTodos = <ThrowOnError extends boolean = false>(
+  options?: Options<TodosReadTodosData, ThrowOnError>,
+): RequestResult<TodosReadTodosResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    TodosReadTodosResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/todos/",
+    ...options,
+  })
+
+/**
+ * Create Todo
+ *
+ * Create new todo. Appended at the end of the list.
+ */
+export const todosCreateTodo = <ThrowOnError extends boolean = false>(
+  options: Options<TodosCreateTodoData, ThrowOnError>,
+): RequestResult<
+  TodosCreateTodoResponses,
+  TodosCreateTodoErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    TodosCreateTodoResponses,
+    TodosCreateTodoErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/todos/",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Delete Todo
+ *
+ * Delete a todo.
+ */
+export const todosDeleteTodo = <ThrowOnError extends boolean = false>(
+  options: Options<TodosDeleteTodoData, ThrowOnError>,
+): RequestResult<
+  TodosDeleteTodoResponses,
+  TodosDeleteTodoErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).delete<
+    TodosDeleteTodoResponses,
+    TodosDeleteTodoErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/todos/{id}",
+    ...options,
+  })
+
+/**
+ * Update Todo
+ *
+ * Update a todo.
+ */
+export const todosUpdateTodo = <ThrowOnError extends boolean = false>(
+  options: Options<TodosUpdateTodoData, ThrowOnError>,
+): RequestResult<
+  TodosUpdateTodoResponses,
+  TodosUpdateTodoErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).patch<
+    TodosUpdateTodoResponses,
+    TodosUpdateTodoErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/todos/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Reorder Todos
+ *
+ * Reorder todos by drag and drop. ordered_ids must contain every todo id.
+ */
+export const todosReorderTodos = <ThrowOnError extends boolean = false>(
+  options: Options<TodosReorderTodosData, ThrowOnError>,
+): RequestResult<
+  TodosReorderTodosResponses,
+  TodosReorderTodosErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    TodosReorderTodosResponses,
+    TodosReorderTodosErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/todos/reorder",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

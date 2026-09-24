@@ -17,6 +17,7 @@ import { Route as ConfirmEmailImport } from './routes/confirm-email'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutVerificationFailedImport } from './routes/_layout/verification-failed'
+import { Route as LayoutTodosImport } from './routes/_layout/todos'
 import { Route as LayoutSuadminImport } from './routes/_layout/suadmin'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutPrivacyImport } from './routes/_layout/privacy'
@@ -60,6 +61,11 @@ const LayoutIndexRoute = LayoutIndexImport.update({
 
 const LayoutVerificationFailedRoute = LayoutVerificationFailedImport.update({
   path: '/verification-failed',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutTodosRoute = LayoutTodosImport.update({
+  path: '/todos',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -192,6 +198,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSuadminImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/todos': {
+      preLoaderRoute: typeof LayoutTodosImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/verification-failed': {
       preLoaderRoute: typeof LayoutVerificationFailedImport
       parentRoute: typeof LayoutImport
@@ -226,6 +236,7 @@ export const routeTree = rootRoute.addChildren([
     LayoutPrivacyRoute,
     LayoutSettingsRoute,
     LayoutSuadminRoute,
+    LayoutTodosRoute,
     LayoutVerificationFailedRoute,
     LayoutIndexRoute,
     LayoutPaymentCancelRoute,

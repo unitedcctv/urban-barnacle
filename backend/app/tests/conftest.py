@@ -12,6 +12,8 @@ from app.models import (
     Item,
     ItemImage,
     NfcTag,
+    Todo,
+    TodoLink,
     User,
 )
 from app.tests.utils.user import authentication_token_from_email
@@ -21,6 +23,8 @@ from app.tests.utils.utils import get_superuser_token_headers
 def clear_database(session: Session) -> None:
     session.rollback()
     for model in (
+        TodoLink,
+        Todo,
         NfcTag,
         ItemImage,
         Item,
