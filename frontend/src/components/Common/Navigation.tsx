@@ -136,6 +136,7 @@ const Navigation = () => {
         padding={0}
         position="fixed"
         top="0"
+        zIndex={1000}
       >
         <ChakraFlex
           as={Link}

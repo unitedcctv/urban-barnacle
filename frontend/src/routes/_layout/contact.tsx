@@ -33,8 +33,8 @@ export const Route = createFileRoute("/_layout/contact")({
   }),
 })
 
-const MAP_LAT = 52.496944
-const MAP_LON = 13.440528
+const MAP_LAT = 52.5271653
+const MAP_LON = 13.3970453
 const MAP_SRC = `https://www.openstreetmap.org/export/embed.html?bbox=${
   MAP_LON - 0.008
 },${MAP_LAT - 0.004},${MAP_LON + 0.008},${
@@ -199,8 +199,8 @@ function Contact() {
 
         <Box as="address" fontStyle="normal">
           <Text fontWeight="bold">UBDM</Text>
-          <Text>Falckensteinstraße 22</Text>
-          <Text>10997 Berlin</Text>
+          <Text>Auguststraße 63</Text>
+          <Text>10117 Berlin</Text>
           <Text>Germany</Text>
         </Box>
         {socialLinks.length > 0 && (
