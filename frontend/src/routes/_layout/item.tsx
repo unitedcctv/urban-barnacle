@@ -242,6 +242,20 @@ function Item({ item: propItem }: { item: ItemPublic }) {
             {/* Actions Section */}
             <Stack spacing={3} pt={4} borderTopWidth="1px">
               <HStack spacing={4} flexWrap="wrap">
+                {/* Enquiries - links to contact form with item name in subject */}
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    navigate({
+                      to: "/contact",
+                      search: { subject: `Enquiry: ${currentItem?.title}` },
+                    })
+                  }
+                  size="lg"
+                >
+                  Enquiries
+                </Button>
+
                 {/* Add to Cart - visible to buyers when item has a price and isn't sold */}
                 {!canEdit && (currentItem?.price ?? 0) > 0 && !currentItem?.is_sold && (
                   hasItem(currentItem.id) ? (

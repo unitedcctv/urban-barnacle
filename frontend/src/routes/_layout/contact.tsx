@@ -14,7 +14,11 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useMutation } from "@tanstack/react-query"
-import { Link as RouterLink, createFileRoute } from "@tanstack/react-router"
+import {
+  Link as RouterLink,
+  createFileRoute,
+  useSearch,
+} from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaCloud, FaLinkedin, FaMastodon, FaReddit } from "react-icons/fa"
 
@@ -24,6 +28,9 @@ import { emailPattern, handleError } from "../../utils"
 
 export const Route = createFileRoute("/_layout/contact")({
   component: Contact,
+  validateSearch: (search) => ({
+    subject: typeof search.subject === "string" ? search.subject : "",
+  }),
 })
 
 const MAP_LAT = 52.496944
@@ -35,12 +42,14 @@ const MAP_SRC = `https://www.openstreetmap.org/export/embed.html?bbox=${
 }&layer=mapnik&marker=${MAP_LAT},${MAP_LON}`
 
 function Contact() {
+  const search = useSearch({ from: Route.id })
+  const { subject } = search as { subject?: string }
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ContactEnquiryCreate>()
+  } = useForm<ContactEnquiryCreate>({ defaultValues: { subject } })
   const showToast = useCustomToast()
 
   const mutation = useMutation({
