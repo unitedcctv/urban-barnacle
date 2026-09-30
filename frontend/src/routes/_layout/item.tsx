@@ -248,7 +248,7 @@ function Item({ item: propItem }: { item: ItemPublic }) {
                   onClick={() =>
                     navigate({
                       to: "/contact",
-                      search: { subject: `Enquiry: ${currentItem?.title}` },
+                      search: { subject: currentItem?.title ?? "" },
                     })
                   }
                   size="lg"
