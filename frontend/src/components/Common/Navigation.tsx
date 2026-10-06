@@ -57,20 +57,21 @@ const Navigation = () => {
       <Flex
         display={{ base: "flex", sm: "none" }}
         align="center"
-        h="52px"
+        h="32px"
         w="100%"
         justify="flex-start"
       >
         <IconButton
           onClick={onOpen}
           aria-label="Open Menu"
-          fontSize="20px"
-          m={4}
+          size="xs"
+          variant="ghost"
+          m={1}
           icon={
             <img
               src={leftPanelOpenIcon}
               alt="Open Menu"
-              style={{ width: "32px", height: "32px" }}
+              style={{ width: "16px", height: "16px" }}
             />
           }
         />
