@@ -78,6 +78,7 @@ class ItemBase(SQLModel):
     certificate: Optional[str] = Field(default=None)
     price: float = Field(default=0.0, ge=0)  # Price in EUR
     is_sold: bool = Field(default=False)
+    display_order: int = Field(default=0)  # Position of the item on the home page and gallery
     # Original/Variant linkage
     is_original: bool = Field(default=True)
     variant_of: Optional[uuid.UUID] = Field(default=None, foreign_key="item.id")
@@ -156,6 +157,7 @@ class ItemPublic(ItemBase):
             certificate=item.certificate,
             price=item.price,
             is_sold=item.is_sold,
+            display_order=item.display_order,
             is_original=item.is_original,
             variant_of=item.variant_of,
             image_urls=image_urls

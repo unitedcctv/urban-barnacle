@@ -4,6 +4,7 @@ from typing import Any
 import logging
 
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel
 from sqlmodel import func, select
 from sqlalchemy.orm import selectinload
 
@@ -13,6 +14,11 @@ from app.core.storage import delete_from_bunnycdn
 from app.models import Item, ItemCreate, ItemImage, ItemPublic, ItemsPublic, ItemUpdate, ItemWithPermissions, Message
 
 router = APIRouter(prefix="/items", tags=["items"])
+
+
+class ItemReorderRequest(BaseModel):
+    """Request body for reordering items."""
+    item_ids: list[uuid.UUID]
 
 
 @router.get("/", response_model=ItemsPublic)
@@ -26,7 +32,7 @@ def read_items(
     count = session.exec(count_statement).one()
     statement = select(Item).options(
         selectinload(Item.item_images)
-    ).offset(skip).limit(limit)
+    ).order_by(Item.display_order, Item.id).offset(skip).limit(limit)
     items = session.exec(statement).all()
     
     # Get base URL from request
@@ -55,6 +61,7 @@ def read_my_items(
             selectinload(Item.item_images)
         )
         .where(Item.owner_id == current_user.id)
+        .order_by(Item.display_order, Item.id)
         .offset(skip)
         .limit(limit)
     )
@@ -107,8 +114,13 @@ def create_item(
     """
     Create new item.
     """
-    # Create the item
-    item = Item.model_validate(item_in, update={"owner_id": current_user.id})
+    # Create the item, appending it to the end of the display order
+    max_order = session.exec(
+        select(func.coalesce(func.max(Item.display_order), -1))
+    ).one()
+    item = Item.model_validate(
+        item_in, update={"owner_id": current_user.id, "display_order": max_order + 1}
+    )
     session.add(item)
     session.commit()
     session.refresh(item)
@@ -122,6 +134,44 @@ def create_item(
     # Get base URL and return with image URLs
     base_url = str(request.base_url).rstrip('/')
     return ItemPublic.from_item(item, base_url)
+
+
+@router.put("/order", response_model=Message)
+def update_item_order(
+    session: SessionDep, current_user: CurrentUser, body: ItemReorderRequest
+) -> Any:
+    """
+    Persist the display order of items (home page and gallery), superusers only.
+
+    item_ids are assigned sequential display_order values in the given order.
+    Items not included in the list keep their relative order and are
+    renumbered after the provided ones.
+    """
+    if "superuser" not in current_user.permissions:
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    if len(set(body.item_ids)) != len(body.item_ids):
+        raise HTTPException(status_code=400, detail="item_ids must not contain duplicates")
+
+    statement = select(Item)
+    items = session.exec(statement).all()
+    items_by_id = {item.id: item for item in items}
+
+    unknown = [item_id for item_id in body.item_ids if item_id not in items_by_id]
+    if unknown:
+        raise HTTPException(status_code=400, detail="item_ids contains unknown item IDs")
+
+    for position, item_id in enumerate(body.item_ids):
+        item = items_by_id.pop(item_id)
+        item.display_order = position
+        session.add(item)
+
+    remaining = sorted(items_by_id.values(), key=lambda i: (i.display_order, str(i.id)))
+    for position, item in enumerate(remaining, start=len(body.item_ids)):
+        item.display_order = position
+        session.add(item)
+
+    session.commit()
+    return Message(message="Item order updated successfully")
 
 
 @router.put("/{id}", response_model=ItemPublic)

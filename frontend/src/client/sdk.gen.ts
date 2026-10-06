@@ -55,6 +55,9 @@ import type {
   ItemsReadMyItemsResponses,
   ItemsUpdateItemData,
   ItemsUpdateItemErrors,
+  ItemsUpdateItemOrderData,
+  ItemsUpdateItemOrderErrors,
+  ItemsUpdateItemOrderResponses,
   ItemsUpdateItemResponses,
   LoginLoginAccessTokenData,
   LoginLoginAccessTokenErrors,
@@ -840,6 +843,39 @@ export const itemsUpdateItem = <ThrowOnError extends boolean = false>(
     responseStyle: "data",
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/items/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Update Item Order
+ *
+ * Persist the display order of items (home page and gallery), superusers only.
+ *
+ * item_ids are assigned sequential display_order values in the given order.
+ * Items not included in the list keep their relative order and are
+ * renumbered after the provided ones.
+ */
+export const itemsUpdateItemOrder = <ThrowOnError extends boolean = false>(
+  options: Options<ItemsUpdateItemOrderData, ThrowOnError>,
+): RequestResult<
+  ItemsUpdateItemOrderResponses,
+  ItemsUpdateItemOrderErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    ItemsUpdateItemOrderResponses,
+    ItemsUpdateItemOrderErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/items/order",
     ...options,
     headers: {
       "Content-Type": "application/json",

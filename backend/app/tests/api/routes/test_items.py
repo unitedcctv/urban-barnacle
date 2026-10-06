@@ -161,3 +161,73 @@ def test_delete_item_not_enough_permissions(
     assert response.status_code == 400
     content = response.json()
     assert content["detail"] == "Not enough permissions"
+
+
+def test_read_items_stable_order_after_update(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    items = [create_random_item(db) for _ in range(3)]
+    expected_order = [str(item.id) for item in items]
+
+    response = client.get(f"{settings.API_V1_STR}/items/")
+    assert response.status_code == 200
+    returned = [i["id"] for i in response.json()["data"]]
+    assert returned[-3:] == expected_order
+
+    # Updating one item must not change the list order
+    response = client.put(
+        f"{settings.API_V1_STR}/items/{items[1].id}",
+        headers=superuser_token_headers,
+        json={"title": "Updated title"},
+    )
+    assert response.status_code == 200
+
+    response = client.get(f"{settings.API_V1_STR}/items/")
+    returned = [i["id"] for i in response.json()["data"]]
+    assert returned[-3:] == expected_order
+
+
+def test_update_item_order(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    items = [create_random_item(db) for _ in range(3)]
+    new_order = [str(items[2].id), str(items[0].id), str(items[1].id)]
+
+    response = client.put(
+        f"{settings.API_V1_STR}/items/order",
+        headers=superuser_token_headers,
+        json={"item_ids": new_order},
+    )
+    assert response.status_code == 200
+
+    response = client.get(f"{settings.API_V1_STR}/items/")
+    returned = [i["id"] for i in response.json()["data"]]
+    assert returned[:3] == new_order
+
+    response = client.put(
+        f"{settings.API_V1_STR}/items/order",
+        headers=superuser_token_headers,
+        json={"item_ids": [new_order[0], new_order[0]]},
+    )
+    assert response.status_code == 400
+
+    response = client.put(
+        f"{settings.API_V1_STR}/items/order",
+        headers=superuser_token_headers,
+        json={"item_ids": [new_order[0], str(uuid.uuid4())]},
+    )
+    assert response.status_code == 400
+
+
+def test_update_item_order_not_enough_permissions(
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
+) -> None:
+    item = create_random_item(db)
+    response = client.put(
+        f"{settings.API_V1_STR}/items/order",
+        headers=normal_user_token_headers,
+        json={"item_ids": [str(item.id)]},
+    )
+    assert response.status_code == 400
+    content = response.json()
+    assert content["detail"] == "Not enough permissions"

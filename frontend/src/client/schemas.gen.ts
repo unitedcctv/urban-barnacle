@@ -496,6 +496,11 @@ export const ItemCreateSchema = {
       title: "Is Sold",
       default: false,
     },
+    display_order: {
+      type: "integer",
+      title: "Display Order",
+      default: 0,
+    },
     is_original: {
       type: "boolean",
       title: "Is Original",
@@ -583,6 +588,11 @@ export const ItemPublicSchema = {
       title: "Is Sold",
       default: false,
     },
+    display_order: {
+      type: "integer",
+      title: "Display Order",
+      default: 0,
+    },
     is_original: {
       type: "boolean",
       title: "Is Original",
@@ -622,6 +632,23 @@ export const ItemPublicSchema = {
   type: "object",
   required: ["title", "id", "owner_id"],
   title: "ItemPublic",
+} as const
+
+export const ItemReorderRequestSchema = {
+  properties: {
+    item_ids: {
+      items: {
+        type: "string",
+        format: "uuid",
+      },
+      type: "array",
+      title: "Item Ids",
+    },
+  },
+  type: "object",
+  required: ["item_ids"],
+  title: "ItemReorderRequest",
+  description: "Request body for reordering items.",
 } as const
 
 export const ItemUpdateSchema = {
@@ -694,6 +721,11 @@ export const ItemUpdateSchema = {
       type: "boolean",
       title: "Is Sold",
       default: false,
+    },
+    display_order: {
+      type: "integer",
+      title: "Display Order",
+      default: 0,
     },
     is_original: {
       type: "boolean",

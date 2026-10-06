@@ -1,7 +1,7 @@
 import uuid
 from typing import Any
 
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
@@ -47,7 +47,12 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
 
 
 def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -> Item:
-    db_item = Item.model_validate(item_in, update={"owner_id": owner_id})
+    max_order = session.exec(
+        select(func.coalesce(func.max(Item.display_order), -1))
+    ).one()
+    db_item = Item.model_validate(
+        item_in, update={"owner_id": owner_id, "display_order": max_order + 1}
+    )
     session.add(db_item)
     session.commit()
     session.refresh(db_item)

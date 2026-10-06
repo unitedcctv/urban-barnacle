@@ -307,6 +307,10 @@ export type ItemCreate = {
    */
   is_sold?: boolean
   /**
+   * Display Order
+   */
+  display_order?: number
+  /**
    * Is Original
    */
   is_original?: boolean
@@ -349,6 +353,10 @@ export type ItemPublic = {
    */
   is_sold?: boolean
   /**
+   * Display Order
+   */
+  display_order?: number
+  /**
    * Is Original
    */
   is_original?: boolean
@@ -368,6 +376,18 @@ export type ItemPublic = {
    * Image Urls
    */
   image_urls?: Array<string>
+}
+
+/**
+ * ItemReorderRequest
+ *
+ * Request body for reordering items.
+ */
+export type ItemReorderRequest = {
+  /**
+   * Item Ids
+   */
+  item_ids: Array<string>
 }
 
 /**
@@ -402,6 +422,10 @@ export type ItemUpdate = {
    * Is Sold
    */
   is_sold?: boolean
+  /**
+   * Display Order
+   */
+  display_order?: number
   /**
    * Is Original
    */
@@ -1545,6 +1569,33 @@ export type ItemsUpdateItemResponses = {
 
 export type ItemsUpdateItemResponse =
   ItemsUpdateItemResponses[keyof ItemsUpdateItemResponses]
+
+export type ItemsUpdateItemOrderData = {
+  body: ItemReorderRequest
+  path?: never
+  query?: never
+  url: "/api/v1/items/order"
+}
+
+export type ItemsUpdateItemOrderErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ItemsUpdateItemOrderError =
+  ItemsUpdateItemOrderErrors[keyof ItemsUpdateItemOrderErrors]
+
+export type ItemsUpdateItemOrderResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message
+}
+
+export type ItemsUpdateItemOrderResponse =
+  ItemsUpdateItemOrderResponses[keyof ItemsUpdateItemOrderResponses]
 
 export type ImagesUploadFileData = {
   body: BodyImagesUploadFile
