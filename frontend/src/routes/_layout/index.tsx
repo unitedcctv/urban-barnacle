@@ -1,10 +1,11 @@
-import { Box, Flex, Heading, Text, useMediaQuery } from "@chakra-ui/react"
+import { Box, Container, Flex, Heading, Text, useMediaQuery } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
 import ErrorPage from "../../components/Common/ErrorPage"
 import HoldingPage from "../../components/Common/HoldingPage"
 import LoadingLogo from "../../components/Common/LoadingLogo"
+import ItemsGrid from "../../components/Items/ItemsGrid"
 
 export const Route = createFileRoute("/_layout/")({
   component: Home,
@@ -38,8 +39,13 @@ export default function Home() {
 
   const itemsList = items?.data ?? []
 
+  // On mobile, land on the gallery instead of the logo-only holding page
   if (!isSmUp) {
-    return <HoldingPage />
+    return (
+      <Container maxW="full">
+        <ItemsGrid />
+      </Container>
+    )
   }
 
   if (isLoading) {
