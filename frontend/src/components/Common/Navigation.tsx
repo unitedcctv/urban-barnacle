@@ -1,4 +1,5 @@
 import {
+  Box,
   Flex as ChakraFlex,
   Drawer,
   DrawerBody,
@@ -12,7 +13,6 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react"
 import leftPanelCloseIcon from "../../theme/assets/icons/left_panel_close.svg"
-import leftPanelOpenIcon from "../../theme/assets/icons/left_panel_open.svg"
 
 import { Link } from "@tanstack/react-router"
 import { useMemo, useState } from "react"
@@ -54,28 +54,26 @@ const Navigation = () => {
   return (
     <>
       {/* Phone - Drawer */}
-      <Flex
-        display={{ base: "flex", sm: "none" }}
-        align="center"
-        h="32px"
-        w="100%"
-        justify="flex-start"
-      >
-        <IconButton
-          onClick={onOpen}
-          aria-label="Open Menu"
-          size="xs"
-          variant="ghost"
-          m={1}
-          icon={
-            <img
-              src={leftPanelOpenIcon}
-              alt="Open Menu"
-              style={{ width: "16px", height: "16px" }}
-            />
-          }
-        />
-      </Flex>
+      {/* Slim grab-handle on the left edge of the screen; content keeps its
+          normal position since the handle is only a few pixels wide */}
+      <Box
+        as="button"
+        onClick={onOpen}
+        display={{ base: "block", sm: "none" }}
+        aria-label="Open Menu"
+        position="fixed"
+        left={0}
+        top="50%"
+        transform="translateY(-50%)"
+        w="8px"
+        h="120px"
+        bg={colors.ui.main}
+        borderRightRadius="lg"
+        boxShadow="sm"
+        cursor="pointer"
+        zIndex={1000}
+        _active={{ bg: colors.ui.darkSlate }}
+      />
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent maxW="120px">
