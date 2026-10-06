@@ -67,7 +67,7 @@ const Navigation = () => {
         transform="translateY(-50%)"
         w="12px"
         h="120px"
-        bg={colors.ui.hoverLight}
+        bg={colors.ui.clickMeBlue}
         borderRightRadius="lg"
         boxShadow="sm"
         cursor="pointer"

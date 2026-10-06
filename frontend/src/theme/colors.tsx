@@ -25,6 +25,9 @@ const colors = {
     // Dim gray for placeholders or muted text
     dim: "#718096",
 
+    // mobile menu button blue
+    clickMeBlue: "#4493F8",
+
     // Additional colors for navigation and login-out
     hoverLight: "#EDF2F7",
     hoverDark: "#4A5568",
