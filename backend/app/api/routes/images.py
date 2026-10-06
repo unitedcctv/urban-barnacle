@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from sqlmodel import select
+from sqlmodel import func, select
 
 from app.api.deps import SessionDep
 from app.core.config import CDNFolder, settings
@@ -28,6 +28,11 @@ class UploadResponse(BaseModel):
     """Response model for file uploads."""
     path: str
     filename: str
+
+
+class ImageReorderRequest(BaseModel):
+    """Request body for reordering an item's images."""
+    image_ids: list[uuid.UUID]
 
 
 @router.post("/{id}")
@@ -72,11 +77,18 @@ async def upload_file(
     filename = file.filename or "file"
     name_without_ext = Path(filename).stem
 
+    # Append to the end of the item's gallery order
+    max_order = session.exec(
+        select(func.coalesce(func.max(ItemImage.display_order), -1))
+        .where(ItemImage.item_id == entity_uuid)
+    ).one()
+
     # Create database entry for the item image
     image_create = ImageCreate(
         path=image_path,
         name=name_without_ext,
-        item_id=entity_uuid
+        item_id=entity_uuid,
+        display_order=max_order + 1,
     )
     db_image = ItemImage.model_validate(image_create, update={"id": file_id})
     session.add(db_image)
@@ -195,13 +207,47 @@ async def get_item_images(session: SessionDep, item_id: str) -> ImagesPublic:
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid item_id format")
     
-    statement = select(ItemImage).where(ItemImage.item_id == item_uuid)
+    statement = select(ItemImage).where(ItemImage.item_id == item_uuid).order_by(
+        ItemImage.display_order, ItemImage.created_at
+    )
     images = session.exec(statement).all()
-    
+
     return ImagesPublic(
         data=[ImagePublic.model_validate(img) for img in images],
         count=len(images)
     )
+
+
+@router.put("/item/{item_id}/order")
+async def update_image_order(
+    session: SessionDep, item_id: str, body: ImageReorderRequest
+) -> dict[str, str]:
+    """Persist the display order of an item's images.
+
+    image_ids must be the complete list of the item's image IDs in the
+    desired order; each image gets its list position as display_order.
+    """
+    try:
+        item_uuid = uuid.UUID(item_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid item_id format")
+
+    statement = select(ItemImage).where(ItemImage.item_id == item_uuid)
+    images = session.exec(statement).all()
+    images_by_id = {img.id: img for img in images}
+
+    if set(body.image_ids) != set(images_by_id.keys()):
+        raise HTTPException(
+            status_code=400,
+            detail="image_ids must contain exactly the IDs of the item's existing images",
+        )
+
+    for position, image_id in enumerate(body.image_ids):
+        images_by_id[image_id].display_order = position
+        session.add(images_by_id[image_id])
+    session.commit()
+
+    return {"message": "Image order updated successfully"}
 
 
 @router.get("/{image_id}")

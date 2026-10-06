@@ -375,6 +375,11 @@ export const ImagePublicSchema = {
       format: "uuid",
       title: "Item Id",
     },
+    display_order: {
+      type: "integer",
+      title: "Display Order",
+      default: 0,
+    },
     id: {
       type: "string",
       format: "uuid",
@@ -389,6 +394,23 @@ export const ImagePublicSchema = {
   type: "object",
   required: ["path", "name", "item_id", "id", "created_at"],
   title: "ImagePublic",
+} as const
+
+export const ImageReorderRequestSchema = {
+  properties: {
+    image_ids: {
+      items: {
+        type: "string",
+        format: "uuid",
+      },
+      type: "array",
+      title: "Image Ids",
+    },
+  },
+  type: "object",
+  required: ["image_ids"],
+  title: "ImageReorderRequest",
+  description: "Request body for reordering an item's images.",
 } as const
 
 export const ImagesPublicSchema = {

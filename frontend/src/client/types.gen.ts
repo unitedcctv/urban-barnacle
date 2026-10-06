@@ -235,6 +235,10 @@ export type ImagePublic = {
    */
   item_id: string
   /**
+   * Display Order
+   */
+  display_order?: number
+  /**
    * Id
    */
   id: string
@@ -242,6 +246,18 @@ export type ImagePublic = {
    * Created At
    */
   created_at: string
+}
+
+/**
+ * ImageReorderRequest
+ *
+ * Request body for reordering an item's images.
+ */
+export type ImageReorderRequest = {
+  /**
+   * Image Ids
+   */
+  image_ids: Array<string>
 }
 
 /**
@@ -1697,6 +1713,42 @@ export type ImagesGetItemImagesResponses = {
 
 export type ImagesGetItemImagesResponse =
   ImagesGetItemImagesResponses[keyof ImagesGetItemImagesResponses]
+
+export type ImagesUpdateImageOrderData = {
+  body: ImageReorderRequest
+  path: {
+    /**
+     * Item Id
+     */
+    item_id: string
+  }
+  query?: never
+  url: "/api/v1/images/item/{item_id}/order"
+}
+
+export type ImagesUpdateImageOrderErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type ImagesUpdateImageOrderError =
+  ImagesUpdateImageOrderErrors[keyof ImagesUpdateImageOrderErrors]
+
+export type ImagesUpdateImageOrderResponses = {
+  /**
+   * Response Images-Update Image Order
+   *
+   * Successful Response
+   */
+  200: {
+    [key: string]: string
+  }
+}
+
+export type ImagesUpdateImageOrderResponse =
+  ImagesUpdateImageOrderResponses[keyof ImagesUpdateImageOrderResponses]
 
 export type ImagesDownloadImageData = {
   body?: never

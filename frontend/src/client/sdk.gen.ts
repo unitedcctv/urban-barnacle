@@ -32,6 +32,9 @@ import type {
   ImagesGetItemImagesData,
   ImagesGetItemImagesErrors,
   ImagesGetItemImagesResponses,
+  ImagesUpdateImageOrderData,
+  ImagesUpdateImageOrderErrors,
+  ImagesUpdateImageOrderResponses,
   ImagesUploadFileData,
   ImagesUploadFileErrors,
   ImagesUploadFileResponses,
@@ -967,6 +970,37 @@ export const imagesGetItemImages = <ThrowOnError extends boolean = false>(
     responseStyle: "data",
     url: "/api/v1/images/item/{item_id}",
     ...options,
+  })
+
+/**
+ * Update Image Order
+ *
+ * Persist the display order of an item's images.
+ *
+ * image_ids must be the complete list of the item's image IDs in the
+ * desired order; each image gets its list position as display_order.
+ */
+export const imagesUpdateImageOrder = <ThrowOnError extends boolean = false>(
+  options: Options<ImagesUpdateImageOrderData, ThrowOnError>,
+): RequestResult<
+  ImagesUpdateImageOrderResponses,
+  ImagesUpdateImageOrderErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    ImagesUpdateImageOrderResponses,
+    ImagesUpdateImageOrderErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v1/images/item/{item_id}/order",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

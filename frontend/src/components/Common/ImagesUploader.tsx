@@ -30,7 +30,11 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 
 // Import SDK methods
-import { imagesDeleteFile, imagesUploadFile } from "../../client/sdk.gen"
+import {
+  imagesDeleteFile,
+  imagesUpdateImageOrder,
+  imagesUploadFile,
+} from "../../client/sdk.gen"
 
 type UploadedFile = {
   id: string
@@ -103,12 +107,37 @@ const ImagesUploader = React.forwardRef<ImagesUploaderRef, ImagesUploaderProps>(
       const oldIndex = files.findIndex((file) => file.id === active.id)
       const newIndex = files.findIndex((file) => file.id === over.id)
 
-      setFiles((prevFiles) => {
-        const newArray = arrayMove(prevFiles, oldIndex, newIndex)
-        const urls = newArray.map((f) => f.url)
-        onImagesChange(urls.join(","))
-        return newArray
-      })
+      const newArray = arrayMove(files, oldIndex, newIndex)
+      setFiles(newArray)
+      onImagesChange(newArray.map((f) => f.url).join(","))
+
+      // Persist the new order on the server (edit mode only; all images
+      // are already uploaded there, so every id is a real image id)
+      if (itemId) {
+        const imageIds = newArray.map((f) => f.id)
+        if (
+          imageIds.length > 0 &&
+          imageIds.every(
+            (id) => !id.startsWith("temp-") && !id.startsWith("existing-"),
+          )
+        ) {
+          imagesUpdateImageOrder({
+            path: { item_id: itemId },
+            body: { image_ids: imageIds },
+            throwOnError: true,
+          }).catch((error) => {
+            console.error("Error saving image order:", error)
+            toast({
+              title: "Reorder Error",
+              description:
+                "Failed to save the new image order. Your change may not persist.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+            })
+          })
+        }
+      }
     }
 
     // Handle uploading files

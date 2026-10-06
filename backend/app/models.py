@@ -114,7 +114,10 @@ class Item(ItemBase, table=True):  # type: ignore[call-arg]
     owner: Optional[User] = Relationship(back_populates="items")
     item_images: list["ItemImage"] = Relationship(
         back_populates="item",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        sa_relationship_kwargs={
+            "cascade": "all, delete-orphan",
+            "order_by": "ItemImage.display_order, ItemImage.created_at",
+        }
     )
 
 
@@ -200,6 +203,7 @@ class ImageBase(SQLModel):
     path: str = Field(max_length=500)  # Full path or URL to the image
     name: str = Field(max_length=255)  # Filename without extension
     item_id: uuid.UUID = Field(foreign_key="item.id", nullable=False, ondelete="CASCADE")
+    display_order: int = Field(default=0)  # Position of the image within the item's gallery
 
 
 # Properties to receive on image creation
@@ -211,6 +215,7 @@ class ImageCreate(ImageBase):
 class ImageUpdate(SQLModel):
     path: Optional[str] = Field(default=None, max_length=500)
     name: Optional[str] = Field(default=None, max_length=255)
+    display_order: Optional[int] = Field(default=None)
 
 
 # Database model, database table inferred from class name
