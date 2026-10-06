@@ -54,21 +54,27 @@ const Navigation = () => {
   return (
     <>
       {/* Phone - Drawer */}
-      <IconButton
-        onClick={onOpen}
+      <Flex
         display={{ base: "flex", sm: "none" }}
-        aria-label="Open Menu"
-        position="absolute"
-        fontSize="20px"
-        m={4}
-        icon={
-          <img
-            src={leftPanelOpenIcon}
-            alt="Open Menu"
-            style={{ width: "32px", height: "32px" }}
-          />
-        }
-      />
+        align="center"
+        h="52px"
+        w="100%"
+        justify="flex-start"
+      >
+        <IconButton
+          onClick={onOpen}
+          aria-label="Open Menu"
+          fontSize="20px"
+          m={4}
+          icon={
+            <img
+              src={leftPanelOpenIcon}
+              alt="Open Menu"
+              style={{ width: "32px", height: "32px" }}
+            />
+          }
+        />
+      </Flex>
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent maxW="120px">
