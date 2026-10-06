@@ -65,14 +65,14 @@ const Navigation = () => {
         left={0}
         top="50%"
         transform="translateY(-50%)"
-        w="8px"
+        w="12px"
         h="120px"
         bg={colors.ui.main}
         borderRightRadius="lg"
         boxShadow="sm"
         cursor="pointer"
         zIndex={1000}
-        _active={{ bg: colors.ui.darkSlate }}
+        _active={{ bg: colors.ui.brightBlue }}
       />
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
