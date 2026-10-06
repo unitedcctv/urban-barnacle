@@ -22,9 +22,6 @@ const colors = {
     // Darker slate shade for depth
     darkSlate: "#2D3748",
 
-    // bright blue
-    brightBlue: "#3182CE",
-
     // Dim gray for placeholders or muted text
     dim: "#718096",
 

@@ -72,7 +72,7 @@ const Navigation = () => {
         boxShadow="sm"
         cursor="pointer"
         zIndex={1000}
-        _active={{ bg: colors.ui.brightBlue }}
+        _active={{ bg: colors.ui.hoverLight }}
       />
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay />
