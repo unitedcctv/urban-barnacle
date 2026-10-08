@@ -209,6 +209,135 @@ export type EmailLogPublic = {
 }
 
 /**
+ * FilamentCreate
+ */
+export type FilamentCreate = {
+  /**
+   * Colour
+   */
+  colour: string
+  /**
+   * Colour Hex
+   */
+  colour_hex?: string | null
+  material?: FilamentMaterial
+  /**
+   * Spools
+   */
+  spools?: number
+  /**
+   * Manufacturer
+   */
+  manufacturer: string
+  /**
+   * Price
+   */
+  price?: number | null
+  /**
+   * Purchase Url
+   */
+  purchase_url?: string | null
+}
+
+/**
+ * FilamentMaterial
+ */
+export type FilamentMaterial =
+  | "PLA"
+  | "PETG"
+  | "ABS"
+  | "ASA"
+  | "TPU"
+  | "PC"
+  | "Nylon"
+  | "PVA"
+  | "Other"
+
+/**
+ * FilamentPublic
+ */
+export type FilamentPublic = {
+  /**
+   * Colour
+   */
+  colour: string
+  /**
+   * Colour Hex
+   */
+  colour_hex?: string | null
+  material?: FilamentMaterial
+  /**
+   * Spools
+   */
+  spools?: number
+  /**
+   * Manufacturer
+   */
+  manufacturer: string
+  /**
+   * Price
+   */
+  price?: number | null
+  /**
+   * Purchase Url
+   */
+  purchase_url?: string | null
+  /**
+   * Id
+   */
+  id: string
+  /**
+   * Created At
+   */
+  created_at: string
+}
+
+/**
+ * FilamentUpdate
+ */
+export type FilamentUpdate = {
+  /**
+   * Colour
+   */
+  colour?: string | null
+  /**
+   * Colour Hex
+   */
+  colour_hex?: string | null
+  material?: FilamentMaterial | null
+  /**
+   * Spools
+   */
+  spools?: number | null
+  /**
+   * Manufacturer
+   */
+  manufacturer?: string | null
+  /**
+   * Price
+   */
+  price?: number | null
+  /**
+   * Purchase Url
+   */
+  purchase_url?: string | null
+}
+
+/**
+ * FilamentsPublic
+ */
+export type FilamentsPublic = {
+  /**
+   * Data
+   */
+  data: Array<FilamentPublic>
+  /**
+   * Count
+   */
+  count: number
+}
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -608,9 +737,9 @@ export type TodoCreate = {
    */
   deadline?: string | null
   /**
-   * Related Ids
+   * Related
    */
-  related_ids?: Array<string>
+  related?: Array<TodoRelation>
 }
 
 /**
@@ -638,10 +767,33 @@ export type TodoPublic = {
    */
   id: string
   /**
-   * Related Ids
+   * Related
    */
-  related_ids?: Array<string>
+  related?: Array<TodoRelation>
 }
+
+/**
+ * TodoRelation
+ */
+export type TodoRelation = {
+  /**
+   * Id
+   */
+  id: string
+  relation?: TodoRelationType
+}
+
+/**
+ * TodoRelationType
+ */
+export type TodoRelationType =
+  | "depends_on"
+  | "required_by"
+  | "blocking"
+  | "blocked_by"
+  | "parent"
+  | "child"
+  | "linked"
 
 /**
  * TodoReorder
@@ -670,9 +822,9 @@ export type TodoUpdate = {
    */
   deadline?: string | null
   /**
-   * Related Ids
+   * Related
    */
-  related_ids?: Array<string> | null
+  related?: Array<TodoRelation> | null
 }
 
 /**
@@ -2616,6 +2768,114 @@ export type EnquiriesSubmitEnquiryResponses = {
 
 export type EnquiriesSubmitEnquiryResponse =
   EnquiriesSubmitEnquiryResponses[keyof EnquiriesSubmitEnquiryResponses]
+
+export type FilamentsReadFilamentsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v1/filaments/"
+}
+
+export type FilamentsReadFilamentsResponses = {
+  /**
+   * Successful Response
+   */
+  200: FilamentsPublic
+}
+
+export type FilamentsReadFilamentsResponse =
+  FilamentsReadFilamentsResponses[keyof FilamentsReadFilamentsResponses]
+
+export type FilamentsCreateFilamentData = {
+  body: FilamentCreate
+  path?: never
+  query?: never
+  url: "/api/v1/filaments/"
+}
+
+export type FilamentsCreateFilamentErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type FilamentsCreateFilamentError =
+  FilamentsCreateFilamentErrors[keyof FilamentsCreateFilamentErrors]
+
+export type FilamentsCreateFilamentResponses = {
+  /**
+   * Successful Response
+   */
+  200: FilamentPublic
+}
+
+export type FilamentsCreateFilamentResponse =
+  FilamentsCreateFilamentResponses[keyof FilamentsCreateFilamentResponses]
+
+export type FilamentsDeleteFilamentData = {
+  body?: never
+  path: {
+    /**
+     * Id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v1/filaments/{id}"
+}
+
+export type FilamentsDeleteFilamentErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type FilamentsDeleteFilamentError =
+  FilamentsDeleteFilamentErrors[keyof FilamentsDeleteFilamentErrors]
+
+export type FilamentsDeleteFilamentResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message
+}
+
+export type FilamentsDeleteFilamentResponse =
+  FilamentsDeleteFilamentResponses[keyof FilamentsDeleteFilamentResponses]
+
+export type FilamentsUpdateFilamentData = {
+  body: FilamentUpdate
+  path: {
+    /**
+     * Id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v1/filaments/{id}"
+}
+
+export type FilamentsUpdateFilamentErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type FilamentsUpdateFilamentError =
+  FilamentsUpdateFilamentErrors[keyof FilamentsUpdateFilamentErrors]
+
+export type FilamentsUpdateFilamentResponses = {
+  /**
+   * Successful Response
+   */
+  200: FilamentPublic
+}
+
+export type FilamentsUpdateFilamentResponse =
+  FilamentsUpdateFilamentResponses[keyof FilamentsUpdateFilamentResponses]
 
 export type PrivateCreateUserData = {
   body: PrivateUserCreate

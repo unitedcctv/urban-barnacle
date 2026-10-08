@@ -5,7 +5,13 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  HStack,
   Input,
+  Menu,
+  MenuButton,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,6 +19,8 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Select,
+  Text,
   Textarea,
   VStack,
 } from "@chakra-ui/react"
@@ -21,10 +29,26 @@ import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
 import { todosCreateTodo, todosUpdateTodo } from "../../client/sdk.gen"
-import type { TodoCreate, TodoPublic, TodoUpdate } from "../../client/types.gen"
+import type {
+  TodoCreate,
+  TodoPublic,
+  TodoRelation,
+  TodoRelationType,
+  TodoUpdate,
+} from "../../client/types.gen"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
 import LoadingLogo from "../Common/LoadingLogo"
+
+export const TODO_RELATION_LABELS: Record<TodoRelationType, string> = {
+  depends_on: "Depends on",
+  required_by: "Required by",
+  blocking: "Blocking",
+  blocked_by: "Blocked by",
+  parent: "Parent",
+  child: "Child task",
+  linked: "Linked",
+}
 
 interface TodoModalProps {
   isOpen: boolean
@@ -37,14 +61,14 @@ interface TodoForm {
   title: string
   description: string
   deadline: string
-  related_ids: string[]
+  related: TodoRelation[]
 }
 
 const toFormValues = (todo: TodoPublic | null): TodoForm => ({
   title: todo?.title ?? "",
   description: todo?.description ?? "",
   deadline: todo?.deadline ? todo.deadline.slice(0, 16) : "",
-  related_ids: todo?.related_ids ?? [],
+  related: todo?.related ?? [],
 })
 
 const TodoModal = ({ isOpen, onClose, todos, todo }: TodoModalProps) => {
@@ -55,17 +79,51 @@ const TodoModal = ({ isOpen, onClose, todos, todo }: TodoModalProps) => {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<TodoForm>({
     mode: "onBlur",
     defaultValues: toFormValues(todo),
   })
 
+  const related = watch("related") ?? []
+  const relatedIds = related.map((rel) => rel.id)
+
   useEffect(() => {
     if (isOpen) {
       reset(toFormValues(todo))
     }
   }, [isOpen, todo, reset])
+
+  const toggleRelated = (id: string) => {
+    const current = watch("related") ?? []
+    setValue(
+      "related",
+      current.some((rel) => rel.id === id)
+        ? current.filter((rel) => rel.id !== id)
+        : [...current, { id, relation: "linked" as TodoRelationType }],
+    )
+  }
+
+  const setRelatedIds = (ids: string[]) => {
+    const current = watch("related") ?? []
+    setValue(
+      "related",
+      ids.map(
+        (id) =>
+          current.find((rel) => rel.id === id) ?? { id, relation: "linked" },
+      ),
+    )
+  }
+
+  const setRelationType = (id: string, relation: TodoRelationType) => {
+    const current = watch("related") ?? []
+    setValue(
+      "related",
+      current.map((rel) => (rel.id === id ? { ...rel, relation } : rel)),
+    )
+  }
 
   const mutation = useMutation({
     mutationFn: (data: TodoCreate | TodoUpdate) =>
@@ -97,7 +155,7 @@ const TodoModal = ({ isOpen, onClose, todos, todo }: TodoModalProps) => {
       title: data.title,
       description: data.description || null,
       deadline: data.deadline ? new Date(data.deadline).toISOString() : null,
-      related_ids: data.related_ids,
+      related: data.related,
     })
   }
 
@@ -177,18 +235,82 @@ const TodoModal = ({ isOpen, onClose, todos, todo }: TodoModalProps) => {
           {selectableTodos.length > 0 && (
             <FormControl mt={4}>
               <FormLabel>Related Todos</FormLabel>
-              <VStack align="start" spacing={1}>
-                {selectableTodos.map((other) => (
-                  <Checkbox
-                    key={other.id}
-                    value={other.id}
-                    {...register("related_ids")}
+              {selectableTodos.length > 3 ? (
+                <Menu closeOnSelect={false}>
+                  <MenuButton
+                    as={Button}
+                    w="100%"
+                    variant="outline"
                     isDisabled={isSubmitting}
                   >
-                    {other.title}
-                  </Checkbox>
-                ))}
-              </VStack>
+                    {relatedIds.length > 0
+                      ? `${relatedIds.length} related`
+                      : "Select related todos"}
+                  </MenuButton>
+                  <MenuList maxH="240px" overflowY="auto">
+                    <MenuOptionGroup
+                      type="checkbox"
+                      value={relatedIds}
+                      onChange={(value) =>
+                        setRelatedIds(Array.isArray(value) ? value : [value])
+                      }
+                    >
+                      {selectableTodos.map((other) => (
+                        <MenuItemOption key={other.id} value={other.id}>
+                          {other.title}
+                        </MenuItemOption>
+                      ))}
+                    </MenuOptionGroup>
+                  </MenuList>
+                </Menu>
+              ) : (
+                <VStack align="start" spacing={1}>
+                  {selectableTodos.map((other) => (
+                    <Checkbox
+                      key={other.id}
+                      isChecked={relatedIds.includes(other.id)}
+                      onChange={() => toggleRelated(other.id)}
+                      isDisabled={isSubmitting}
+                    >
+                      {other.title}
+                    </Checkbox>
+                  ))}
+                </VStack>
+              )}
+              {related.length > 0 && (
+                <VStack align="stretch" spacing={2} mt={3}>
+                  {related.map((rel) => (
+                    <HStack key={rel.id} spacing={3}>
+                      <Text flex={1} fontSize="sm" noOfLines={1}>
+                        {todos.find((t) => t.id === rel.id)?.title ?? rel.id}
+                      </Text>
+                      <Select
+                        size="sm"
+                        w="48%"
+                        value={rel.relation ?? "linked"}
+                        isDisabled={isSubmitting}
+                        onChange={(e) =>
+                          setRelationType(
+                            rel.id,
+                            e.target.value as TodoRelationType,
+                          )
+                        }
+                      >
+                        {(
+                          Object.entries(TODO_RELATION_LABELS) as [
+                            TodoRelationType,
+                            string,
+                          ][]
+                        ).map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </Select>
+                    </HStack>
+                  ))}
+                </VStack>
+              )}
             </FormControl>
           )}
         </ModalBody>

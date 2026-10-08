@@ -344,6 +344,264 @@ export const EmailLogPublicSchema = {
   title: "EmailLogPublic",
 } as const
 
+export const FilamentCreateSchema = {
+  properties: {
+    colour: {
+      type: "string",
+      maxLength: 100,
+      minLength: 1,
+      title: "Colour",
+    },
+    colour_hex: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 7,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Colour Hex",
+    },
+    material: {
+      $ref: "#/components/schemas/FilamentMaterial",
+      default: "PLA",
+    },
+    spools: {
+      type: "number",
+      minimum: 0,
+      title: "Spools",
+      default: 0,
+    },
+    manufacturer: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      title: "Manufacturer",
+    },
+    price: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Price",
+    },
+    purchase_url: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 500,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Purchase Url",
+    },
+  },
+  type: "object",
+  required: ["colour", "manufacturer"],
+  title: "FilamentCreate",
+} as const
+
+export const FilamentMaterialSchema = {
+  type: "string",
+  enum: ["PLA", "PETG", "ABS", "ASA", "TPU", "PC", "Nylon", "PVA", "Other"],
+  title: "FilamentMaterial",
+} as const
+
+export const FilamentPublicSchema = {
+  properties: {
+    colour: {
+      type: "string",
+      maxLength: 100,
+      minLength: 1,
+      title: "Colour",
+    },
+    colour_hex: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 7,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Colour Hex",
+    },
+    material: {
+      $ref: "#/components/schemas/FilamentMaterial",
+      default: "PLA",
+    },
+    spools: {
+      type: "number",
+      minimum: 0,
+      title: "Spools",
+      default: 0,
+    },
+    manufacturer: {
+      type: "string",
+      maxLength: 255,
+      minLength: 1,
+      title: "Manufacturer",
+    },
+    price: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Price",
+    },
+    purchase_url: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 500,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Purchase Url",
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+    },
+  },
+  type: "object",
+  required: ["colour", "manufacturer", "id", "created_at"],
+  title: "FilamentPublic",
+} as const
+
+export const FilamentUpdateSchema = {
+  properties: {
+    colour: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 100,
+          minLength: 1,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Colour",
+    },
+    colour_hex: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 7,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Colour Hex",
+    },
+    material: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/FilamentMaterial",
+        },
+        {
+          type: "null",
+        },
+      ],
+    },
+    spools: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Spools",
+    },
+    manufacturer: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 255,
+          minLength: 1,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Manufacturer",
+    },
+    price: {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 0,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Price",
+    },
+    purchase_url: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 500,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Purchase Url",
+    },
+  },
+  type: "object",
+  title: "FilamentUpdate",
+} as const
+
+export const FilamentsPublicSchema = {
+  properties: {
+    data: {
+      items: {
+        $ref: "#/components/schemas/FilamentPublic",
+      },
+      type: "array",
+      title: "Data",
+    },
+    count: {
+      type: "integer",
+      title: "Count",
+    },
+  },
+  type: "object",
+  required: ["data", "count"],
+  title: "FilamentsPublic",
+} as const
+
 export const HTTPValidationErrorSchema = {
   properties: {
     detail: {
@@ -997,13 +1255,12 @@ export const TodoCreateSchema = {
       ],
       title: "Deadline",
     },
-    related_ids: {
+    related: {
       items: {
-        type: "string",
-        format: "uuid",
+        $ref: "#/components/schemas/TodoRelation",
       },
       type: "array",
-      title: "Related Ids",
+      title: "Related",
       default: [],
     },
   },
@@ -1054,19 +1311,49 @@ export const TodoPublicSchema = {
       format: "uuid",
       title: "Id",
     },
-    related_ids: {
+    related: {
       items: {
-        type: "string",
-        format: "uuid",
+        $ref: "#/components/schemas/TodoRelation",
       },
       type: "array",
-      title: "Related Ids",
+      title: "Related",
       default: [],
     },
   },
   type: "object",
   required: ["title", "id"],
   title: "TodoPublic",
+} as const
+
+export const TodoRelationSchema = {
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+    },
+    relation: {
+      $ref: "#/components/schemas/TodoRelationType",
+      default: "linked",
+    },
+  },
+  type: "object",
+  required: ["id"],
+  title: "TodoRelation",
+} as const
+
+export const TodoRelationTypeSchema = {
+  type: "string",
+  enum: [
+    "depends_on",
+    "required_by",
+    "blocking",
+    "blocked_by",
+    "parent",
+    "child",
+    "linked",
+  ],
+  title: "TodoRelationType",
 } as const
 
 export const TodoReorderSchema = {
@@ -1124,12 +1411,11 @@ export const TodoUpdateSchema = {
       ],
       title: "Deadline",
     },
-    related_ids: {
+    related: {
       anyOf: [
         {
           items: {
-            type: "string",
-            format: "uuid",
+            $ref: "#/components/schemas/TodoRelation",
           },
           type: "array",
         },
@@ -1137,7 +1423,7 @@ export const TodoUpdateSchema = {
           type: "null",
         },
       ],
-      title: "Related Ids",
+      title: "Related",
     },
   },
   type: "object",

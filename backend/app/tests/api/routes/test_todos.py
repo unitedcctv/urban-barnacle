@@ -33,7 +33,7 @@ def test_create_todo(
     assert content["title"] == data["title"]
     assert content["description"] == data["description"]
     assert content["deadline"].startswith("2026-12-31T12:00:00")
-    assert content["related_ids"] == []
+    assert content["related"] == []
     assert "id" in content
     assert "position" in content
 
@@ -74,13 +74,61 @@ def test_create_todo_with_relations(
 ) -> None:
     todo_a = create_todo(client, superuser_token_headers)
     todo_b = create_todo(
-        client, superuser_token_headers, related_ids=[todo_a["id"]]
+        client,
+        superuser_token_headers,
+        related=[{"id": todo_a["id"], "relation": "depends_on"}],
     )
-    assert todo_b["related_ids"] == [todo_a["id"]]
-    # the relation is visible from both sides
+    assert todo_b["related"] == [
+        {"id": todo_a["id"], "relation": "depends_on"}
+    ]
+    # the relation is visible from both sides, with the inverse kind
     response = client.get(TODOS_URL, headers=superuser_token_headers)
     todos = {t["id"]: t for t in response.json()["data"]}
-    assert todos[todo_a["id"]]["related_ids"] == [todo_b["id"]]
+    assert todos[todo_a["id"]]["related"] == [
+        {"id": todo_b["id"], "relation": "required_by"}
+    ]
+
+
+def test_create_todo_default_relation_is_linked(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    todo_a = create_todo(client, superuser_token_headers)
+    todo_b = create_todo(
+        client, superuser_token_headers, related=[{"id": todo_a["id"]}]
+    )
+    assert todo_b["related"] == [{"id": todo_a["id"], "relation": "linked"}]
+
+
+def test_create_todo_relation_inverses(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    forward = {"blocking": "blocked_by", "parent": "child", "linked": "linked"}
+    for relation, inverse in forward.items():
+        todo_a = create_todo(client, superuser_token_headers)
+        todo_b = create_todo(
+            client,
+            superuser_token_headers,
+            related=[{"id": todo_a["id"], "relation": relation}],
+        )
+        response = client.get(TODOS_URL, headers=superuser_token_headers)
+        todos = {t["id"]: t for t in response.json()["data"]}
+        assert todos[todo_a["id"]]["related"][-1]["id"] == todo_b["id"]
+        assert todos[todo_a["id"]]["related"][-1]["relation"] == inverse
+
+
+def test_create_todo_invalid_relation(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    todo_a = create_todo(client, superuser_token_headers)
+    response = client.post(
+        TODOS_URL,
+        headers=superuser_token_headers,
+        json={
+            "title": "Foo",
+            "related": [{"id": todo_a["id"], "relation": "friend_of"}],
+        },
+    )
+    assert response.status_code == 422
 
 
 def test_create_todo_related_not_found(
@@ -89,7 +137,10 @@ def test_create_todo_related_not_found(
     response = client.post(
         TODOS_URL,
         headers=superuser_token_headers,
-        json={"title": "Foo", "related_ids": [str(uuid.uuid4())]},
+        json={
+            "title": "Foo",
+            "related": [{"id": str(uuid.uuid4()), "relation": "linked"}],
+        },
     )
     assert response.status_code == 404
 
@@ -117,18 +168,48 @@ def test_update_todo_relations(
     response = client.patch(
         f"{TODOS_URL}{todo_a['id']}",
         headers=superuser_token_headers,
-        json={"related_ids": [todo_b["id"]]},
+        json={"related": [{"id": todo_b["id"], "relation": "linked"}]},
     )
     assert response.status_code == 200
-    assert response.json()["related_ids"] == [todo_b["id"]]
+    assert response.json()["related"] == [
+        {"id": todo_b["id"], "relation": "linked"}
+    ]
     # self-relations are ignored
     response = client.patch(
         f"{TODOS_URL}{todo_a['id']}",
         headers=superuser_token_headers,
-        json={"related_ids": [todo_a["id"]]},
+        json={"related": [{"id": todo_a["id"], "relation": "linked"}]},
     )
     assert response.status_code == 200
-    assert response.json()["related_ids"] == []
+    assert response.json()["related"] == []
+
+
+def test_update_todo_relations_replaces_existing(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    todo_a = create_todo(client, superuser_token_headers)
+    todo_b = create_todo(
+        client,
+        superuser_token_headers,
+        related=[{"id": todo_a["id"], "relation": "blocking"}],
+    )
+    todo_c = create_todo(client, superuser_token_headers)
+    response = client.patch(
+        f"{TODOS_URL}{todo_b['id']}",
+        headers=superuser_token_headers,
+        json={"related": [{"id": todo_c["id"], "relation": "depends_on"}]},
+    )
+    assert response.status_code == 200
+    assert response.json()["related"] == [
+        {"id": todo_c["id"], "relation": "depends_on"}
+    ]
+    # the old link is gone from the other side too
+    todos = client.get(TODOS_URL, headers=superuser_token_headers).json()["data"]
+    by_id = {t["id"]: t for t in todos}
+    assert by_id[todo_a["id"]]["related"] == []
+    assert by_id[todo_c["id"]]["related"] == [
+        {"id": todo_b["id"], "relation": "required_by"}
+    ]
 
 
 def test_update_todo_not_found(
@@ -185,7 +266,9 @@ def test_delete_todo(
 ) -> None:
     todo_a = create_todo(client, superuser_token_headers)
     todo_b = create_todo(
-        client, superuser_token_headers, related_ids=[todo_a["id"]]
+        client,
+        superuser_token_headers,
+        related=[{"id": todo_a["id"], "relation": "linked"}],
     )
     response = client.delete(
         f"{TODOS_URL}{todo_a['id']}", headers=superuser_token_headers
@@ -193,7 +276,7 @@ def test_delete_todo(
     assert response.status_code == 200
     todos = client.get(TODOS_URL, headers=superuser_token_headers).json()["data"]
     assert [t["id"] for t in todos] == [todo_b["id"]]
-    assert todos[0]["related_ids"] == []
+    assert todos[0]["related"] == []
 
 
 def test_delete_todo_not_found(

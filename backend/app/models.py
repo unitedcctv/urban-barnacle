@@ -1,8 +1,9 @@
+import re
 import uuid
 from datetime import datetime
 from typing import Optional
 
-from pydantic import EmailStr
+from pydantic import EmailStr, field_validator
 from enum import Enum
 from sqlalchemy import Column, String, DateTime
 from sqlmodel import Field, Relationship, SQLModel
@@ -356,10 +357,44 @@ class NfcTagsPublic(SQLModel):
     count: int
 
 
-# Link table for self-referential many-to-many relations between todos
+# Relation kinds between todos. Most come in inverse pairs; the link stores
+# the relation from the `from_id` todo's perspective, and the inverse is
+# used when reading from the `to_id` todo's perspective.
+class TodoRelationType(str, Enum):
+    DEPENDS_ON = "depends_on"
+    REQUIRED_BY = "required_by"
+    BLOCKING = "blocking"
+    BLOCKED_BY = "blocked_by"
+    PARENT = "parent"
+    CHILD = "child"
+    LINKED = "linked"
+
+
+TODO_RELATION_INVERSE: dict[TodoRelationType, TodoRelationType] = {
+    TodoRelationType.DEPENDS_ON: TodoRelationType.REQUIRED_BY,
+    TodoRelationType.REQUIRED_BY: TodoRelationType.DEPENDS_ON,
+    TodoRelationType.BLOCKING: TodoRelationType.BLOCKED_BY,
+    TodoRelationType.BLOCKED_BY: TodoRelationType.BLOCKING,
+    TodoRelationType.PARENT: TodoRelationType.CHILD,
+    TodoRelationType.CHILD: TodoRelationType.PARENT,
+    TodoRelationType.LINKED: TodoRelationType.LINKED,
+}
+
+
+# Link table for directed relations between todos
 class TodoLink(SQLModel, table=True):  # type: ignore[call-arg]
     from_id: uuid.UUID = Field(foreign_key="todo.id", primary_key=True)
     to_id: uuid.UUID = Field(foreign_key="todo.id", primary_key=True)
+    relation: TodoRelationType = Field(
+        default=TodoRelationType.LINKED,
+        sa_column=Column(String(length=20), nullable=False),
+    )
+
+
+# A directed relation to another todo, used in API payloads
+class TodoRelation(SQLModel):
+    id: uuid.UUID
+    relation: TodoRelationType = TodoRelationType.LINKED
 
 
 # Shared properties for Todo
@@ -377,7 +412,7 @@ class TodoCreate(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: Optional[str] = Field(default=None, max_length=2000)
     deadline: Optional[datetime] = None
-    related_ids: list[uuid.UUID] = []
+    related: list[TodoRelation] = []
 
 
 # Properties to receive on todo update, all are optional
@@ -385,7 +420,7 @@ class TodoUpdate(SQLModel):
     title: Optional[str] = Field(default=None, min_length=1, max_length=255)
     description: Optional[str] = Field(default=None, max_length=2000)
     deadline: Optional[datetime] = None
-    related_ids: Optional[list[uuid.UUID]] = None
+    related: Optional[list[TodoRelation]] = None
 
 
 # Payload for drag-and-drop reordering
@@ -396,42 +431,107 @@ class TodoReorder(SQLModel):
 # Database model, database table inferred from class name
 class Todo(TodoBase, table=True):  # type: ignore[call-arg]
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    related: list["Todo"] = Relationship(
-        back_populates="related_by",
-        link_model=TodoLink,
-        sa_relationship_kwargs={
-            "primaryjoin": "Todo.id == TodoLink.from_id",
-            "secondaryjoin": "Todo.id == TodoLink.to_id",
-        },
-    )
-    related_by: list["Todo"] = Relationship(
-        back_populates="related",
-        link_model=TodoLink,
-        sa_relationship_kwargs={
-            "primaryjoin": "Todo.id == TodoLink.to_id",
-            "secondaryjoin": "Todo.id == TodoLink.from_id",
-        },
-    )
 
 
 # Properties to return via API, id is always required
 class TodoPublic(TodoBase):
     id: uuid.UUID
-    related_ids: list[uuid.UUID] = []
+    related: list[TodoRelation] = []
 
     @classmethod
-    def from_todo(cls, todo: "Todo") -> "TodoPublic":
-        related_ids = {t.id for t in todo.related} | {t.id for t in todo.related_by}
+    def from_todo(cls, todo: "Todo", related: list[TodoRelation]) -> "TodoPublic":
         return cls(
             id=todo.id,
             title=todo.title,
             description=todo.description,
             deadline=todo.deadline,
             position=todo.position,
-            related_ids=sorted(related_ids),
+            related=sorted(related, key=lambda r: str(r.id)),
         )
 
 
 class TodosPublic(SQLModel):
     data: list[TodoPublic]
+    count: int
+
+
+# Filament inventory (3D printing materials), superuser-managed
+class FilamentMaterial(str, Enum):
+    PLA = "PLA"
+    PETG = "PETG"
+    ABS = "ABS"
+    ASA = "ASA"
+    TPU = "TPU"
+    PC = "PC"
+    NYLON = "Nylon"
+    PVA = "PVA"
+    OTHER = "Other"
+
+
+_COLOUR_HEX_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+
+def _validate_colour_hex(v: Optional[str]) -> Optional[str]:
+    if v is not None and not _COLOUR_HEX_RE.match(v):
+        raise ValueError("colour_hex must be a hex colour like #1E3A8A")
+    return v
+
+
+class FilamentBase(SQLModel):
+    colour: str = Field(min_length=1, max_length=100)
+    colour_hex: Optional[str] = Field(default=None, max_length=7)
+    material: FilamentMaterial = Field(default=FilamentMaterial.PLA)
+    spools: float = Field(default=0.0, ge=0)  # Number of (possibly partial) spools in stock
+    manufacturer: str = Field(min_length=1, max_length=255)
+    price: Optional[float] = Field(default=None, ge=0)  # Price per spool in EUR
+    purchase_url: Optional[str] = Field(default=None, max_length=500)
+
+    @field_validator("colour_hex")
+    @classmethod
+    def validate_colour_hex(cls, v: Optional[str]) -> Optional[str]:
+        return _validate_colour_hex(v)
+
+
+# Properties to receive on filament creation
+class FilamentCreate(FilamentBase):
+    pass
+
+
+# Properties to receive on filament update, all are optional
+class FilamentUpdate(SQLModel):
+    colour: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    colour_hex: Optional[str] = Field(default=None, max_length=7)
+    material: Optional[FilamentMaterial] = Field(default=None)
+    spools: Optional[float] = Field(default=None, ge=0)
+    manufacturer: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    price: Optional[float] = Field(default=None, ge=0)
+    purchase_url: Optional[str] = Field(default=None, max_length=500)
+
+    @field_validator("colour_hex")
+    @classmethod
+    def validate_colour_hex(cls, v: Optional[str]) -> Optional[str]:
+        return _validate_colour_hex(v)
+
+
+# Database model, database table inferred from class name
+class Filament(FilamentBase, table=True):  # type: ignore[call-arg]
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    material: FilamentMaterial = Field(
+        default=FilamentMaterial.PLA,
+        sa_column=Column(String(length=20), nullable=False),
+    )
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column=Column(DateTime, nullable=False)
+    )
+
+
+# Properties to return via API, id is always required
+class FilamentPublic(FilamentBase):
+    id: uuid.UUID
+    created_at: datetime
+
+
+class FilamentsPublic(SQLModel):
+    data: list[FilamentPublic]
     count: int

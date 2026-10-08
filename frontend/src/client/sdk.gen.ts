@@ -17,6 +17,17 @@ import type {
   EnquiriesSubmitEnquiryData,
   EnquiriesSubmitEnquiryErrors,
   EnquiriesSubmitEnquiryResponses,
+  FilamentsCreateFilamentData,
+  FilamentsCreateFilamentErrors,
+  FilamentsCreateFilamentResponses,
+  FilamentsDeleteFilamentData,
+  FilamentsDeleteFilamentErrors,
+  FilamentsDeleteFilamentResponses,
+  FilamentsReadFilamentsData,
+  FilamentsReadFilamentsResponses,
+  FilamentsUpdateFilamentData,
+  FilamentsUpdateFilamentErrors,
+  FilamentsUpdateFilamentResponses,
   ImagesDeleteFileData,
   ImagesDeleteFileErrors,
   ImagesDeleteFileResponses,
@@ -1729,6 +1740,114 @@ export const enquiriesSubmitEnquiry = <ThrowOnError extends boolean = false>(
   >({
     responseStyle: "data",
     url: "/api/v1/enquiries/",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Read Filaments
+ *
+ * Retrieve filament inventory ordered by manufacturer, material, colour.
+ */
+export const filamentsReadFilaments = <ThrowOnError extends boolean = false>(
+  options?: Options<FilamentsReadFilamentsData, ThrowOnError>,
+): RequestResult<
+  FilamentsReadFilamentsResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).get<
+    FilamentsReadFilamentsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/filaments/",
+    ...options,
+  })
+
+/**
+ * Create Filament
+ *
+ * Add a new filament to the inventory.
+ */
+export const filamentsCreateFilament = <ThrowOnError extends boolean = false>(
+  options: Options<FilamentsCreateFilamentData, ThrowOnError>,
+): RequestResult<
+  FilamentsCreateFilamentResponses,
+  FilamentsCreateFilamentErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    FilamentsCreateFilamentResponses,
+    FilamentsCreateFilamentErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/filaments/",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Delete Filament
+ *
+ * Delete a filament entry.
+ */
+export const filamentsDeleteFilament = <ThrowOnError extends boolean = false>(
+  options: Options<FilamentsDeleteFilamentData, ThrowOnError>,
+): RequestResult<
+  FilamentsDeleteFilamentResponses,
+  FilamentsDeleteFilamentErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).delete<
+    FilamentsDeleteFilamentResponses,
+    FilamentsDeleteFilamentErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/filaments/{id}",
+    ...options,
+  })
+
+/**
+ * Update Filament
+ *
+ * Update a filament entry.
+ */
+export const filamentsUpdateFilament = <ThrowOnError extends boolean = false>(
+  options: Options<FilamentsUpdateFilamentData, ThrowOnError>,
+): RequestResult<
+  FilamentsUpdateFilamentResponses,
+  FilamentsUpdateFilamentErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).patch<
+    FilamentsUpdateFilamentResponses,
+    FilamentsUpdateFilamentErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/filaments/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",

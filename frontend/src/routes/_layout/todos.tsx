@@ -44,7 +44,9 @@ import {
   todosReorderTodos,
 } from "../../client/sdk.gen"
 import type { TodoPublic } from "../../client/types.gen"
-import TodoModal from "../../components/Admin/TodoModal"
+import TodoModal, {
+  TODO_RELATION_LABELS,
+} from "../../components/Admin/TodoModal"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
 
@@ -80,9 +82,12 @@ function SortableTodoRow({
     isDragging,
   } = useSortable({ id: todo.id })
 
-  const relatedTitles = (todo.related_ids ?? [])
-    .map((id) => todos.find((t) => t.id === id)?.title)
-    .filter((title): title is string => !!title)
+  const relatedEntries = (todo.related ?? [])
+    .map((rel) => ({
+      rel,
+      title: todos.find((t) => t.id === rel.id)?.title,
+    }))
+    .filter((entry): entry is typeof entry & { title: string } => !!entry.title)
   const deadline = formatDeadline(todo.deadline)
   const isOverdue = !!todo.deadline && new Date(todo.deadline) < new Date()
 
@@ -126,9 +131,9 @@ function SortableTodoRow({
               Due: {deadline}
             </Badge>
           )}
-          {relatedTitles.map((title) => (
-            <Badge key={title} colorScheme="purple">
-              {title}
+          {relatedEntries.map(({ rel, title }) => (
+            <Badge key={rel.id} colorScheme="purple">
+              {TODO_RELATION_LABELS[rel.relation ?? "linked"]}: {title}
             </Badge>
           ))}
         </HStack>

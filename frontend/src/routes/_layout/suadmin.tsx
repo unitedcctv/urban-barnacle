@@ -168,6 +168,9 @@ function SuAdmin() {
         <Button as={Link} to="/todos" variant="primary">
           Manage Todos
         </Button>
+        <Button as={Link} to="/filament" variant="primary">
+          Manage Filament
+        </Button>
       </Flex>
     </Container>
   )
