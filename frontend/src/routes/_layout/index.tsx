@@ -1,6 +1,15 @@
-import { Box, Container, Flex, Heading, Text, useMediaQuery } from "@chakra-ui/react"
+import {
+  Box,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  useMediaQuery,
+  usePrefersReducedMotion,
+} from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
+import { useRef, useState } from "react"
 import { itemsReadItems } from "../../client/sdk.gen.ts"
 import ErrorPage from "../../components/Common/ErrorPage"
 import HoldingPage from "../../components/Common/HoldingPage"
@@ -26,6 +35,9 @@ function getItemsQueryOptions() {
 
 export default function Home() {
   const [isSmUp] = useMediaQuery("(min-width: 30em)")
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [hasGalleryItems, setHasGalleryItems] = useState(false)
 
   const {
     data: items,
@@ -37,76 +49,97 @@ export default function Home() {
     enabled: typeof window !== "undefined" && isSmUp,
   })
 
-  const itemsList = items?.data ?? []
+  const itemsList = (items?.data ?? []).filter((item) =>
+    Boolean(item.image_urls?.[0]?.trim()),
+  )
+  const hasContent = isSmUp
+    ? !isLoading && !isError && itemsList.length > 0
+    : hasGalleryItems
 
-  // On mobile, land on the gallery instead of the logo-only holding page
-  if (!isSmUp) {
-    return (
-      <Container maxW="full">
-        <ItemsGrid />
-      </Container>
-    )
+  const scrollToContent = () => {
+    contentRef.current?.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    })
   }
 
-  if (isLoading) {
+  const renderContent = () => {
+    // On mobile, land on the gallery instead of the logo-only holding page
+    if (!isSmUp) {
+      return (
+        <Container maxW="full">
+          <ItemsGrid onHasItemsChange={setHasGalleryItems} />
+        </Container>
+      )
+    }
+
+    if (isLoading) {
+      return (
+        <Box
+          height="100vh"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <LoadingLogo size="526px" />
+        </Box>
+      )
+    }
+
+    if (isError) {
+      return (
+        <ErrorPage
+          message={error instanceof Error ? error.message : undefined}
+        />
+      )
+    }
+
     return (
-      <Box
-        height="100vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <LoadingLogo size="526px" />
+      <Box bg="black">
+        {itemsList.map((item) => {
+          const image_url = item.image_urls?.[0]
+
+          return (
+            <Flex
+              key={item.id}
+              bgImage={`url(${image_url})`}
+              bgAttachment={{ base: "scroll", sm: "fixed" }}
+              bgSize={{ base: "contain", sm: "cover" }}
+              bgRepeat="no-repeat"
+              bgPosition="center"
+              h={{ base: "100dvh", sm: "100vh" }}
+              mb={0}
+              align="center"
+              justify="center"
+              direction="column"
+              color="white"
+              position="relative"
+            >
+              <Box
+                w="30%"
+                padding="1rem"
+                bg="rgba(0,0,0,0.5)"
+                position="absolute"
+                left={0}
+              >
+                <Heading size="md" mb={2}>
+                  {item.title ?? "Parallax Title"}
+                </Heading>
+                <Text>{item.description}</Text>
+              </Box>
+            </Flex>
+          )
+        })}
       </Box>
     )
   }
 
-  if (isError) {
-    return (
-      <ErrorPage message={error instanceof Error ? error.message : undefined} />
-    )
-  }
-
-  if (!items || itemsList.length === 0) {
-    return <HoldingPage />
-  }
-
   return (
-    <Box bg="black">
-      {itemsList.map((item: any) => {
-        if (!item?.image_urls || item.image_urls.length === 0) return null
-        const image_url = item.image_urls[0]
-
-        return (
-          <Flex
-            key={item.id}
-            bgImage={`url(${image_url})`}
-            bgAttachment={{ base: "scroll", sm: "fixed" }}
-            bgSize={{ base: "contain", sm: "cover" }}
-            bgRepeat="no-repeat"
-            bgPosition="center"
-            h={{ base: "100dvh", sm: "100vh" }}
-            mb={0}
-            align="center"
-            justify="center"
-            direction="column"
-            color="white"
-          >
-            <Box
-              w="30%"
-              padding="1rem"
-              bg="rgba(0,0,0,0.5)"
-              position="absolute"
-              left={0}
-            >
-              <Heading size="md" mb={2}>
-                {item.title ?? "Parallax Title"}
-              </Heading>
-              <Text>{item.description}</Text>
-            </Box>
-          </Flex>
-        )
-      })}
-    </Box>
+    <>
+      <HoldingPage onExplore={hasContent ? scrollToContent : undefined} />
+      <Box ref={contentRef} scrollMarginTop={{ base: 0, sm: "52px" }}>
+        {renderContent()}
+      </Box>
+    </>
   )
 }

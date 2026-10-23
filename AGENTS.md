@@ -5,6 +5,7 @@
 - Backend tests: `cd backend && uv run pytest app/tests` (requires the local Postgres via `docker compose up -d db`)
 - Frontend typecheck: `cd frontend && npx tsc -p tsconfig.build.json`
 - Frontend build: `cd frontend && npm run build`
+- Home-page browser tests: `cd frontend && npx playwright test tests/home.spec.ts --project=chromium --no-deps --reporter=line` (mocked API, no backend/auth setup required; install Chromium with `npx playwright install chromium` if missing).
 - Lint: `npx biome check` (note: some committed files are not biome-clean; `npm run lint` applies unsafe fixes — review its diff before committing)
 
 ## Database migrations

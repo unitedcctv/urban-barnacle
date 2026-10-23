@@ -6,30 +6,29 @@ import ItemCard from "./ItemCard.tsx"
 
 const PER_PAGE = 20
 
-function ItemsGrid() {
+interface ItemsGridProps {
+  onHasItemsChange?: (hasItems: boolean) => void
+}
+
+function ItemsGrid({ onHasItemsChange }: ItemsGridProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isPending,
-  } = useInfiniteQuery({
-    queryKey: ["items", "infinite", PER_PAGE],
-    queryFn: ({ pageParam = 0 }) =>
-      itemsReadItems({
-        query: { skip: pageParam, limit: PER_PAGE },
-        throwOnError: true,
-      }),
-    getNextPageParam: (lastPage, allPages) => {
-      const lastPageData = Array.isArray(lastPage?.data) ? lastPage.data : []
-      if (lastPageData.length < PER_PAGE) return undefined
-      const pagesCount = Array.isArray(allPages) ? allPages.length : 0
-      return pagesCount * PER_PAGE
-    },
-    initialPageParam: 0,
-  })
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } =
+    useInfiniteQuery({
+      queryKey: ["items", "infinite", PER_PAGE],
+      queryFn: ({ pageParam = 0 }) =>
+        itemsReadItems({
+          query: { skip: pageParam, limit: PER_PAGE },
+          throwOnError: true,
+        }),
+      getNextPageParam: (lastPage, allPages) => {
+        const lastPageData = Array.isArray(lastPage?.data) ? lastPage.data : []
+        if (lastPageData.length < PER_PAGE) return undefined
+        const pagesCount = Array.isArray(allPages) ? allPages.length : 0
+        return pagesCount * PER_PAGE
+      },
+      initialPageParam: 0,
+    })
 
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -38,7 +37,7 @@ function ItemsGrid() {
         fetchNextPage()
       }
     },
-    [fetchNextPage, hasNextPage, isFetchingNextPage]
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
   )
 
   useEffect(() => {
@@ -55,6 +54,11 @@ function ItemsGrid() {
   }, [handleObserver])
 
   const allItems = data?.pages.flatMap((page) => page.data) ?? []
+  const hasItems = allItems.length > 0
+
+  useEffect(() => {
+    onHasItemsChange?.(hasItems)
+  }, [hasItems, onHasItemsChange])
 
   return (
     <>
