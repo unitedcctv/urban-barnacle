@@ -55,6 +55,7 @@ test("desktop opens with the logo, then scrolls through the selected images", as
   await expect(logo).toBeInViewport()
   await expect(logo).toHaveCSS("filter", "none")
   await expect(cue).toBeInViewport()
+  await expect(cue).toHaveText("")
   await expect(page.getByRole("region", { name: "Welcome" })).toHaveCSS(
     "height",
     `${page.viewportSize()!.height}px`,
@@ -269,18 +270,35 @@ for (const [width, height] of [
     await mockItems(page, [item(1)])
     await page.goto("/")
     const logo = page.getByAltText("Urban Barnacle logo", { exact: true })
+    const tagline = page.getByText("Made in Berlin")
+    const selection = page.getByAltText(
+      "A selection of colourful customised stools",
+    )
     await expect(logo).toBeInViewport({ ratio: 1 })
+    await expect(tagline).toBeInViewport({ ratio: 1 })
+    await expect(tagline).toContainText("Customised for you")
+    await expect(selection).toBeInViewport({ ratio: 1 })
+    await expect(selection).toHaveJSProperty("complete", true)
+    await expect(selection).toHaveJSProperty("naturalWidth", 6336)
     await expect(logo).toHaveCSS("filter", "invert(1)")
     const cue = page.getByRole("button", { name: "Scroll to explore" })
     await expect(cue).toBeInViewport({ ratio: 1 })
     const cueBox = await cue.boundingBox()
     const logoBox = await logo.boundingBox()
+    const taglineBox = await tagline.boundingBox()
+    const selectionBox = await selection.boundingBox()
     const footerBox = await page
       .getByRole("contentinfo")
       .filter({ hasText: "Impressum" })
       .boundingBox()
     expect(logoBox!.y).toBeGreaterThanOrEqual(width >= 480 ? 52 : 0)
-    expect(logoBox!.y + logoBox!.height).toBeLessThanOrEqual(cueBox!.y)
+    expect(logoBox!.y + logoBox!.height).toBeLessThanOrEqual(taglineBox!.y)
+    expect(taglineBox!.y + taglineBox!.height).toBeLessThanOrEqual(
+      selectionBox!.y,
+    )
+    expect(selectionBox!.y + selectionBox!.height).toBeLessThanOrEqual(
+      cueBox!.y,
+    )
     expect(cueBox!.y + cueBox!.height).toBeLessThan(footerBox!.y)
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
