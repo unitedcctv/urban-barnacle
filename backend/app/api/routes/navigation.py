@@ -52,6 +52,7 @@ def get_navigation_items(
         {"title": "Gallery", "path": "/items", "icon": "gallery", "action": None},
         {"title": "B2B", "path": "/print-service", "icon": "business", "action": None},
         {"title": "About", "path": "/about", "icon": "about", "action": None},
+        {"title": "Find Us", "path": "/find-us", "icon": "find_us", "action": None},
         {"title": "Contact", "path": "/contact", "icon": "contact", "action": None},
     ]
 

@@ -26,6 +26,7 @@ import { Route as LayoutLogsImport } from './routes/_layout/logs'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutItemImport } from './routes/_layout/item'
 import { Route as LayoutImpressumImport } from './routes/_layout/impressum'
+import { Route as LayoutFindUsImport } from './routes/_layout/find-us'
 import { Route as LayoutFilamentImport } from './routes/_layout/filament'
 import { Route as LayoutContactImport } from './routes/_layout/contact'
 import { Route as LayoutCartImport } from './routes/_layout/cart'
@@ -110,6 +111,11 @@ const LayoutImpressumRoute = LayoutImpressumImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutFindUsRoute = LayoutFindUsImport.update({
+  path: '/find-us',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutFilamentRoute = LayoutFilamentImport.update({
   path: '/filament',
   getParentRoute: () => LayoutRoute,
@@ -176,6 +182,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutFilamentImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/find-us': {
+      preLoaderRoute: typeof LayoutFindUsImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/impressum': {
       preLoaderRoute: typeof LayoutImpressumImport
       parentRoute: typeof LayoutImport
@@ -239,6 +249,7 @@ export const routeTree = rootRoute.addChildren([
     LayoutCartRoute,
     LayoutContactRoute,
     LayoutFilamentRoute,
+    LayoutFindUsRoute,
     LayoutImpressumRoute,
     LayoutItemRoute,
     LayoutItemsRoute,

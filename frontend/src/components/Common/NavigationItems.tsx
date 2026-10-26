@@ -7,6 +7,7 @@ import aboutIcon from "../../theme/assets/icons/about.svg"
 import addItemIcon from "../../theme/assets/icons/add_item.svg"
 import businessIcon from "../../theme/assets/icons/business.svg"
 import contactIcon from "../../theme/assets/icons/contact.svg"
+import findUsIcon from "../../theme/assets/icons/find_us.svg"
 // Import custom SVG icons
 import galleryIcon from "../../theme/assets/icons/gallery.svg"
 import printServiceIcon from "../../theme/assets/icons/print_service.svg"
@@ -79,6 +80,7 @@ const NavigationItems = ({ onClose, onCount, direction = "row" }: NavigationItem
   const iconMap: Record<string, string> = {
     about: aboutIcon,
     contact: contactIcon,
+    find_us: findUsIcon,
     gallery: galleryIcon,
     settings: settingsIcon,
     su_settings: suSettingsIcon,
