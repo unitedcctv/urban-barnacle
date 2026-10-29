@@ -43,21 +43,33 @@ class LogBufferHandler(logging.Handler):
 
 # Initialize the log buffer handler
 def setup_log_buffer() -> None:
-    """Setup the log buffer handler."""
+    """Capture each record once, including non-propagating server loggers."""
+    root_logger = logging.getLogger()
+    named_loggers = [
+        logging.getLogger(name)
+        for name in ['uvicorn', 'uvicorn.error', 'uvicorn.access', 'app']
+    ]
+    # Startup may run again in tests or application lifecycle restarts.
+    # Remove only our handlers, preserving console and other logging sinks.
+    for logger in [root_logger, *named_loggers]:
+        for handler in list(logger.handlers):
+            if isinstance(handler, LogBufferHandler):
+                logger.removeHandler(handler)
+
     buffer_handler = LogBufferHandler()
     buffer_handler.setLevel(logging.DEBUG)  # Capture all levels
     formatter = logging.Formatter('%(message)s')
     buffer_handler.setFormatter(formatter)
     
     # Add to root logger to catch all logs
-    root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)  # Ensure root logger captures everything
     root_logger.addHandler(buffer_handler)
     
-    # Also add to specific loggers that might not propagate
-    for logger_name in ['uvicorn', 'uvicorn.error', 'uvicorn.access', 'app']:
-        logger = logging.getLogger(logger_name)
-        logger.addHandler(buffer_handler)
+    # Propagating loggers already reach a parent handler. Attach directly
+    # only where propagation stops (as with Uvicorn's default configuration).
+    for logger in named_loggers:
+        if not logger.propagate:
+            logger.addHandler(buffer_handler)
         logger.setLevel(logging.INFO)
 
 
