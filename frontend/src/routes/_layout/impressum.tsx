@@ -2,10 +2,11 @@ import {
   Box,
   Container,
   Heading,
+  Link,
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { createFileRoute } from "@tanstack/react-router"
+import { Link as RouterLink, createFileRoute } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/_layout/impressum")({
   component: Impressum,
@@ -32,7 +33,14 @@ function Impressum() {
           <Heading size="md" mb={2}>
             Kontakt
           </Heading>
-          <Text>Telefon: +49 152 5678 9012</Text>
+          <RouterLink
+            to="/contact"
+            search={{ subject: "Impressum" }}
+          >
+            <Link as="span" color="ui.main">
+              Kontaktformular
+            </Link>
+          </RouterLink>
           <Text>E-Mail: karl@ubdm.io</Text>
         </Box>
 
