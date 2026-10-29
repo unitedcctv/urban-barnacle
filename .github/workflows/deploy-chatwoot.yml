@@ -1,0 +1,58 @@
+name: Deploy Chatwoot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-chatwoot-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, production]
+    environment: production
+    env:
+      CHATWOOT_DOMAIN: ${{ vars.CHATWOOT_DOMAIN }}
+      CHATWOOT_STACK_NAME: urban-barnacle-chatwoot
+      CHATWOOT_ADMIN_EMAIL: ${{ vars.CHATWOOT_ADMIN_EMAIL }}
+      CHATWOOT_ADMIN_PASSWORD: ${{ secrets.CHATWOOT_ADMIN_PASSWORD }}
+      CHATWOOT_SECRET_KEY_BASE: ${{ secrets.CHATWOOT_SECRET_KEY_BASE }}
+      CHATWOOT_ENCRYPTION_PRIMARY_KEY: ${{ secrets.CHATWOOT_ENCRYPTION_PRIMARY_KEY }}
+      CHATWOOT_ENCRYPTION_DETERMINISTIC_KEY: ${{ secrets.CHATWOOT_ENCRYPTION_DETERMINISTIC_KEY }}
+      CHATWOOT_ENCRYPTION_KEY_DERIVATION_SALT: ${{ secrets.CHATWOOT_ENCRYPTION_KEY_DERIVATION_SALT }}
+      CHATWOOT_POSTGRES_PASSWORD: ${{ secrets.CHATWOOT_POSTGRES_PASSWORD }}
+      CHATWOOT_REDIS_PASSWORD: ${{ secrets.CHATWOOT_REDIS_PASSWORD }}
+      CHATWOOT_SMTP_DOMAIN: ${{ vars.CHATWOOT_SMTP_DOMAIN }}
+      SMTP_HOST: ${{ vars.SMTP_HOST }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      EMAILS_FROM_EMAIL: ${{ vars.EMAILS_FROM_EMAIL }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate configuration
+        run: docker compose -f docker-compose.chatwoot.yml -p "$CHATWOOT_STACK_NAME" --profile setup config --quiet
+      - name: Pull pinned Chatwoot and dependency images
+        run: docker compose -f docker-compose.chatwoot.yml -p "$CHATWOOT_STACK_NAME" --profile setup pull
+      - name: Stop web and worker before migrations
+        run: docker compose -f docker-compose.chatwoot.yml -p "$CHATWOOT_STACK_NAME" stop rails sidekiq
+      - name: Start databases
+        run: docker compose -f docker-compose.chatwoot.yml -p "$CHATWOOT_STACK_NAME" up -d --wait postgres redis
+      - name: Migrate and provision administrator
+        run: docker compose -f docker-compose.chatwoot.yml -p "$CHATWOOT_STACK_NAME" run --rm prepare
+      - name: Start Chatwoot
+        run: docker compose -f docker-compose.chatwoot.yml -p "$CHATWOOT_STACK_NAME" up -d rails sidekiq
+      - name: Check web service
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "https://$CHATWOOT_DOMAIN/api" >/dev/null; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1

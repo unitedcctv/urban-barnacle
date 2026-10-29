@@ -160,6 +160,8 @@ services:
         - VITE_REDDIT_URL
         - VITE_LINKEDIN_URL
         - VITE_YOUTUBE_URL
+        - VITE_CHATWOOT_BASE_URL
+        - VITE_CHATWOOT_WEBSITE_TOKEN
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public

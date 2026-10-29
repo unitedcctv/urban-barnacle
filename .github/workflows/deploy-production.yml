@@ -47,6 +47,8 @@ jobs:
       VITE_REDDIT_URL: ${{ vars.VITE_REDDIT_URL }}
       VITE_LINKEDIN_URL: ${{ vars.VITE_LINKEDIN_URL }}
       VITE_YOUTUBE_URL: ${{ vars.VITE_YOUTUBE_URL }}
+      VITE_CHATWOOT_BASE_URL: ${{ vars.VITE_CHATWOOT_BASE_URL }}
+      VITE_CHATWOOT_WEBSITE_TOKEN: ${{ vars.VITE_CHATWOOT_WEBSITE_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

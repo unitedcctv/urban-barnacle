@@ -1,0 +1,116 @@
+# Deploy separately from the website: see CHATWOOT.md.
+x-chatwoot: &chatwoot
+  image: chatwoot/chatwoot:v4.19.0-ce
+  restart: unless-stopped
+  environment: &chatwoot-environment
+    RAILS_ENV: production
+    NODE_ENV: production
+    INSTALLATION_ENV: docker
+    FRONTEND_URL: https://${CHATWOOT_DOMAIN:?Set CHATWOOT_DOMAIN}
+    FORCE_SSL: "true"
+    ENABLE_ACCOUNT_SIGNUP: "false"
+    SECRET_KEY_BASE: ${CHATWOOT_SECRET_KEY_BASE:?Set CHATWOOT_SECRET_KEY_BASE}
+    ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY: ${CHATWOOT_ENCRYPTION_PRIMARY_KEY:?Set CHATWOOT_ENCRYPTION_PRIMARY_KEY}
+    ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY: ${CHATWOOT_ENCRYPTION_DETERMINISTIC_KEY:?Set CHATWOOT_ENCRYPTION_DETERMINISTIC_KEY}
+    ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT: ${CHATWOOT_ENCRYPTION_KEY_DERIVATION_SALT:?Set CHATWOOT_ENCRYPTION_KEY_DERIVATION_SALT}
+    POSTGRES_HOST: postgres
+    POSTGRES_DATABASE: chatwoot
+    POSTGRES_USERNAME: chatwoot
+    POSTGRES_PASSWORD: ${CHATWOOT_POSTGRES_PASSWORD:?Set CHATWOOT_POSTGRES_PASSWORD}
+    REDIS_URL: redis://redis:6379
+    REDIS_PASSWORD: ${CHATWOOT_REDIS_PASSWORD:?Set CHATWOOT_REDIS_PASSWORD}
+    ACTIVE_STORAGE_SERVICE: local
+    RAILS_LOG_TO_STDOUT: "true"
+    LOG_LEVEL: info
+    MAILER_SENDER_EMAIL: ${EMAILS_FROM_EMAIL:?Set EMAILS_FROM_EMAIL}
+    SMTP_ADDRESS: ${SMTP_HOST:?Set SMTP_HOST}
+    SMTP_PORT: "587"
+    SMTP_DOMAIN: ${CHATWOOT_SMTP_DOMAIN:-mg.ubdm.io}
+    SMTP_USERNAME: ${SMTP_USER:?Set SMTP_USER}
+    SMTP_PASSWORD: ${SMTP_PASSWORD:?Set SMTP_PASSWORD}
+    SMTP_AUTHENTICATION: plain
+    SMTP_ENABLE_STARTTLS_AUTO: "true"
+    SMTP_OPENSSL_VERIFY_MODE: peer
+  volumes:
+    - storage:/app/storage
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  rails:
+    <<: *chatwoot
+    entrypoint: docker/entrypoints/rails.sh
+    command: [bundle, exec, rails, s, -p, "3000", -b, "0.0.0.0"]
+    networks: [default, traefik-public]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.constraint-label=traefik-public
+      - traefik.http.services.${CHATWOOT_STACK_NAME:-urban-barnacle-chatwoot}.loadbalancer.server.port=3000
+      - traefik.http.routers.${CHATWOOT_STACK_NAME:-urban-barnacle-chatwoot}-http.rule=Host(`${CHATWOOT_DOMAIN}`)
+      - traefik.http.routers.${CHATWOOT_STACK_NAME:-urban-barnacle-chatwoot}-http.entrypoints=http
+      - traefik.http.routers.${CHATWOOT_STACK_NAME:-urban-barnacle-chatwoot}-http.middlewares=https-redirect
+      - traefik.http.routers.${CHATWOOT_STACK_NAME:-urban-barnacle-chatwoot}-https.rule=Host(`${CHATWOOT_DOMAIN}`)
+      - traefik.http.routers.${CHATWOOT_STACK_NAME:-urban-barnacle-chatwoot}-https.entrypoints=https
+      - traefik.http.routers.${CHATWOOT_STACK_NAME:-urban-barnacle-chatwoot}-https.tls=true
+      - traefik.http.routers.${CHATWOOT_STACK_NAME:-urban-barnacle-chatwoot}-https.tls.certresolver=le
+
+  sidekiq:
+    <<: *chatwoot
+    command: [bundle, exec, sidekiq, -C, config/sidekiq.yml]
+
+  # Only run explicitly during deployment, before starting the public web service.
+  prepare:
+    <<: *chatwoot
+    restart: "no"
+    profiles: [setup]
+    entrypoint: docker/entrypoints/rails.sh
+    command: [sh, -c, "bundle exec rails db:chatwoot_prepare && bundle exec rails runner /setup/chatwoot-bootstrap.rb"]
+    environment:
+      <<: *chatwoot-environment
+      CHATWOOT_ADMIN_EMAIL: ${CHATWOOT_ADMIN_EMAIL:?Set CHATWOOT_ADMIN_EMAIL}
+      CHATWOOT_ADMIN_PASSWORD: ${CHATWOOT_ADMIN_PASSWORD:?Set CHATWOOT_ADMIN_PASSWORD}
+    volumes:
+      - storage:/app/storage
+      - ./scripts/chatwoot-bootstrap.rb:/setup/chatwoot-bootstrap.rb:ro
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chatwoot
+      POSTGRES_USER: chatwoot
+      POSTGRES_PASSWORD: ${CHATWOOT_POSTGRES_PASSWORD}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U chatwoot -d chatwoot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${CHATWOOT_REDIS_PASSWORD}
+    command: [sh, -c, 'exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"']
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres:
+  redis:
+  storage:
+
+networks:
+  traefik-public:
+    external: true
