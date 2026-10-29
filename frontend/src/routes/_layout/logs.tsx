@@ -50,6 +50,7 @@ function LogsPage() {
   const queryClient = useQueryClient()
   const [limit, setLimit] = useState(100)
   const [levelFilter, setLevelFilter] = useState<string>("")
+  const [isPaused, setIsPaused] = useState(false)
 
   const bgColor = useColorModeValue("white", "gray.800")
   const borderColor = useColorModeValue("gray.200", "gray.700")
@@ -59,7 +60,8 @@ function LogsPage() {
   // Fetch logs
   const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["logs", limit, levelFilter],
-    queryFn: async (): Promise<LogsResponse> => {
+    enabled: !isPaused,
+    queryFn: async ({ signal }): Promise<LogsResponse> => {
       const token = localStorage.getItem("access_token")
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -74,6 +76,7 @@ function LogsPage() {
       }
 
       const res = await fetch(`${apiBase}/api/v1/logs/recent?${params}`, {
+        signal,
         headers,
         credentials: "include",
       })
@@ -84,7 +87,7 @@ function LogsPage() {
       }
       return res.json()
     },
-    refetchInterval: 5000, // Auto-refresh every 5 seconds
+    refetchInterval: isPaused ? false : 5000,
     staleTime: 5000, // Consider data fresh for full interval
     gcTime: 30000, // Keep in cache for 30 seconds (formerly cacheTime)
     retry: 1, // Only retry once on failure
@@ -92,9 +95,10 @@ function LogsPage() {
   })
 
   // Fetch stats
-  const { data: stats } = useQuery({
+  const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ["log-stats"],
-    queryFn: async (): Promise<StatsResponse> => {
+    enabled: !isPaused,
+    queryFn: async ({ signal }): Promise<StatsResponse> => {
       const token = localStorage.getItem("access_token")
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -104,6 +108,7 @@ function LogsPage() {
       }
 
       const res = await fetch(`${apiBase}/api/v1/logs/stats`, {
+        signal,
         headers,
         credentials: "include",
       })
@@ -113,11 +118,19 @@ function LogsPage() {
       }
       return res.json()
     },
-    refetchInterval: 10000,
+    refetchInterval: isPaused ? false : 10000,
     staleTime: 9000,
     gcTime: 30000,
     retry: 1,
   })
+
+  const toggleUpdates = () => {
+    if (!isPaused) {
+      void queryClient.cancelQueries({ queryKey: ["logs"] })
+      void queryClient.cancelQueries({ queryKey: ["log-stats"] })
+    }
+    setIsPaused((paused) => !paused)
+  }
 
   const getLevelColor = (level: string) => {
     switch (level) {
@@ -174,9 +187,20 @@ function LogsPage() {
     <Container maxW="container.xl" py={8}>
       <VStack spacing={6} align="stretch">
         {/* Header */}
-        <HStack justify="flex-end">
+        <HStack justify="flex-end" flexWrap="wrap">
           <Button
-            onClick={() => refetch()}
+            onClick={toggleUpdates}
+            size="sm"
+            minH="44px"
+            aria-pressed={isPaused}
+          >
+            {isPaused ? "Resume updates" : "Pause updates"}
+          </Button>
+          <Button
+            onClick={() => {
+              void refetch()
+              void refetchStats()
+            }}
             colorScheme="blue"
             size="sm"
             isLoading={isFetching}
@@ -187,6 +211,11 @@ function LogsPage() {
             Clear Buffer
           </Button>
         </HStack>
+        <Text role="status" aria-live="polite" fontSize="sm">
+          {isPaused
+            ? "Automatic updates paused. Use Refresh to load the latest logs."
+            : "Logs update automatically every 5 seconds."}
+        </Text>
 
         {/* Stats */}
         {stats && (
