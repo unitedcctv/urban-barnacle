@@ -1,5 +1,4 @@
 import logging
-import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -50,38 +49,15 @@ def reset_rate_limits() -> None:
     _submission_log.clear()
 
 
-def _send_enquiry_emails_background(
-    enquiry_id: uuid.UUID,
+def _send_acknowledgement_background(
     name: str,
     email: str,
-    subject: str | None,
-    message: str,
 ) -> None:
     """
-    Background task: notify the site owner and acknowledge the visitor.
+    Background task: acknowledge the visitor after the owner notification succeeds.
     Creates its own database session for logging.
     """
     with Session(engine) as session:
-        recipient = settings.CONTACT_FORM_EMAIL or settings.EMAILS_FROM_EMAIL
-        if not recipient:
-            logger.error(
-                f"No contact form recipient configured, enquiry {enquiry_id} "
-                "stored but notification not sent"
-            )
-            return
-
-        notification = generate_enquiry_notification_email(
-            name=name, email=email, subject=subject, message=message
-        )
-        send_email_with_logging(
-            session=session,
-            email_to=recipient,
-            subject=notification.subject,
-            html_content=notification.html_content,
-            email_type="contact_enquiry",
-            reply_to=email,
-        )
-
         acknowledgement = generate_enquiry_acknowledgement_email(
             email_to=email, name=name
         )
@@ -125,19 +101,36 @@ def submit_enquiry(
     session.refresh(enquiry)
     logger.info(f"Contact enquiry {enquiry.id} received from {enquiry.email}")
 
-    if settings.emails_enabled:
-        background_tasks.add_task(
-            _send_enquiry_emails_background,
-            enquiry_id=enquiry.id,
-            name=enquiry.name,
-            email=enquiry.email,
-            subject=enquiry.subject,
-            message=enquiry.message,
-        )
-    else:
+    recipient = settings.CONTACT_FORM_EMAIL or settings.EMAILS_FROM_EMAIL
+    delivery_error = "Sorry, we couldn't send your message. Please email karl@ubdm.io directly."
+    if not settings.emails_enabled or not recipient:
         logger.warning(
             f"Email is disabled; enquiry {enquiry.id} stored but no notification sent"
         )
+        raise HTTPException(status_code=503, detail=delivery_error)
+
+    notification = generate_enquiry_notification_email(
+        name=enquiry.name,
+        email=enquiry.email,
+        subject=enquiry.subject,
+        message=enquiry.message,
+    )
+    sent = send_email_with_logging(
+        session=session,
+        email_to=recipient,
+        subject=notification.subject,
+        html_content=notification.html_content,
+        email_type="contact_enquiry",
+        reply_to=enquiry.email,
+    )
+    if not sent:
+        raise HTTPException(status_code=503, detail=delivery_error)
+
+    background_tasks.add_task(
+        _send_acknowledgement_background,
+        name=enquiry.name,
+        email=enquiry.email,
+    )
 
     return Message(message="Thank you for your enquiry. We'll get back to you soon.")
 

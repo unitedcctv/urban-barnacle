@@ -47,7 +47,7 @@ def send_email(
         mail_from=(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL),
         headers={"Reply-To": reply_to} if reply_to else None,
     )
-    smtp_options = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT}
+    smtp_options = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT, "timeout": 10}
     if settings.SMTP_TLS:
         smtp_options["tls"] = True
     elif settings.SMTP_SSL:
@@ -58,6 +58,11 @@ def send_email(
         smtp_options["password"] = settings.SMTP_PASSWORD
     response = message.send(to=email_to, smtp=smtp_options)
     logger.info(f"send email result: {response}")
+    if response is None:
+        raise RuntimeError("SMTP send returned no response")
+    response.raise_if_needed()
+    if not response.success:
+        raise RuntimeError(f"SMTP server did not accept email: {response}")
 
 
 def send_email_with_logging(
@@ -69,10 +74,10 @@ def send_email_with_logging(
     email_type: str,
     user_id: Optional[uuid.UUID] = None,
     reply_to: Optional[str] = None,
-) -> None:
+) -> bool:
     """
     Send email and log the result to database.
-    This function is designed to be used in background tasks.
+    Return whether SMTP accepted the email; safe to use in background tasks.
     """
     from app.models import EmailLog
     
@@ -102,6 +107,7 @@ def send_email_with_logging(
         session.add(email_log)
         session.commit()
         logger.info(f"✓ Email sent successfully to {email_to} (type: {email_type})")
+        return True
         
     except Exception as e:
         # Log the error
@@ -111,6 +117,7 @@ def send_email_with_logging(
         session.add(email_log)
         session.commit()
         logger.error(f"✗ Failed to send email to {email_to} (type: {email_type}): {error_msg}")
+        return False
 
 
 def generate_test_email(email_to: str) -> EmailData:

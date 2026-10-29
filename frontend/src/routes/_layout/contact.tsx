@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Box,
   Button,
   Container,
@@ -24,7 +27,7 @@ import { FaCloud, FaLinkedin, FaMastodon, FaReddit } from "react-icons/fa"
 
 import { type ContactEnquiryCreate, enquiriesSubmitEnquiry } from "../../client"
 import useCustomToast from "../../hooks/useCustomToast"
-import { emailPattern, handleError } from "../../utils"
+import { emailPattern } from "../../utils"
 
 export const Route = createFileRoute("/_layout/contact")({
   component: Contact,
@@ -40,7 +43,7 @@ function Contact() {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ContactEnquiryCreate>({ defaultValues: { subject } })
   const showToast = useCustomToast()
 
@@ -54,9 +57,6 @@ function Contact() {
         "success",
       )
       reset()
-    },
-    onError: (err: unknown) => {
-      handleError(err, showToast)
     },
   })
 
@@ -170,14 +170,39 @@ function Contact() {
               width={0}
               opacity={0}
             />
+            {mutation.isError && (
+              <Alert status="error" role="alert" borderRadius="md">
+                <AlertIcon />
+                <AlertDescription>
+                  Sorry, we couldn't send your message. Please try again later,
+                  or email us directly at{" "}
+                  <Link href="mailto:karl@ubdm.io" textDecoration="underline">
+                    karl@ubdm.io
+                  </Link>
+                  . Your message is still in the form.
+                </AlertDescription>
+              </Alert>
+            )}
             <Button
               variant="primary"
               type="submit"
-              isLoading={isSubmitting}
+              isLoading={mutation.isPending}
+              loadingText="Sending…"
               alignSelf="flex-start"
+              w={{ base: "100%", sm: "auto" }}
+              minH="44px"
             >
               Send message
             </Button>
+            <Text
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              fontSize="sm"
+            >
+              {mutation.isPending &&
+                "Sending your message… This may take a few seconds. Please keep this page open."}
+            </Text>
             <Text fontSize="sm" color="gray.500">
               By submitting this form you agree that we use your details to
               respond to your enquiry. See our{" "}

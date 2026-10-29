@@ -7,6 +7,17 @@ from sqlmodel import Session, select
 from app.api.routes import enquiries
 from app.core.config import settings
 from app.models import ContactEnquiry, EmailLog
+from app.utils import send_email as configured_sender
+
+
+@pytest.fixture(autouse=True)
+def configured_email():
+    with (
+        patch("app.utils.send_email"),
+        patch.object(settings, "SMTP_HOST", "smtp.example.com"),
+        patch.object(settings, "EMAILS_FROM_EMAIL", "noreply@example.com"),
+    ):
+        yield
 
 
 @pytest.fixture(autouse=True)
@@ -54,8 +65,8 @@ def test_submit_enquiry_persists_and_sends_emails(
     assert enquiry.message == "Hello, is this item still available?"
     assert enquiry.status == "new"
 
-    # Background tasks run synchronously under TestClient; both the
-    # notification and the acknowledgement should be logged.
+    # The owner notification runs before responding; TestClient also waits
+    # for the background acknowledgement, so both should be logged.
     logs = db.exec(select(EmailLog).order_by(EmailLog.created_at)).all()
     email_types = [log.email_type for log in logs]
     assert email_types == ["contact_enquiry", "enquiry_acknowledgement"]
@@ -68,11 +79,50 @@ def test_submit_enquiry_without_smtp_still_persists(
 ) -> None:
     with patch("app.core.config.settings.SMTP_HOST", None):
         r = client.post(f"{settings.API_V1_STR}/enquiries/", json=_payload())
-    assert r.status_code == 201
+    assert r.status_code == 503
+    assert "karl@ubdm.io" in r.json()["detail"]
 
     enquiry = db.exec(select(ContactEnquiry)).first()
     assert enquiry is not None
     assert db.exec(select(EmailLog)).first() is None
+
+
+def test_smtp_rejection_returns_error_and_keeps_enquiry(
+    client: TestClient, db: Session
+) -> None:
+    from emails.backend.response import SMTPResponse
+
+    response = SMTPResponse()
+    response.set_status("mail", 530, b"5.7.0 Authentication required")
+    # Exercise the real sender, including the SMTP response check.
+    from app import utils
+
+    with (
+        patch("app.utils.send_email", wraps=configured_sender),
+        patch.object(utils.emails, "Message") as message,
+    ):
+        message.return_value.send.return_value = response
+        r = client.post(f"{settings.API_V1_STR}/enquiries/", json=_payload())
+
+    assert r.status_code == 503
+    assert "karl@ubdm.io" in r.json()["detail"]
+    assert "530" not in r.json()["detail"]
+    assert db.exec(select(ContactEnquiry)).first() is not None
+    logs = db.exec(select(EmailLog)).all()
+    assert len(logs) == 1
+    assert logs[0].status == "failed"
+    assert logs[0].sent_at is None
+    assert "530" in logs[0].error_message
+
+
+def test_acknowledgement_failure_does_not_fail_submission(
+    client: TestClient, db: Session
+) -> None:
+    with patch("app.utils.send_email", side_effect=[None, RuntimeError("SMTP error")]):
+        r = client.post(f"{settings.API_V1_STR}/enquiries/", json=_payload())
+    assert r.status_code == 201
+    logs = db.exec(select(EmailLog).order_by(EmailLog.created_at)).all()
+    assert [log.status for log in logs] == ["sent", "failed"]
 
 
 def test_submit_enquiry_honeypot_discarded_silently(
