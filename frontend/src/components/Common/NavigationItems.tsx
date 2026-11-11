@@ -13,6 +13,7 @@ import galleryIcon from "../../theme/assets/icons/gallery.svg"
 import printServiceIcon from "../../theme/assets/icons/print_service.svg"
 import settingsIcon from "../../theme/assets/icons/settings.svg"
 import suSettingsIcon from "../../theme/assets/icons/su_settings.svg"
+import tikiLogo from "../../theme/assets/tiki_logo.svg"
 
 interface NavigationItemsProps {
   onClose?: () => void
@@ -82,6 +83,7 @@ const NavigationItems = ({ onClose, onCount, direction = "row" }: NavigationItem
     contact: contactIcon,
     find_us: findUsIcon,
     gallery: galleryIcon,
+    pop_up: tikiLogo,
     settings: settingsIcon,
     su_settings: suSettingsIcon,
     business: businessIcon,

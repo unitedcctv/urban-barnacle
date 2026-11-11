@@ -22,6 +22,7 @@ import { Route as LayoutSuadminImport } from './routes/_layout/suadmin'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutPrivacyImport } from './routes/_layout/privacy'
 import { Route as LayoutPrintServiceImport } from './routes/_layout/print-service'
+import { Route as LayoutPopUpShopImport } from './routes/_layout/pop-up-shop'
 import { Route as LayoutLogsImport } from './routes/_layout/logs'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutItemImport } from './routes/_layout/item'
@@ -88,6 +89,11 @@ const LayoutPrivacyRoute = LayoutPrivacyImport.update({
 
 const LayoutPrintServiceRoute = LayoutPrintServiceImport.update({
   path: '/print-service',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutPopUpShopRoute = LayoutPopUpShopImport.update({
+  path: '/pop-up-shop',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -202,6 +208,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutLogsImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/pop-up-shop': {
+      preLoaderRoute: typeof LayoutPopUpShopImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/print-service': {
       preLoaderRoute: typeof LayoutPrintServiceImport
       parentRoute: typeof LayoutImport
@@ -254,6 +264,7 @@ export const routeTree = rootRoute.addChildren([
     LayoutItemRoute,
     LayoutItemsRoute,
     LayoutLogsRoute,
+    LayoutPopUpShopRoute,
     LayoutPrintServiceRoute,
     LayoutPrivacyRoute,
     LayoutSettingsRoute,

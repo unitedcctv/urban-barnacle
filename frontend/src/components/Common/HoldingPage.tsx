@@ -1,13 +1,15 @@
 import { ArrowDownIcon } from "@chakra-ui/icons"
 import {
   Flex,
+  Heading,
   IconButton,
   Image,
   Text,
-  useColorModeValue,
+  useColorModeValue
 } from "@chakra-ui/react"
 import selectionImage from "../../theme/assets/selection.png"
-import UBLogo from "../../theme/assets/ubdm.svg"
+import shopEntranceImage from "../../theme/assets/shop_entrance.png"
+import tikiLogo from "../../theme/assets/tiki_logo.svg"
 
 interface HoldingPageProps {
   onExplore?: () => void
@@ -16,7 +18,6 @@ interface HoldingPageProps {
 export default function HoldingPage({ onExplore }: HoldingPageProps) {
   const background = useColorModeValue("ui.light", "ui.dark")
   const foreground = useColorModeValue("ui.dark", "ui.light")
-  const logoFilter = useColorModeValue("none", "invert(1)")
 
   return (
     <Flex
@@ -36,17 +37,21 @@ export default function HoldingPage({ onExplore }: HoldingPageProps) {
       gap={{ base: 2, sm: 3 }}
       sx={{ "@media (max-height: 500px)": { gap: 1 } }}
     >
-      <Image
-        src={UBLogo}
-        alt="Urban Barnacle logo"
-        // Scale with viewport width while clamping to reasonable min/max
-        w="min(800px, 100%)"
-        h="auto"
-        maxH="100%"
-        minH={0}
-        objectFit="contain"
-        filter={logoFilter}
-      />
+        <Flex align="center" justify="center" gap={4}>
+          <Image src={tikiLogo} alt="" aria-hidden h="4rem" w="auto" />
+          <Heading size="lg">Pop-up shop Berlin</Heading>
+          <Image src={tikiLogo} alt="" aria-hidden h="4rem" w="auto" />
+        </Flex>
+        <Text maxW="lg">
+          ubdm pop-up store in Mitte, August Str.63
+        </Text>
+        <Image
+          src={shopEntranceImage}
+          alt="The entrance of the UBDM pop-up shop in Berlin Mitte"
+          w="100%"
+          maxW="md"
+          objectFit="contain"
+        />
       <Text
         textAlign="center"
         fontSize={{ base: "md", sm: "xl" }}
