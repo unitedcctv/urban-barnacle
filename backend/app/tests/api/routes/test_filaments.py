@@ -5,8 +5,10 @@ from copy import deepcopy
 import httpx
 import pytest
 from fastapi.testclient import TestClient
+from sqlmodel import Session
 
 from app.core.config import settings
+from app.models import Filament
 from app.services.bambu_filaments import PRODUCT_URL, CatalogueError, parse_catalogue
 
 
@@ -304,3 +306,44 @@ def test_import_and_stock_require_superuser(
             client.post(url, headers=normal_user_token_headers, json=body).status_code
             == 403
         )
+
+
+def test_stock_adjustments_keep_same_colour_variants_in_place(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    # Spool/refill variants share the old manufacturer/material/colour sort key.
+    # Include identical variant names too, so the final ordering must be unique.
+    for index, variant in enumerate(
+        [
+            "Nachfüllpackung / 1 kg",
+            "Filament mit Spule / 1 kg",
+            "Filament mit Spule / 1 kg",
+        ],
+        start=1,
+    ):
+        db.add(
+            Filament(
+                **_filament_payload(manufacturer="Bambu Lab", spools=1),
+                id=uuid.UUID(int=index),
+                product_name="PETG Basic",
+                variant_name=variant,
+            )
+        )
+    db.commit()
+    base = f"{settings.API_V1_STR}/filaments"
+    headers = superuser_token_headers
+    original = client.get(f"{base}/", headers=headers).json()["data"]
+    original_ids = [entry["id"] for entry in original]
+    target_id = original_ids[0]
+    for delta, expected in [(0.5, 1.5), (-0.5, 1), (0.5, 1.5)]:
+        response = client.post(
+            f"{base}/{target_id}/stock", headers=headers, json={"delta": delta}
+        )
+        assert response.status_code == 200
+        assert response.json()["id"] == target_id
+        refreshed = client.get(f"{base}/", headers=headers).json()["data"]
+        assert {entry["id"]: entry["spools"] for entry in refreshed} == {
+            entry_id: expected if entry_id == target_id else 1
+            for entry_id in original_ids
+        }
+        assert [entry["id"] for entry in refreshed] == original_ids

@@ -34,8 +34,16 @@ def read_filaments(session: SessionDep) -> Any:
     """
     count_statement = select(func.count()).select_from(Filament)
     count = session.exec(count_statement).one()
+    # Stock updates can change PostgreSQL's physical row order. Include variant
+    # fields and a unique tie-breaker so the controls stay on the same row after
+    # refetching, even for duplicate colours or manually entered variants.
     statement = select(Filament).order_by(
-        Filament.manufacturer, Filament.material, Filament.colour
+        Filament.manufacturer,
+        Filament.material,
+        Filament.colour,
+        Filament.product_name,
+        Filament.variant_name,
+        Filament.id,
     )
     filaments = session.exec(statement).all()
     return FilamentsPublic(

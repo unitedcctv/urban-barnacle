@@ -132,3 +132,58 @@ test("failed refresh keeps the existing stock visible", async ({ page }) => {
   ).toBeVisible()
   await expect(page.getByText("2 spools at UBDM")).toBeVisible()
 })
+
+test("repeated half-spool clicks stay on the same colour variant", async ({
+  page,
+}) => {
+  await mockAdmin(page)
+  let entries: FilamentPublic[] = [
+    { ...filament, spools: 1 },
+    {
+      ...filament,
+      id: "00000000-0000-4000-8000-000000000003",
+      variant_name: "Nachfüllpackung / 1 kg",
+      supplier_sku: "703100873995440152",
+      spools: 4,
+    },
+  ]
+  const adjustments: { id: string; delta: number }[] = []
+  await page.route("**/api/v1/filaments/", (route) =>
+    route.fulfill({ json: { data: entries, count: entries.length } }),
+  )
+  await page.route("**/api/v1/filaments/*/stock", (route) => {
+    const id = new URL(route.request().url()).pathname.split("/").at(-2)!
+    const { delta } = route.request().postDataJSON()
+    adjustments.push({ id, delta })
+    entries = entries.map((entry) =>
+      entry.id === id
+        ? { ...entry, spools: (entry.spools ?? 0) + delta }
+        : entry,
+    )
+    return route.fulfill({ json: entries.find((entry) => entry.id === id) })
+  })
+  await page.goto("/filament")
+  const spool = page.getByRole("row").filter({ hasText: "Filament mit Spule" })
+  const refill = page.getByRole("row").filter({ hasText: "Nachfüllpackung" })
+  const add = spool.getByRole("button", { name: /Add half a spool/ })
+  const subtract = spool.getByRole("button", { name: /Use half a spool/ })
+  await expect(add).toBeEnabled()
+  const addBox = (await add.boundingBox())!
+  const subtractBox = (await subtract.boundingBox())!
+
+  // Click fixed screen positions, as a person repeatedly adjusting stock does.
+  for (const [button, box, quantity] of [
+    [add, addBox, 1.5],
+    [add, addBox, 2],
+    [subtract, subtractBox, 1.5],
+    [subtract, subtractBox, 1],
+  ] as const) {
+    await expect(button).toBeEnabled()
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+    await expect(spool.getByText(`${quantity} spools at UBDM`)).toBeVisible()
+    await expect(refill.getByText("4 spools at UBDM")).toBeVisible()
+  }
+  expect(adjustments).toEqual(
+    [0.5, 0.5, -0.5, -0.5].map((delta) => ({ id: filament.id, delta })),
+  )
+})
