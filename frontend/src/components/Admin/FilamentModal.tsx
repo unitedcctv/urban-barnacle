@@ -230,7 +230,7 @@ const FilamentModal = ({ isOpen, onClose, filament }: FilamentModalProps) => {
             </Select>
           </FormControl>
           <FormControl mt={4} isInvalid={!!errors.spools}>
-            <FormLabel htmlFor="spools">Spools</FormLabel>
+            <FormLabel htmlFor="spools">Local UBDM stock (spools)</FormLabel>
             <Input
               id="spools"
               {...register("spools", {

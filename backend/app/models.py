@@ -1,11 +1,11 @@
 import re
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import EmailStr, field_validator
 from enum import Enum
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import JSON, Column, String, DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -513,8 +513,21 @@ class FilamentUpdate(SQLModel):
         return _validate_colour_hex(v)
 
 
-# Database model, database table inferred from class name
-class Filament(FilamentBase, table=True):  # type: ignore[call-arg]
+class FilamentSupplier(SQLModel):
+    product_name: Optional[str] = Field(default=None, max_length=100)
+    variant_name: Optional[str] = Field(default=None, max_length=100)
+    supplier_sku: Optional[str] = Field(default=None, max_length=100, unique=True)
+    supplier_availability: Optional[str] = Field(default=None, max_length=50)
+    supplier_checked_at: Optional[datetime] = Field(
+        default=None, sa_column=Column(DateTime(timezone=True), nullable=True)
+    )
+    supplier_data: Optional[dict[str, Any]] = Field(
+        default=None, sa_column=Column(JSON, nullable=True)
+    )
+
+
+# Supplier fields are read-only through the manual create/update APIs.
+class Filament(FilamentBase, FilamentSupplier, table=True):  # type: ignore[call-arg]
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     material: FilamentMaterial = Field(
         default=FilamentMaterial.PLA,
@@ -527,7 +540,7 @@ class Filament(FilamentBase, table=True):  # type: ignore[call-arg]
 
 
 # Properties to return via API, id is always required
-class FilamentPublic(FilamentBase):
+class FilamentPublic(FilamentBase, FilamentSupplier):
     id: uuid.UUID
     created_at: datetime
 
@@ -535,3 +548,12 @@ class FilamentPublic(FilamentBase):
 class FilamentsPublic(SQLModel):
     data: list[FilamentPublic]
     count: int
+
+
+class FilamentImportResult(SQLModel):
+    imported: int
+    checked_at: datetime
+
+
+class FilamentStockAdjustment(SQLModel):
+    delta: float = Field(ge=-1000, le=1000)

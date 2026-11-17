@@ -17,12 +17,17 @@ import type {
   EnquiriesSubmitEnquiryData,
   EnquiriesSubmitEnquiryErrors,
   EnquiriesSubmitEnquiryResponses,
+  FilamentsAdjustLocalStockData,
+  FilamentsAdjustLocalStockErrors,
+  FilamentsAdjustLocalStockResponses,
   FilamentsCreateFilamentData,
   FilamentsCreateFilamentErrors,
   FilamentsCreateFilamentResponses,
   FilamentsDeleteFilamentData,
   FilamentsDeleteFilamentErrors,
   FilamentsDeleteFilamentResponses,
+  FilamentsImportBambuEuData,
+  FilamentsImportBambuEuResponses,
   FilamentsReadFilamentsData,
   FilamentsReadFilamentsResponses,
   FilamentsUpdateFilamentData,
@@ -1794,6 +1799,60 @@ export const filamentsCreateFilament = <ThrowOnError extends boolean = false>(
     responseStyle: "data",
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/filaments/",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Import Bambu Eu
+ *
+ * Refresh PETG Basic supplier data, preserving all local stock quantities.
+ */
+export const filamentsImportBambuEu = <ThrowOnError extends boolean = false>(
+  options?: Options<FilamentsImportBambuEuData, ThrowOnError>,
+): RequestResult<
+  FilamentsImportBambuEuResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).post<
+    FilamentsImportBambuEuResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/filaments/import-bambu-eu",
+    ...options,
+  })
+
+/**
+ * Adjust Local Stock
+ *
+ * Adjust local spools under a row lock so simultaneous additions aren't lost.
+ */
+export const filamentsAdjustLocalStock = <ThrowOnError extends boolean = false>(
+  options: Options<FilamentsAdjustLocalStockData, ThrowOnError>,
+): RequestResult<
+  FilamentsAdjustLocalStockResponses,
+  FilamentsAdjustLocalStockErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    FilamentsAdjustLocalStockResponses,
+    FilamentsAdjustLocalStockErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/filaments/{id}/stock",
     ...options,
     headers: {
       "Content-Type": "application/json",

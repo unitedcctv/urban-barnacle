@@ -240,6 +240,20 @@ export type FilamentCreate = {
 }
 
 /**
+ * FilamentImportResult
+ */
+export type FilamentImportResult = {
+  /**
+   * Imported
+   */
+  imported: number
+  /**
+   * Checked At
+   */
+  checked_at: string
+}
+
+/**
  * FilamentMaterial
  */
 export type FilamentMaterial =
@@ -257,6 +271,32 @@ export type FilamentMaterial =
  * FilamentPublic
  */
 export type FilamentPublic = {
+  /**
+   * Product Name
+   */
+  product_name?: string | null
+  /**
+   * Variant Name
+   */
+  variant_name?: string | null
+  /**
+   * Supplier Sku
+   */
+  supplier_sku?: string | null
+  /**
+   * Supplier Availability
+   */
+  supplier_availability?: string | null
+  /**
+   * Supplier Checked At
+   */
+  supplier_checked_at?: string | null
+  /**
+   * Supplier Data
+   */
+  supplier_data?: {
+    [key: string]: unknown
+  } | null
   /**
    * Colour
    */
@@ -290,6 +330,16 @@ export type FilamentPublic = {
    * Created At
    */
   created_at: string
+}
+
+/**
+ * FilamentStockAdjustment
+ */
+export type FilamentStockAdjustment = {
+  /**
+   * Delta
+   */
+  delta: number
 }
 
 /**
@@ -2812,6 +2862,55 @@ export type FilamentsCreateFilamentResponses = {
 
 export type FilamentsCreateFilamentResponse =
   FilamentsCreateFilamentResponses[keyof FilamentsCreateFilamentResponses]
+
+export type FilamentsImportBambuEuData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v1/filaments/import-bambu-eu"
+}
+
+export type FilamentsImportBambuEuResponses = {
+  /**
+   * Successful Response
+   */
+  200: FilamentImportResult
+}
+
+export type FilamentsImportBambuEuResponse =
+  FilamentsImportBambuEuResponses[keyof FilamentsImportBambuEuResponses]
+
+export type FilamentsAdjustLocalStockData = {
+  body: FilamentStockAdjustment
+  path: {
+    /**
+     * Id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v1/filaments/{id}/stock"
+}
+
+export type FilamentsAdjustLocalStockErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type FilamentsAdjustLocalStockError =
+  FilamentsAdjustLocalStockErrors[keyof FilamentsAdjustLocalStockErrors]
+
+export type FilamentsAdjustLocalStockResponses = {
+  /**
+   * Successful Response
+   */
+  200: FilamentPublic
+}
+
+export type FilamentsAdjustLocalStockResponse =
+  FilamentsAdjustLocalStockResponses[keyof FilamentsAdjustLocalStockResponses]
 
 export type FilamentsDeleteFilamentData = {
   body?: never

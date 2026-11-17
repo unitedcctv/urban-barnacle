@@ -10,6 +10,7 @@ from app.main import app
 from app.models import (
     ContactEnquiry,
     EmailLog,
+    Filament,
     Item,
     ItemImage,
     NfcTag,
@@ -31,6 +32,7 @@ def clear_database(session: Session) -> None:
         Item,
         EmailLog,
         ContactEnquiry,
+        Filament,
         User,
     ):
         session.execute(delete(model))

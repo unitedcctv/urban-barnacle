@@ -24,6 +24,7 @@ import { usersReadUsers } from "../../client/sdk.gen.ts"
 import type { UserPublic } from "../../client/types.gen.ts"
 import AddUser from "../../components/Admin/AddUser.tsx"
 import ItemOrderSection from "../../components/Admin/ItemOrderSection.tsx"
+import ImportFilamentsButton from "../../components/Admin/ImportFilamentsButton.tsx"
 import NfcTagSection from "../../components/Admin/NfcTagSection.tsx"
 import Navbar from "../../components/Common/Navbar.tsx"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
@@ -171,7 +172,12 @@ function SuAdmin() {
         <Button as={Link} to="/filament" variant="primary">
           Manage Filament
         </Button>
+        <ImportFilamentsButton />
       </Flex>
+      <Text mt={2} fontSize="sm" color="gray.500">
+        Import PETG Basic colours, refill and spool options from Bambu Lab EU.
+        Local UBDM quantities are managed separately.
+      </Text>
     </Container>
   )
 }

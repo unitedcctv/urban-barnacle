@@ -410,6 +410,23 @@ export const FilamentCreateSchema = {
   title: "FilamentCreate",
 } as const
 
+export const FilamentImportResultSchema = {
+  properties: {
+    imported: {
+      type: "integer",
+      title: "Imported",
+    },
+    checked_at: {
+      type: "string",
+      format: "date-time",
+      title: "Checked At",
+    },
+  },
+  type: "object",
+  required: ["imported", "checked_at"],
+  title: "FilamentImportResult",
+} as const
+
 export const FilamentMaterialSchema = {
   type: "string",
   enum: ["PLA", "PETG", "ABS", "ASA", "TPU", "PC", "Nylon", "PVA", "Other"],
@@ -418,6 +435,78 @@ export const FilamentMaterialSchema = {
 
 export const FilamentPublicSchema = {
   properties: {
+    product_name: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 100,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Product Name",
+    },
+    variant_name: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 100,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Variant Name",
+    },
+    supplier_sku: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 100,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Supplier Sku",
+    },
+    supplier_availability: {
+      anyOf: [
+        {
+          type: "string",
+          maxLength: 50,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Supplier Availability",
+    },
+    supplier_checked_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Supplier Checked At",
+    },
+    supplier_data: {
+      anyOf: [
+        {
+          additionalProperties: true,
+          type: "object",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Supplier Data",
+    },
     colour: {
       type: "string",
       maxLength: 100,
@@ -490,6 +579,20 @@ export const FilamentPublicSchema = {
   type: "object",
   required: ["colour", "manufacturer", "id", "created_at"],
   title: "FilamentPublic",
+} as const
+
+export const FilamentStockAdjustmentSchema = {
+  properties: {
+    delta: {
+      type: "number",
+      maximum: 1000,
+      minimum: -1000,
+      title: "Delta",
+    },
+  },
+  type: "object",
+  required: ["delta"],
+  title: "FilamentStockAdjustment",
 } as const
 
 export const FilamentUpdateSchema = {
